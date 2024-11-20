@@ -3,6 +3,7 @@ package com.cloudestudio.hosgetserver.controller;
 import com.cloudestudio.hosgetserver.model.HosDataBean;
 import com.cloudestudio.hosgetserver.model.UserInfoBean;
 import com.cloudestudio.hosgetserver.service.HosDataService;
+import com.cloudestudio.hosgetserver.webTools.MatrixEncodeUtil;
 import com.cloudestudio.hosgetserver.webTools.TimeUtil;
 import com.cloudestudio.hosgetserver.webTools.WebServerResponse;
 import com.google.gson.Gson;
@@ -13,7 +14,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 数据控制类
@@ -44,25 +47,51 @@ public class DataController {
             response.getWriter().write(gson.toJson(WebServerResponse.success("请求成功",resultList)));
         }
     }
-    /***********************查询逻辑:Oracle库********************/
+    /**********************查询逻辑:Oracle库********************/
 
     /***********************查询逻辑:MySql库********************/
-    @RequestMapping("/queryUserInfo")
-    public void queryUserInfo(HttpServletResponse response,
-                                   @Param("account") String account) throws IOException {
-        UserInfoBean userInfoBean=hosDataService.queryUserInfo(account);//TimeUtil.stingToTime("2024-01-01 00:00:00")
+    @RequestMapping("/loginQuery")
+    public void Login(HttpServletResponse response,
+                              @Param("account") String account,
+                              @Param("pass") String pass) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
-        if (userInfoBean==null) {
-            response.getWriter().write(gson.toJson(WebServerResponse.failure("请求失败")));
-        }else{
-            System.out.println(TimeUtil.GetTime(true)+"---查询成功:"+userInfoBean);
-            response.getWriter().write(gson.toJson(WebServerResponse.success("请求成功",userInfoBean)));
+        Map<String,Object> requestMap=new HashMap<>();
+        String passTemp=MatrixEncodeUtil.decodeFromBase64(pass);//先解密
+        int index = passTemp.indexOf('+');
+        if (index != -1) {
+            String originalPass = passTemp.substring(0, index);
+            System.out.println(originalPass); // 输出: admin
+            requestMap.put("account",account);
+            requestMap.put("pass",MatrixEncodeUtil.encodeTwice(originalPass));
+            UserInfoBean userInfoBean=hosDataService.loginQuery(requestMap);
+            if (userInfoBean==null) {
+                response.getWriter().write(gson.toJson(WebServerResponse.failure("请求失败")));
+            }else{
+                System.out.println(TimeUtil.GetTime(true)+"---查询成功:"+userInfoBean);
+                response.getWriter().write(gson.toJson(WebServerResponse.success("请求成功",userInfoBean)));
+            }
+        } else {
+            System.out.println(passTemp); // 如果未找到 '+'，则输出原始字符串
+            response.getWriter().write(gson.toJson(WebServerResponse.failure("后台异常：密码解码ERROR!"+passTemp)));
         }
     }
-    /***********************查询逻辑:MySql库********************/
+
+    @RequestMapping("/test")
+    public void Test(HttpServletResponse response,
+                     @Param("account") String account,
+                     @Param("pass") String pass) throws IOException {
+        //String encode= MatrixEncodeUtil.encode(MatrixEncodeUtil.encodeToBase64DoublePara(account,pass));
+        String encode= MatrixEncodeUtil.encodeTwice(pass);
+        response.setContentType("application/json;charset=UTF-8");
+        Map<String,Object> requestMap=new HashMap<>();
+        requestMap.put("encode",encode);
+        requestMap.put("decode",MatrixEncodeUtil.decodeTwice(encode));
+        response.getWriter().write(gson.toJson(WebServerResponse.success("请求成功",requestMap)));
+    }
+    /*********************查询逻辑:MySql库********************/
 
 
-    /***********************公共逻辑********************/
+    /**********************公共逻辑********************/
 
     /***********************公共逻辑********************/
 }

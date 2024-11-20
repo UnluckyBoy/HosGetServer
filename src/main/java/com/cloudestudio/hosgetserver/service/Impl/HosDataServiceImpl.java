@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Matrix·张
@@ -31,7 +32,7 @@ public class HosDataServiceImpl implements HosDataService {
 
     @DS("mysql")
     @Override
-    public UserInfoBean queryUserInfo(String account) {
-        return userMapper.queryUserInfo(account);
+    public UserInfoBean loginQuery(Map<String, Object> map) {
+        return userMapper.loginQuery(map);
     }
 }

@@ -121,6 +121,24 @@
 			<version>4.3.1</version>
 		</dependency>
 
+		<!-- Spring Boot Starter Log4j2 日志 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-log4j2</artifactId>
+			<version>3.3.4</version>
+		</dependency>
+		<!-- Exclude Logback (Spring Boot's default logging framework) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
 		<!--Redis-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -144,6 +162,7 @@
 			<artifactId>org.apache.commons.codec</artifactId>
 			<version>1.8</version>
 		</dependency>
+
 		<!--token库-->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>

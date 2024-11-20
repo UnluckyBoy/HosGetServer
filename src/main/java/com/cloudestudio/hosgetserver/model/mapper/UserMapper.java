@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * @Class UserMapper
  * @Author Create By Matrix·张
@@ -16,5 +18,5 @@ import org.springframework.stereotype.Service;
 @Mapper
 @Repository
 public interface UserMapper {
-    UserInfoBean queryUserInfo(String account);
+    UserInfoBean loginQuery(Map<String, Object> map);
 }

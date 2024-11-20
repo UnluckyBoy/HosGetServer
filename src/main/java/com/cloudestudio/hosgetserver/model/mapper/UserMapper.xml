@@ -4,17 +4,19 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudestudio.hosgetserver.model.mapper.UserMapper">
     <!--查询逻辑-->
-    <select id="queryUserInfo" parameterType="String" resultType="UserInfoBean">
+    <!--登录-->
+    <select id="loginQuery" parameterType="java.util.Map" resultType="UserInfoBean">
         SELECT
             login_info_table.uAccount,
             login_info_table.uName,
             login_info_table.organization_name,
             login_info_table.headerImageUrl,
-            user_authority_table.authority_code
+            authority_table.authority_key
         FROM
             login_info_table
-            INNER JOIN user_authority_table ON user_authority_table.uAccount = login_info_table.uAccount
+                INNER JOIN user_authority_table ON user_authority_table.uAccount = login_info_table.uAccount
+                INNER JOIN authority_table ON authority_table.authority_code = user_authority_table.authority_code
         WHERE
-            login_info_table.uAccount = #{account};
+            login_info_table.uAccount = #{account} and login_info_table.uPasswordEncode=#{pass};
     </select>
 </mapper>
