@@ -11,12 +11,17 @@
             login_info_table.uName,
             login_info_table.organization_name,
             login_info_table.headerImageUrl,
-            authority_table.authority_key
+            GROUP_CONCAT( authority_table.authority_key ORDER BY authority_table.authority_key SEPARATOR ',' ) AS authority_key
         FROM
             login_info_table
                 INNER JOIN user_authority_table ON user_authority_table.uAccount = login_info_table.uAccount
                 INNER JOIN authority_table ON authority_table.authority_code = user_authority_table.authority_code
         WHERE
-            login_info_table.uAccount = #{account} and login_info_table.uPasswordEncode=#{pass};
+            login_info_table.uAccount = #{account} and login_info_table.uPasswordEncode=#{pass}
+        GROUP BY
+            login_info_table.uAccount,
+            login_info_table.uName,
+            login_info_table.organization_name,
+            login_info_table.headerImageUrl;
     </select>
 </mapper>

@@ -60,7 +60,7 @@ public class DataController {
         int index = passTemp.indexOf('+');
         if (index != -1) {
             String originalPass = passTemp.substring(0, index);
-            System.out.println(originalPass); // 输出: admin
+            System.out.println("原密码:"+originalPass); // 输出原密码
             requestMap.put("account",account);
             requestMap.put("pass",MatrixEncodeUtil.encodeTwice(originalPass));
             UserInfoBean userInfoBean=hosDataService.loginQuery(requestMap);
