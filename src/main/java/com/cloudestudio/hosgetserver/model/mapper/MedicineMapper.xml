@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudestudio.hosgetserver.model.mapper.MedicineMapper">
+    <!--查询逻辑-->
+    <select id="queryMedicineInfo" parameterType="String" resultType="MedicineBaseBean">
+        SELECT
+            medicine_base_table.medicine_code,
+            medicine_base_table.medicine_name,
+            medicine_base_table.medicine_price,
+            medicine_base_table.medicine_retail,
+            medicine_base_table.medicine_time
+        FROM
+            medicine_base_table
+        WHERE
+            medicine_base_table.medicine_code = #{medicine_code};
+    </select>
+</mapper>
