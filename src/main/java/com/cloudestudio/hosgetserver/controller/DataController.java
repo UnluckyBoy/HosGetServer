@@ -2,13 +2,14 @@ package com.cloudestudio.hosgetserver.controller;
 
 import com.cloudestudio.hosgetserver.model.HosDataBean;
 import com.cloudestudio.hosgetserver.model.MedicineBaseBean;
+import com.cloudestudio.hosgetserver.model.PrintStyleBean;
 import com.cloudestudio.hosgetserver.model.UserInfoBean;
 import com.cloudestudio.hosgetserver.service.HosDataService;
 import com.cloudestudio.hosgetserver.service.MedicineService;
-import com.cloudestudio.hosgetserver.webTools.MatrixEncodeUtil;
-import com.cloudestudio.hosgetserver.webTools.TimeUtil;
-import com.cloudestudio.hosgetserver.webTools.WebServerResponse;
+import com.cloudestudio.hosgetserver.service.PrintStyleService;
+import com.cloudestudio.hosgetserver.webTools.*;
 import com.google.gson.Gson;
+import com.google.zxing.WriterException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,8 +32,6 @@ import java.util.Map;
 public class DataController {
     @Autowired
     private HosDataService hosDataService;
-    @Autowired
-    private MedicineService medicineService;
 
     private static final Gson gson=new Gson();//Json数据对象
 
@@ -84,25 +83,6 @@ public class DataController {
         } else {
             System.out.println(passTemp); // 如果未找到 '+'，则输出原始字符串
             response.getWriter().write(gson.toJson(WebServerResponse.failure("后台异常：密码解码ERROR!"+passTemp)));
-        }
-    }
-
-    /**
-     * 查询药剂基表信息
-     * @param medicine_code
-     * @param response
-     * @throws IOException
-     */
-    @RequestMapping("/queryBaseMedicineInfo")
-    public void queryBaseMedicineInfo(@RequestParam("medicine_code") String medicine_code,
-                                      HttpServletResponse response) throws IOException {
-        MedicineBaseBean request=medicineService.queryMedicineInfo(medicine_code);
-        response.setContentType("application/json;charset=UTF-8");
-        if (request==null) {
-            response.getWriter().write(gson.toJson(WebServerResponse.failure("请求异常：药剂编码未存在！")));
-        }else{
-            System.out.println(TimeUtil.GetTime(true)+" 查询药剂信息成功："+request.toString());
-            response.getWriter().write(gson.toJson(WebServerResponse.success("请求成功",request)));
         }
     }
 

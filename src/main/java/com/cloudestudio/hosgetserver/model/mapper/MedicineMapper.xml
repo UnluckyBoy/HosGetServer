@@ -4,6 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudestudio.hosgetserver.model.mapper.MedicineMapper">
     <!--查询逻辑-->
+    <!--药剂编码查询药剂信息基表-->
     <select id="queryMedicineInfo" parameterType="String" resultType="MedicineBaseBean">
         SELECT
             medicine_base_table.medicine_code,
@@ -16,4 +17,23 @@
         WHERE
             medicine_base_table.medicine_code = #{medicine_code};
     </select>
+    <!--查询最新创建的药剂编码-->
+    <select id="queryNearMedicineCode" resultType="MedicineBaseBean">
+        SELECT
+            medicine_base_table.medicine_code
+        FROM
+            medicine_base_table
+        ORDER BY
+            medicine_base_table.medicine_time DESC
+            LIMIT 1;
+    </select>
+
+    <!--插入逻辑-->
+    <!--创建药剂-->
+    <insert id="addMedicineBaseInfo" parameterType="java.util.Map">
+        INSERT INTO medicine_base_table
+            (medicine_code,medicine_name,medicine_price,medicine_retail)
+        VALUES
+            (#{medicine_code},#{medicine_name},#{medicine_price},#{medicine_retail});
+    </insert>
 </mapper>

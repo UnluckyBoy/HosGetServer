@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * @Class MedicineMapper
  * @Author Create By Matrix·张
@@ -16,4 +18,6 @@ import org.springframework.stereotype.Service;
 @Repository
 public interface MedicineMapper {
     MedicineBaseBean queryMedicineInfo(String medicine_code);//查询最新批次药品信息
+    MedicineBaseBean queryNearMedicineCode();
+    boolean addMedicineBaseInfo(Map<String,Object> map);
 }

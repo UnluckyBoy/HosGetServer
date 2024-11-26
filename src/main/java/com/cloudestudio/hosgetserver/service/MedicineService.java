@@ -2,6 +2,8 @@ package com.cloudestudio.hosgetserver.service;
 
 import com.cloudestudio.hosgetserver.model.MedicineBaseBean;
 
+import java.util.Map;
+
 /**
  * @Class MedicineService
  * @Author Create By Matrix·张
@@ -10,4 +12,6 @@ import com.cloudestudio.hosgetserver.model.MedicineBaseBean;
  */
 public interface MedicineService {
     MedicineBaseBean queryMedicineInfo(String medicine_code);
+    MedicineBaseBean queryNearMedicineCode();
+    boolean addMedicineBaseInfo(Map<String,Object> map);
 }
