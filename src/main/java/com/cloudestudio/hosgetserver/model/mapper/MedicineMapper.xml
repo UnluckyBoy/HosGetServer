@@ -27,6 +27,41 @@
             medicine_base_table.medicine_time DESC
             LIMIT 1;
     </select>
+    <!--查询所有药剂基本信息-->
+    <select id="queryMedicineBaseInfo" resultType="MedicineBaseBean">
+        SELECT
+            medicine_base_table.medicine_code,
+            medicine_base_table.medicine_name,
+            medicine_base_table.medicine_price,
+            medicine_base_table.medicine_retail,
+            medicine_base_table.medicine_time
+        FROM
+            medicine_base_table;
+    </select>
+    <!--药剂编码&生产日期查询药剂总信息-->
+    <select id="queryInfoByCodeCreateTime" parameterType="java.util.Map" resultType="MedicineAllBean">
+        SELECT
+            medicine_warehouse_table.medicine_code,
+            medicine_warehouse_table.medicine_batch_number,
+            medicine_warehouse_table.warehouse_count,
+            medicine_warehouse_table.canuse_count,
+            medicine_warehouse_table.inwarehouse_count,
+            medicine_warehouse_table.create_time,
+            medicine_warehouse_table.towarehouse_time,
+            medicine_warehouse_table.towarehouse_operator,
+            medicine_warehouse_table.outwarehouse_time,
+            medicine_warehouse_table.outwarehouse_operator,
+            medicine_warehouse_table.ware_addr
+        FROM
+            medicine_warehouse_table
+        WHERE
+            medicine_warehouse_table.medicine_code = #{medicine_code}
+          AND medicine_warehouse_table.create_time = #{create_time}
+        ORDER BY
+            medicine_warehouse_table.towarehouse_time DESC
+            LIMIT 1;
+    </select>
+
 
     <!--插入逻辑-->
     <!--创建药剂-->
@@ -35,5 +70,13 @@
             (medicine_code,medicine_name,medicine_price,medicine_retail)
         VALUES
             (#{medicine_code},#{medicine_name},#{medicine_price},#{medicine_retail});
+    </insert>
+    <!--入库-->
+    <insert id="addMedicineToWareHouse" parameterType="java.util.Map">
+        INSERT INTO medicine_warehouse_table
+        (medicine_code,medicine_batch_number,warehouse_count,canuse_count,inwarehouse_count,create_time,towarehouse_operator,ware_addr)
+        VALUES
+            (#{medicine_code},#{medicine_batch_number},#{warehouse_count},#{canuse_count},
+             #{inwarehouse_count},#{create_time},#{towarehouse_operator},#{ware_addr});<!--STR_TO_DATE(#{create_time}, '%Y%m%d')-->
     </insert>
 </mapper>

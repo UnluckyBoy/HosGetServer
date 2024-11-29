@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 public class MedicineBaseBean implements Serializable {
     private String medicine_code;
     private String medicine_name;
-    private BigDecimal medicine_price;
-    private BigDecimal medicine_retail;
+    private String medicine_price;
+    private String medicine_retail;
     private String medicine_time;
 }

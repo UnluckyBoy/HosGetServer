@@ -1,12 +1,14 @@
 package com.cloudestudio.hosgetserver.service.Impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.cloudestudio.hosgetserver.model.MedicineAllBean;
 import com.cloudestudio.hosgetserver.model.MedicineBaseBean;
 import com.cloudestudio.hosgetserver.model.mapper.MedicineMapper;
 import com.cloudestudio.hosgetserver.service.MedicineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,7 +18,7 @@ import java.util.Map;
  * 药剂服务接口实现类
  */
 @Service("MedicineService")
-public class MedicineImpl implements MedicineService {
+public class MedicineServiceImpl implements MedicineService {
     @Autowired
     MedicineMapper medicineMapper;
 
@@ -36,5 +38,23 @@ public class MedicineImpl implements MedicineService {
     @Override
     public boolean addMedicineBaseInfo(Map<String, Object> map) {
         return medicineMapper.addMedicineBaseInfo(map);
+    }
+
+    @DS("mysql")
+    @Override
+    public boolean addMedicineToWareHouse(Map<String, Object> map) {
+        return medicineMapper.addMedicineToWareHouse(map);
+    }
+
+    @DS("mysql")
+    @Override
+    public List<MedicineBaseBean> queryMedicineBaseInfo() {
+        return medicineMapper.queryMedicineBaseInfo();
+    }
+
+    @DS("mysql")
+    @Override
+    public MedicineAllBean queryInfoByCodeCreateTime(Map<String,Object> map) {
+        return medicineMapper.queryInfoByCodeCreateTime(map);
     }
 }

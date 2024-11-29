@@ -1,5 +1,6 @@
 package com.cloudestudio.hosgetserver.controller;
 
+import com.cloudestudio.hosgetserver.model.MedicineAllBean;
 import com.cloudestudio.hosgetserver.model.MedicineBaseBean;
 import com.cloudestudio.hosgetserver.model.PrintStyleBean;
 import com.cloudestudio.hosgetserver.service.MedicineService;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -160,6 +162,74 @@ public class MedicineController {
         }else{
             System.out.println(TimeUtil.GetTime(true) +" 药剂字典创建异常:"+requestMap.toString());
             response.getWriter().write(gson.toJson(WebServerResponse.failure("药剂字典创建异常!")));
+        }
+    }
+
+    /***
+     * 查询药品基表信息
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("/queryMedicineBaseInfo")
+    public void queryMedicineBaseInfo(HttpServletResponse response) throws IOException {
+        List<MedicineBaseBean> medicineBaseInfoList=medicineService.queryMedicineBaseInfo();
+        response.setContentType("application/json;charset=UTF-8");
+        if (!medicineBaseInfoList.isEmpty()) {
+            Map<String,Object> responseMap=new HashMap<>();
+            responseMap.put("medicineBaseInfoList", medicineBaseInfoList);
+            System.out.println(TimeUtil.GetTime(true) +" 查询药品:"+responseMap.toString());
+            response.getWriter().write(gson.toJson(WebServerResponse.success("请求成功",responseMap)));
+        }else{
+            response.getWriter().write(gson.toJson(WebServerResponse.failure("请求失败")));
+        }
+    }
+
+    /**
+     * 入库逻辑
+     * @param medicineCode
+     * @param inHouseCount
+     * @param operator
+     * @param createTime
+     * @param wareHouseAddr
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("/medicineToWareHouse")
+    public void medicineToWareHouse(@RequestParam("medicineCode") String medicineCode,
+                                    @RequestParam("inHouseCount") int inHouseCount,
+                                    @RequestParam("operator") String operator,
+                                    @RequestParam("createTime") String createTime,
+                                    @RequestParam("wareHouseAddr") String wareHouseAddr,
+                                    HttpServletResponse response) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        Map<String,Object> requestMap=new HashMap<>();
+        requestMap.put("medicine_code",medicineCode);
+        requestMap.put("inwarehouse_count",inHouseCount);
+        requestMap.put("towarehouse_operator",operator);
+        requestMap.put("create_time",createTime);
+        requestMap.put("ware_addr",wareHouseAddr);
+        System.out.println(TimeUtil.GetTime(true)+" 入库请求参数:"+requestMap.toString());
+        MedicineAllBean requstueryBean=new MedicineAllBean();
+        requstueryBean=medicineService.queryInfoByCodeCreateTime(requestMap);
+        if(requstueryBean==null){
+            //直接插入
+            requestMap.put("medicine_batch_number",TimeUtil.timeToString(createTime)+"01");
+            requestMap.put("warehouse_count",inHouseCount);
+            requestMap.put("canuse_count",inHouseCount);
+            System.out.println(TimeUtil.GetTime(true)+" 未存在-入库插值参数:"+requestMap.toString());
+        }else{
+            requestMap.put("medicine_batch_number",requstueryBean.getMedicine_batch_number()+1);
+            requestMap.put("warehouse_count",inHouseCount);
+            requestMap.put("canuse_count",inHouseCount);
+            System.out.println(TimeUtil.GetTime(true)+" 已存在-入库插值参数:"+requestMap.toString());
+        }
+        boolean inwarehouse=medicineService.addMedicineToWareHouse(requestMap);
+        if(inwarehouse){
+            System.out.println(TimeUtil.GetTime(true)+" 入库成功！参数:"+requestMap.toString());
+            response.getWriter().write(gson.toJson(WebServerResponse.success("入库成功！",requestMap)));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" 入库失败！参数:"+requestMap.toString());
+            response.getWriter().write(gson.toJson(WebServerResponse.failure("入库异常！")));
         }
     }
     /***********************查询逻辑:MySql库********************/

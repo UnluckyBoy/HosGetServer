@@ -1,7 +1,10 @@
 package com.cloudestudio.hosgetserver.service;
 
+import com.cloudestudio.hosgetserver.model.MedicineAllBean;
 import com.cloudestudio.hosgetserver.model.MedicineBaseBean;
+import com.cloudestudio.hosgetserver.model.mapper.MedicineMapper;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,7 +14,12 @@ import java.util.Map;
  * 药剂信息服务接口类
  */
 public interface MedicineService {
+    /**查询**/
     MedicineBaseBean queryMedicineInfo(String medicine_code);
     MedicineBaseBean queryNearMedicineCode();
+    List<MedicineBaseBean> queryMedicineBaseInfo();
+    MedicineAllBean queryInfoByCodeCreateTime(Map<String,Object> map);
+    /**插入**/
     boolean addMedicineBaseInfo(Map<String,Object> map);
+    boolean addMedicineToWareHouse(Map<String,Object> map);
 }

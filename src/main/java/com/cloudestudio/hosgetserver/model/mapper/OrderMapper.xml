@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudestudio.hosgetserver.model.mapper.OrderMapper">
+    <!--查询逻辑-->
+    <!--销售未出库查询:待销售出库-->
+    <select id="queryOrderOutWareHouse" resultType="OrderBean">
+        SELECT
+            order_info_table.order_uid,
+            order_info_table.medicine_code,
+            order_info_table.medicine_batch_number,
+            order_info_table.order_time,
+            order_info_table.order_amount,
+            order_info_table.order_quantity
+        FROM
+            order_info_table
+        WHERE
+            order_info_table.order_status = 1
+          AND order_info_table.order_outWareHouse = 0;
+    </select>
+
+    <!--更新逻辑-->
+    <update id="upOrderOutWareHouse" parameterType="java.util.Map">
+        UPDATE order_info_table
+        SET order_info_table.order_outWareHouse = 1
+        WHERE
+            order_info_table.order_uid = #{order_uid}
+          AND order_info_table.medicine_code = #{medicine_code}
+          AND order_info_table.medicine_batch_number=#{medicine_batch_number};
+    </update>
+</mapper>
