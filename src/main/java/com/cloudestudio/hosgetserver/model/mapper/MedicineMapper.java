@@ -2,6 +2,7 @@ package com.cloudestudio.hosgetserver.model.mapper;
 
 import com.cloudestudio.hosgetserver.model.MedicineAllBean;
 import com.cloudestudio.hosgetserver.model.MedicineBaseBean;
+import com.cloudestudio.hosgetserver.model.MedicineOrderBean;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;

@@ -5,20 +5,128 @@
 <mapper namespace="com.cloudestudio.hosgetserver.model.mapper.OrderMapper">
     <!--查询逻辑-->
     <!--销售未出库查询:待销售出库-->
-    <select id="queryOrderOutWareHouse" resultType="OrderBean">
+    <select id="queryOrderOutWareHouse" resultType="MedicineOrderBean">
         SELECT
             order_info_table.order_uid,
             order_info_table.medicine_code,
+            medicine_base_table.medicine_name,
             order_info_table.medicine_batch_number,
             order_info_table.order_time,
+            order_info_table.order_seller,
+            order_info_table.order_status,
             order_info_table.order_amount,
-            order_info_table.order_quantity
+            order_info_table.order_quantity,
+            order_info_table.order_outWareHouse
         FROM
             order_info_table
+                INNER JOIN medicine_base_table ON medicine_base_table.medicine_code = order_info_table.medicine_code
         WHERE
             order_info_table.order_status = 1
           AND order_info_table.order_outWareHouse = 0;
     </select>
+    <!--查询当日销售金额数据-->
+    <select id="queryCurrentDaySell" resultType="MedicineOrderBean">
+        SELECT
+            order_info_table.medicine_code,
+            medicine_base_table.medicine_name,
+            SUM(order_info_table.order_amount) AS order_amount
+        FROM
+            order_info_table INNER JOIN medicine_base_table on medicine_base_table.medicine_code=order_info_table.medicine_code
+        WHERE
+            order_info_table.order_outWareHouse = 1
+          AND order_info_table.order_status = 1
+          AND DATE(order_info_table.order_time) = CURDATE()
+        GROUP BY
+            order_info_table.medicine_code,medicine_base_table.medicine_name;
+    </select>
+    <!--查询昨日销售金额数据-->
+    <select id="queryYesterdaySell" resultType="MedicineOrderBean">
+        SELECT
+            order_info_table.medicine_code,
+            medicine_base_table.medicine_name,
+            SUM(order_info_table.order_amount) AS order_amount
+        FROM
+            order_info_table INNER JOIN medicine_base_table on medicine_base_table.medicine_code=order_info_table.medicine_code
+        WHERE
+            order_info_table.order_outWareHouse = 1
+          AND order_info_table.order_status = 1
+          AND DATE(order_info_table.order_time) = CURDATE() - INTERVAL 1 DAY
+        GROUP BY
+            order_info_table.medicine_code,medicine_base_table.medicine_name;
+    </select>
+    <!--查询上周销售金额数据-->
+    <select id="queryLastWeekSell" resultType="MedicineOrderBean">
+        SELECT
+            order_info_table.medicine_code,
+            medicine_base_table.medicine_name,
+            SUM(order_info_table.order_amount) AS SellAmount
+        FROM
+            order_info_table
+                INNER JOIN
+            medicine_base_table
+            ON medicine_base_table.medicine_code = order_info_table.medicine_code
+        WHERE
+            order_info_table.order_outWareHouse = 1
+          AND order_info_table.order_status = 1
+          AND YEARWEEK(order_info_table.order_time, 1) = YEARWEEK(CURDATE(), 1) - 1
+        GROUP BY
+            order_info_table.medicine_code,
+            medicine_base_table.medicine_name;
+    </select>
+    <!--查询上月销售金额数据-->
+    <select id="queryLastMonthSell" resultType="MedicineOrderBean">
+        SELECT
+            order_info_table.medicine_code,
+            medicine_base_table.medicine_name,
+            SUM( order_info_table.order_amount ) AS SellAmount
+        FROM
+            order_info_table
+                INNER JOIN medicine_base_table ON medicine_base_table.medicine_code = order_info_table.medicine_code
+        WHERE
+            order_info_table.order_outWareHouse = 1
+          AND order_info_table.order_status = 1
+          AND (
+            order_info_table.order_time BETWEEN DATE_FORMAT( DATE_SUB( CURDATE( ), INTERVAL 1 MONTH ), '%Y-%m-01' )
+                AND DATE_ADD( LAST_DAY( DATE_SUB( CURDATE( ), INTERVAL 1 MONTH ) ), INTERVAL 1 DAY )
+            )
+        GROUP BY
+            order_info_table.medicine_code,
+            medicine_base_table.medicine_name;
+    </select>
+    <!--查询全年销售金额数据-->
+    <select id="queryCurrentYearSell" resultType="MedicineOrderBean">
+        SELECT
+            order_info_table.medicine_code,
+            medicine_base_table.medicine_name,
+            SUM( order_info_table.order_amount ) AS SellAmount
+        FROM
+            order_info_table
+                INNER JOIN medicine_base_table ON medicine_base_table.medicine_code = order_info_table.medicine_code
+        WHERE
+            order_info_table.order_outWareHouse = 1
+                AND order_info_table.order_status = 1
+                AND Year(order_info_table.order_time)=year(CURDATE())
+        GROUP BY
+            order_info_table.medicine_code,
+            medicine_base_table.medicine_name;
+    </select>
+    <!--查询总销售金额数据-->
+    <select id="queryAllSell" resultType="MedicineOrderBean">
+        SELECT
+            order_info_table.medicine_code,
+            medicine_base_table.medicine_name,
+            SUM( order_info_table.order_amount ) AS SellAmount
+        FROM
+            order_info_table
+                INNER JOIN medicine_base_table ON medicine_base_table.medicine_code = order_info_table.medicine_code
+        WHERE
+            order_info_table.order_outWareHouse = 1
+                AND order_info_table.order_status = 1
+        GROUP BY
+            order_info_table.medicine_code,
+            medicine_base_table.medicine_name;
+    </select>
+
 
     <!--更新逻辑-->
     <update id="upOrderOutWareHouse" parameterType="java.util.Map">

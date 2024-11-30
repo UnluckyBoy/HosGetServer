@@ -1,7 +1,7 @@
 package com.cloudestudio.hosgetserver.service.Impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
-import com.cloudestudio.hosgetserver.model.OrderBean;
+import com.cloudestudio.hosgetserver.model.MedicineOrderBean;
 import com.cloudestudio.hosgetserver.model.mapper.OrderMapper;
 import com.cloudestudio.hosgetserver.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +23,38 @@ public class OrderServiceImpl implements OrderService {
 
     @DS("mysql")
     @Override
-    public List<OrderBean> queryOrderOutWareHouse() {
+    public List<MedicineOrderBean> queryOrderOutWareHouse() {
         return orderMapper.queryOrderOutWareHouse();
+    }
+
+    @Override
+    public MedicineOrderBean queryCurrentDaySell() {
+        return orderMapper.queryCurrentDaySell();
+    }
+
+    @Override
+    public MedicineOrderBean queryYesterdaySell() {
+        return orderMapper.queryYesterdaySell();
+    }
+
+    @Override
+    public MedicineOrderBean queryLastWeekSell() {
+        return orderMapper.queryLastWeekSell();
+    }
+
+    @Override
+    public MedicineOrderBean queryLastMonthSell() {
+        return orderMapper.queryLastMonthSell();
+    }
+
+    @Override
+    public MedicineOrderBean queryCurrentYearSell() {
+        return orderMapper.queryCurrentYearSell();
+    }
+
+    @Override
+    public MedicineOrderBean queryAllSell() {
+        return orderMapper.queryAllSell();
     }
 
     @Override

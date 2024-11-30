@@ -3,6 +3,7 @@ package com.cloudestudio.hosgetserver.service.Impl;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cloudestudio.hosgetserver.model.MedicineAllBean;
 import com.cloudestudio.hosgetserver.model.MedicineBaseBean;
+import com.cloudestudio.hosgetserver.model.MedicineOrderBean;
 import com.cloudestudio.hosgetserver.model.mapper.MedicineMapper;
 import com.cloudestudio.hosgetserver.service.MedicineService;
 import org.springframework.beans.factory.annotation.Autowired;
