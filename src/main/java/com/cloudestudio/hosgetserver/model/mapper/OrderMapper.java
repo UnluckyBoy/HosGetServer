@@ -1,6 +1,7 @@
 package com.cloudestudio.hosgetserver.model.mapper;
 
 import com.cloudestudio.hosgetserver.model.MedicineOrderBean;
+import com.cloudestudio.hosgetserver.model.OrderBean;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
@@ -19,12 +20,19 @@ import java.util.Map;
 @Repository
 public interface OrderMapper {
     List<MedicineOrderBean> queryOrderOutWareHouse();//销售未出库
-    MedicineOrderBean queryCurrentDaySell();//当日销售金额
-    MedicineOrderBean queryYesterdaySell();//昨日销售金额
-    MedicineOrderBean queryLastWeekSell();//上周销售金额
-    MedicineOrderBean queryLastMonthSell();//上月售金额
-    MedicineOrderBean queryCurrentYearSell();//全年售金额
-    MedicineOrderBean queryAllSell();//总售金额
+    List<MedicineOrderBean> queryCurrentDaySell();//药剂分类当日销售金额
+    List<MedicineOrderBean> queryYesterdaySell();//药剂分类昨日销售金额
+    List<MedicineOrderBean> queryLastWeekSell();//药剂分类上周销售金额
+    List<MedicineOrderBean> queryLastMonthSell();//药剂分类上月售金额
+    List<MedicineOrderBean> queryCurrentYearSell();//药剂分类全年售金额
+    List<MedicineOrderBean> queryAllSell();//药剂分类总售金额
+
+    OrderBean queryCurrentDayAmount();//当日销售总金额查询
+    OrderBean queryYesterdayAmount();//当日销售总金额查询
+    OrderBean queryLastWeekAmount();//上周销售总金额查询
+    OrderBean queryLastMonthAmount();//上月销售总金额查询
+    OrderBean queryCurrentYearAmount();//当日销售总金额查询
+    OrderBean queryAllAmount();//销售总金额查询
 
     boolean upOrderOutWareHouse(Map<String,Object> map);//销售出库
 }

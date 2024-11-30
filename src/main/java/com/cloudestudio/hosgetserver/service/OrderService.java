@@ -14,12 +14,19 @@ import java.util.Map;
  */
 public interface OrderService {
     List<MedicineOrderBean> queryOrderOutWareHouse();
-    MedicineOrderBean queryCurrentDaySell();
-    MedicineOrderBean queryYesterdaySell();//昨日销售金额
-    MedicineOrderBean queryLastWeekSell();//上周销售金额
-    MedicineOrderBean queryLastMonthSell();//上月售金额
-    MedicineOrderBean queryCurrentYearSell();//全年售金额
-    MedicineOrderBean queryAllSell();//总售金额
+    List<MedicineOrderBean> queryCurrentDaySell();
+    List<MedicineOrderBean> queryYesterdaySell();//昨日销售金额
+    List<MedicineOrderBean> queryLastWeekSell();//上周销售金额
+    List<MedicineOrderBean> queryLastMonthSell();//上月售金额
+    List<MedicineOrderBean> queryCurrentYearSell();//全年售金额
+    List<MedicineOrderBean> queryAllSell();//总售金额
+
+    OrderBean queryCurrentDayAmount();//当日销售总金额查询
+    OrderBean queryYesterdayAmount();//当日销售总金额查询
+    OrderBean queryLastWeekAmount();//上周销售总金额查询
+    OrderBean queryLastMonthAmount();//上月销售总金额查询
+    OrderBean queryCurrentYearAmount();//当日销售总金额查询
+    OrderBean queryAllAmount();//销售总金额查询
 
     boolean upOrderOutWareHouse(Map<String,Object> map);
 }

@@ -2,6 +2,7 @@ package com.cloudestudio.hosgetserver.service.Impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cloudestudio.hosgetserver.model.MedicineOrderBean;
+import com.cloudestudio.hosgetserver.model.OrderBean;
 import com.cloudestudio.hosgetserver.model.mapper.OrderMapper;
 import com.cloudestudio.hosgetserver.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,36 +28,79 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.queryOrderOutWareHouse();
     }
 
+    @DS("mysql")
     @Override
-    public MedicineOrderBean queryCurrentDaySell() {
+    public List<MedicineOrderBean> queryCurrentDaySell() {
         return orderMapper.queryCurrentDaySell();
     }
 
+    @DS("mysql")
     @Override
-    public MedicineOrderBean queryYesterdaySell() {
+    public List<MedicineOrderBean> queryYesterdaySell() {
         return orderMapper.queryYesterdaySell();
     }
 
+    @DS("mysql")
     @Override
-    public MedicineOrderBean queryLastWeekSell() {
+    public List<MedicineOrderBean> queryLastWeekSell() {
         return orderMapper.queryLastWeekSell();
     }
 
+    @DS("mysql")
     @Override
-    public MedicineOrderBean queryLastMonthSell() {
+    public List<MedicineOrderBean> queryLastMonthSell() {
         return orderMapper.queryLastMonthSell();
     }
 
+    @DS("mysql")
     @Override
-    public MedicineOrderBean queryCurrentYearSell() {
+    public List<MedicineOrderBean> queryCurrentYearSell() {
         return orderMapper.queryCurrentYearSell();
     }
 
+    @DS("mysql")
     @Override
-    public MedicineOrderBean queryAllSell() {
+    public List<MedicineOrderBean> queryAllSell() {
         return orderMapper.queryAllSell();
     }
 
+    @DS("mysql")
+    @Override
+    public OrderBean queryCurrentDayAmount() {
+        return orderMapper.queryCurrentDayAmount();
+    }
+
+    @DS("mysql")
+    @Override
+    public OrderBean queryYesterdayAmount() {
+        return orderMapper.queryYesterdayAmount();
+    }
+
+    @DS("mysql")
+    @Override
+    public OrderBean queryLastWeekAmount() {
+        return orderMapper.queryLastWeekAmount();
+    }
+
+    @DS("mysql")
+    @Override
+    public OrderBean queryLastMonthAmount() {
+        return orderMapper.queryLastMonthAmount();
+    }
+
+    @DS("mysql")
+    @Override
+    public OrderBean queryCurrentYearAmount() {
+        return orderMapper.queryCurrentYearAmount();
+    }
+
+    @DS("mysql")
+    @Override
+    public OrderBean queryAllAmount() {
+        return orderMapper.queryAllAmount();
+    }
+
+    @DS("mysql")
     @Override
     public boolean upOrderOutWareHouse(Map<String, Object> map) {
         return orderMapper.upOrderOutWareHouse(map);

@@ -83,28 +83,54 @@ public class OrderController {
 
     /**
      * 查询销售数量
-     * @param queryType:1-当日,2-昨日,3-上周,4-上月,5-全年,6-总
+     * @param queryType
      * @param response
      * @throws IOException
      */
     @RequestMapping("/querySell")
-    public void queryCurrentDaySell(@RequestParam("queryType") int queryType,HttpServletResponse response) throws IOException{
+    public void querySell(@RequestParam("queryType") String queryType,HttpServletResponse response) throws IOException{
         response.setContentType("application/json;charset=UTF-8");
-        MedicineOrderBean medicineOrderBean = switch (queryType) {
-            case 1 -> orderService.queryCurrentDaySell();
-            case 2 -> orderService.queryYesterdaySell();
-            case 3 -> orderService.queryLastWeekSell();
-            case 4 -> orderService.queryLastMonthSell();
-            case 5 -> orderService.queryCurrentYearSell();
-            case 6 -> orderService.queryAllSell();
+        List<MedicineOrderBean> medicineOrderBeanList = switch (queryType) {
+            case "Today" -> orderService.queryCurrentDaySell();
+            case "Yesterday" -> orderService.queryYesterdaySell();
+            case "LastWeek" -> orderService.queryLastWeekSell();
+            case "LastMonth" -> orderService.queryLastMonthSell();
+            case "CurrentYear" -> orderService.queryCurrentYearSell();
+            case "AllSell" -> orderService.queryAllSell();
             default -> null;
         };
-        if(medicineOrderBean!=null){
-            System.out.println(TimeUtil.GetTime(true)+" 销售金额查询成功！查询参数:"+queryType+"结果:"+medicineOrderBean);
-            response.getWriter().write(gson.toJson(WebServerResponse.success("销售金额查询成功！",medicineOrderBean)));
+        if(medicineOrderBeanList!=null){
+            if(medicineOrderBeanList.isEmpty()){
+                System.out.println(TimeUtil.GetTime(true)+" 销售金额查询成功！查询参数:"+queryType+" 结果为空:"+medicineOrderBeanList);
+                response.getWriter().write(gson.toJson(WebServerResponse.success("未发生销售数据！",medicineOrderBeanList)));
+            }else{
+                System.out.println(TimeUtil.GetTime(true)+" 销售金额查询成功！查询参数:"+queryType+" 结果:"+medicineOrderBeanList);
+                response.getWriter().write(gson.toJson(WebServerResponse.success("销售金额查询成功！",medicineOrderBeanList)));
+            }
         }else{
-            System.out.println(TimeUtil.GetTime(true)+" 销售金额查询失败！查询参数:"+queryType);
-            response.getWriter().write(gson.toJson(WebServerResponse.failure("未发生销售数据!")));
+            System.out.println(TimeUtil.GetTime(true)+" 销售金额查询异常！查询参数:"+queryType+" 结果:"+medicineOrderBeanList);
+            response.getWriter().write(gson.toJson(WebServerResponse.failure("销售金额查询异常!")));
+        }
+    }
+
+    @RequestMapping("/queryAmount")
+    public void queryAmount(@RequestParam("queryType") String queryType,HttpServletResponse response) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        OrderBean requestOrderBean = switch (queryType) {
+            case "Today" -> orderService.queryCurrentDayAmount();
+            case "Yesterday" -> orderService.queryYesterdayAmount();
+            case "LastWeek" -> orderService.queryLastWeekAmount();
+            case "LastMonth" -> orderService.queryLastMonthAmount();
+            case "CurrentYear" -> orderService.queryCurrentYearAmount();
+            case "AllSell" -> orderService.queryAllAmount();
+            default -> null;
+        };
+        if(requestOrderBean!=null){
+            System.out.println(TimeUtil.GetTime(true)+" 销售金额查询成功！查询参数:"+queryType+" 结果:"+requestOrderBean);
+            response.getWriter().write(gson.toJson(WebServerResponse.success("销售金额查询成功！",requestOrderBean)));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" 销售金额查询异常！查询参数:"+queryType+" 结果:"+requestOrderBean);
+            response.getWriter().write(gson.toJson(WebServerResponse.failure("销售金额查询异常!")));
         }
     }
     /***********************查询逻辑:MySql库********************/

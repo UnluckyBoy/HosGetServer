@@ -24,6 +24,8 @@
             order_info_table.order_status = 1
           AND order_info_table.order_outWareHouse = 0;
     </select>
+
+    <!--药剂名-销售金额相关查询-->
     <!--查询当日销售金额数据-->
     <select id="queryCurrentDaySell" resultType="MedicineOrderBean">
         SELECT
@@ -59,7 +61,7 @@
         SELECT
             order_info_table.medicine_code,
             medicine_base_table.medicine_name,
-            SUM(order_info_table.order_amount) AS SellAmount
+            SUM(order_info_table.order_amount) AS order_amount
         FROM
             order_info_table
                 INNER JOIN
@@ -78,7 +80,7 @@
         SELECT
             order_info_table.medicine_code,
             medicine_base_table.medicine_name,
-            SUM( order_info_table.order_amount ) AS SellAmount
+            SUM( order_info_table.order_amount ) AS order_amount
         FROM
             order_info_table
                 INNER JOIN medicine_base_table ON medicine_base_table.medicine_code = order_info_table.medicine_code
@@ -98,7 +100,7 @@
         SELECT
             order_info_table.medicine_code,
             medicine_base_table.medicine_name,
-            SUM( order_info_table.order_amount ) AS SellAmount
+            SUM( order_info_table.order_amount ) AS order_amount
         FROM
             order_info_table
                 INNER JOIN medicine_base_table ON medicine_base_table.medicine_code = order_info_table.medicine_code
@@ -115,7 +117,7 @@
         SELECT
             order_info_table.medicine_code,
             medicine_base_table.medicine_name,
-            SUM( order_info_table.order_amount ) AS SellAmount
+            SUM( order_info_table.order_amount ) AS order_amount
         FROM
             order_info_table
                 INNER JOIN medicine_base_table ON medicine_base_table.medicine_code = order_info_table.medicine_code
@@ -126,6 +128,78 @@
             order_info_table.medicine_code,
             medicine_base_table.medicine_name;
     </select>
+    <!--药剂名-销售金额相关查询-->
+
+    <!--总销售金额相关查询-->
+    <!--当日总销售金额-->
+    <select id="queryCurrentDayAmount" resultType="OrderBean">
+        SELECT
+            SUM( order_info_table.order_amount ) AS order_amount
+        FROM
+            order_info_table
+        WHERE
+            order_info_table.order_outWareHouse = 1
+          AND order_info_table.order_status = 1
+          AND DATE( order_info_table.order_time ) = CURDATE();
+    </select>
+    <!--昨日总销售金额-->
+    <select id="queryYesterdayAmount" resultType="OrderBean">
+        SELECT
+            SUM( order_info_table.order_amount ) AS order_amount
+        FROM
+            order_info_table
+        WHERE
+            order_info_table.order_outWareHouse = 1
+          AND order_info_table.order_status = 1
+          AND DATE(order_info_table.order_time) = CURDATE() - INTERVAL 1 DAY;
+    </select>
+    <!--上周总销售金额-->
+    <select id="queryLastWeekAmount" resultType="OrderBean">
+        SELECT
+            SUM( order_info_table.order_amount ) AS order_amount
+        FROM
+            order_info_table
+        WHERE
+            order_info_table.order_outWareHouse = 1
+          AND order_info_table.order_status = 1
+          AND YEARWEEK(order_info_table.order_time, 1) = YEARWEEK(CURDATE(), 1) - 1;
+    </select>
+    <!--上月总销售金额-->
+    <select id="queryLastMonthAmount" resultType="OrderBean">
+        SELECT
+            SUM( order_info_table.order_amount ) AS order_amount
+        FROM
+            order_info_table
+        WHERE
+            order_info_table.order_outWareHouse = 1
+          AND order_info_table.order_status = 1
+          AND (
+            order_info_table.order_time BETWEEN DATE_FORMAT( DATE_SUB( CURDATE( ), INTERVAL 1 MONTH ), '%Y-%m-01' )
+                AND DATE_ADD( LAST_DAY( DATE_SUB( CURDATE( ), INTERVAL 1 MONTH ) ), INTERVAL 1 DAY )
+            );
+    </select>
+    <!--全年总销售金额-->
+    <select id="queryCurrentYearAmount" resultType="OrderBean">
+        SELECT
+            SUM( order_info_table.order_amount ) AS order_amount
+        FROM
+            order_info_table
+        WHERE
+            order_info_table.order_outWareHouse = 1
+            AND order_info_table.order_status = 1
+            AND YEAR( order_info_table.order_time ) = YEAR( CURDATE());
+    </select>
+    <!--总销售金额-->
+    <select id="queryAllAmount" resultType="OrderBean">
+        SELECT
+            SUM( order_info_table.order_amount ) AS order_amount
+        FROM
+            order_info_table
+        WHERE
+            order_info_table.order_outWareHouse = 1
+          AND order_info_table.order_status = 1;
+    </select>
+    <!--总销售金额相关查询-->
 
 
     <!--更新逻辑-->
