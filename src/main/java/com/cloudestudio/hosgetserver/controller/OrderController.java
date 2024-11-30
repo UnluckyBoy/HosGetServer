@@ -100,11 +100,11 @@ public class OrderController {
             default -> null;
         };
         if(medicineOrderBean!=null){
-            System.out.println(TimeUtil.GetTime(true)+" 销售金额查询成功！");
-            response.getWriter().write(gson.toJson(WebServerResponse.success("销售出库成功！")));
+            System.out.println(TimeUtil.GetTime(true)+" 销售金额查询成功！查询参数:"+queryType+"结果:"+medicineOrderBean);
+            response.getWriter().write(gson.toJson(WebServerResponse.success("销售金额查询成功！",medicineOrderBean)));
         }else{
-            System.out.println(TimeUtil.GetTime(true)+" 销售金额查询失败！");
-            response.getWriter().write(gson.toJson(WebServerResponse.failure("销售出库异常!")));
+            System.out.println(TimeUtil.GetTime(true)+" 销售金额查询失败！查询参数:"+queryType);
+            response.getWriter().write(gson.toJson(WebServerResponse.failure("未发生销售数据!")));
         }
     }
     /***********************查询逻辑:MySql库********************/
