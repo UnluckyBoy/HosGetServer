@@ -2,6 +2,7 @@ package com.cloudestudio.hosgetserver.service.Impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cloudestudio.hosgetserver.model.MedicineOrderBean;
+import com.cloudestudio.hosgetserver.model.MonthCountBean;
 import com.cloudestudio.hosgetserver.model.OrderBean;
 import com.cloudestudio.hosgetserver.model.mapper.OrderMapper;
 import com.cloudestudio.hosgetserver.service.OrderService;
@@ -64,6 +65,16 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.queryAllSell();
     }
 
+    @Override
+    public List<MedicineOrderBean> querySellOrderInfo() {
+        return orderMapper.querySellOrderInfo();
+    }
+
+    @Override
+    public List<MedicineOrderBean> queryUnSellOrderInfo() {
+        return orderMapper.queryUnSellOrderInfo();
+    }
+
     @DS("mysql")
     @Override
     public OrderBean queryCurrentDayAmount() {
@@ -98,6 +109,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderBean queryAllAmount() {
         return orderMapper.queryAllAmount();
+    }
+
+    @Override
+    public List<MonthCountBean> queryMonthAllOrder() {
+        return orderMapper.queryMonthAllOrder();
     }
 
     @DS("mysql")

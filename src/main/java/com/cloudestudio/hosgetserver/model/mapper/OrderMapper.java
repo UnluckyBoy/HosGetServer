@@ -1,6 +1,7 @@
 package com.cloudestudio.hosgetserver.model.mapper;
 
 import com.cloudestudio.hosgetserver.model.MedicineOrderBean;
+import com.cloudestudio.hosgetserver.model.MonthCountBean;
 import com.cloudestudio.hosgetserver.model.OrderBean;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
@@ -26,6 +27,8 @@ public interface OrderMapper {
     List<MedicineOrderBean> queryLastMonthSell();//药剂分类上月售金额
     List<MedicineOrderBean> queryCurrentYearSell();//药剂分类全年售金额
     List<MedicineOrderBean> queryAllSell();//药剂分类总售金额
+    List<MedicineOrderBean> querySellOrderInfo();
+    List<MedicineOrderBean> queryUnSellOrderInfo();
 
     OrderBean queryCurrentDayAmount();//当日销售总金额查询
     OrderBean queryYesterdayAmount();//当日销售总金额查询
@@ -33,6 +36,8 @@ public interface OrderMapper {
     OrderBean queryLastMonthAmount();//上月销售总金额查询
     OrderBean queryCurrentYearAmount();//当日销售总金额查询
     OrderBean queryAllAmount();//销售总金额查询
+
+    List<MonthCountBean> queryMonthAllOrder();
 
     boolean upOrderOutWareHouse(Map<String,Object> map);//销售出库
 }

@@ -1,6 +1,7 @@
 package com.cloudestudio.hosgetserver.controller;
 
 import com.cloudestudio.hosgetserver.model.MedicineOrderBean;
+import com.cloudestudio.hosgetserver.model.MonthCountBean;
 import com.cloudestudio.hosgetserver.model.OrderBean;
 import com.cloudestudio.hosgetserver.service.MedicineService;
 import com.cloudestudio.hosgetserver.service.OrderService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,6 +115,12 @@ public class OrderController {
         }
     }
 
+    /**
+     * 条件查询总销售额
+     * @param queryType
+     * @param response
+     * @throws IOException
+     */
     @RequestMapping("/queryAmount")
     public void queryAmount(@RequestParam("queryType") String queryType,HttpServletResponse response) throws IOException{
         response.setContentType("application/json;charset=UTF-8");
@@ -131,6 +139,42 @@ public class OrderController {
         }else{
             System.out.println(TimeUtil.GetTime(true)+" 销售金额查询异常！查询参数:"+queryType+" 结果:"+requestOrderBean);
             response.getWriter().write(gson.toJson(WebServerResponse.failure("销售金额查询异常!")));
+        }
+    }
+
+    @RequestMapping("queryMonthOrder")
+    public void queryMonthAllOrder(HttpServletResponse response) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        List<MonthCountBean> monthCountBeanList = orderService.queryMonthAllOrder();
+        if(monthCountBeanList!=null){
+            System.out.println(TimeUtil.GetTime(true)+" 年订单量详情查询成功！结果:"+monthCountBeanList);
+            response.getWriter().write(gson.toJson(WebServerResponse.success("销售金额查询成功！",monthCountBeanList)));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" 销售金额查询异常！结果:null");
+            response.getWriter().write(gson.toJson(WebServerResponse.failure("销售金额查询异常!")));
+        }
+    }
+
+    /**
+     * 查询订单
+     * @param queryType
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("/queryTypeOrderInfo")
+    public void queryTypeOrderInfo(@RequestParam("queryType") String queryType,HttpServletResponse response) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        List<MedicineOrderBean> requestOrderBeanList = switch (queryType) {
+            case "Valid" -> orderService.querySellOrderInfo();
+            case "UnValid" -> orderService.queryUnSellOrderInfo();
+            default -> null;
+        };
+        if(requestOrderBeanList!=null){
+            System.out.println(TimeUtil.GetTime(true)+" 订单数据查询成功！查询参数:"+queryType+" 结果:"+requestOrderBeanList);
+            response.getWriter().write(gson.toJson(WebServerResponse.success("销售金额查询成功！",requestOrderBeanList)));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" 订单数据查询异常！查询参数:"+queryType+" 结果:"+ null);
+            response.getWriter().write(gson.toJson(WebServerResponse.failure("订单数据查询异常!")));
         }
     }
     /***********************查询逻辑:MySql库********************/

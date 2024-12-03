@@ -201,6 +201,65 @@
     </select>
     <!--总销售金额相关查询-->
 
+    <!--销售订单相关查询-->
+    <select id="queryMonthAllOrder" resultType="MonthCountBean">
+        WITH RECURSIVE Months (month_number) AS (
+            SELECT 1
+            UNION ALL
+            SELECT month_number + 1 FROM Months WHERE month_number &lt; 12
+        )
+        SELECT
+            Months.month_number,
+            COALESCE(COUNT(DISTINCT order_info_table.order_uid), 0) AS order_count,
+            COALESCE(COUNT(DISTINCT CASE WHEN order_info_table.order_status = 1 THEN order_info_table.order_uid END), 0) AS valid_count
+        FROM
+        Months
+        LEFT JOIN order_info_table ON Months.month_number = MONTH(order_info_table.order_time)
+        GROUP BY
+            Months.month_number
+        ORDER BY
+            Months.month_number;
+    </select>
+    <!--有效订单,交易订单-->
+    <select id="querySellOrderInfo" resultType="MedicineOrderBean">
+        SELECT
+            order_info_table.order_uid,
+            order_info_table.medicine_code,
+            medicine_base_table.medicine_name,
+            order_info_table.medicine_batch_number,
+            order_info_table.order_time,
+            ( CASE order_info_table.order_status WHEN 1 THEN '交易' ELSE '未交易' END ) AS order_status,
+            order_info_table.order_amount,
+            order_info_table.order_seller,
+            order_info_table.order_quantity,
+            ( CASE order_info_table.order_outWareHouse WHEN 1 THEN '出库' ELSE '未出库' END ) AS order_outWareHouse
+        FROM
+            order_info_table
+                INNER JOIN medicine_base_table ON medicine_base_table.medicine_code = order_info_table.medicine_code
+        WHERE
+            order_info_table.order_status = 1;
+    </select>
+    <!--未交易订单-->
+    <select id="queryUnSellOrderInfo" resultType="MedicineOrderBean">
+        SELECT
+            order_info_table.order_uid,
+            order_info_table.medicine_code,
+            medicine_base_table.medicine_name,
+            order_info_table.medicine_batch_number,
+            order_info_table.order_time,
+            ( CASE order_info_table.order_status WHEN 1 THEN '交易' ELSE '未交易' END ) AS order_status,
+            order_info_table.order_amount,
+            order_info_table.order_seller,
+            order_info_table.order_quantity,
+            ( CASE order_info_table.order_outWareHouse WHEN 1 THEN '出库' ELSE '未出库' END ) AS order_outWareHouse
+        FROM
+            order_info_table
+                INNER JOIN medicine_base_table ON medicine_base_table.medicine_code = order_info_table.medicine_code
+        WHERE
+            order_info_table.order_status = 0;
+    </select>
+    <!--销售订单相关查询-->
+
 
     <!--更新逻辑-->
     <update id="upOrderOutWareHouse" parameterType="java.util.Map">

@@ -1,6 +1,7 @@
 package com.cloudestudio.hosgetserver.service;
 
 import com.cloudestudio.hosgetserver.model.MedicineOrderBean;
+import com.cloudestudio.hosgetserver.model.MonthCountBean;
 import com.cloudestudio.hosgetserver.model.OrderBean;
 
 import java.util.List;
@@ -20,6 +21,8 @@ public interface OrderService {
     List<MedicineOrderBean> queryLastMonthSell();//上月售金额
     List<MedicineOrderBean> queryCurrentYearSell();//全年售金额
     List<MedicineOrderBean> queryAllSell();//总售金额
+    List<MedicineOrderBean> querySellOrderInfo();
+    List<MedicineOrderBean> queryUnSellOrderInfo();
 
     OrderBean queryCurrentDayAmount();//当日销售总金额查询
     OrderBean queryYesterdayAmount();//当日销售总金额查询
@@ -27,6 +30,8 @@ public interface OrderService {
     OrderBean queryLastMonthAmount();//上月销售总金额查询
     OrderBean queryCurrentYearAmount();//当日销售总金额查询
     OrderBean queryAllAmount();//销售总金额查询
+
+    List<MonthCountBean> queryMonthAllOrder();
 
     boolean upOrderOutWareHouse(Map<String,Object> map);
 }
