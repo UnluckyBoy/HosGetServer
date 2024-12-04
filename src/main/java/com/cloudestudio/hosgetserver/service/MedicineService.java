@@ -19,6 +19,7 @@ public interface MedicineService {
     MedicineBaseBean queryNearMedicineCode();
     List<MedicineBaseBean> queryMedicineBaseInfo();
     MedicineAllBean queryInfoByCodeCreateTime(Map<String,Object> map);
+    MedicineAllBean queryOldestMedicWareHouseInfo(String medicine_code);
     /**插入**/
     boolean addMedicineBaseInfo(Map<String,Object> map);
     boolean addMedicineToWareHouse(Map<String,Object> map);

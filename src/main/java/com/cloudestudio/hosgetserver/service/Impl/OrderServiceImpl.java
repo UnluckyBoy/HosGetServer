@@ -65,6 +65,7 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.queryAllSell();
     }
 
+    @DS("mysql")
     @Override
     public List<MedicineOrderBean> querySellOrderInfo() {
         return orderMapper.querySellOrderInfo();
@@ -111,6 +112,7 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.queryAllAmount();
     }
 
+    @DS("mysql")
     @Override
     public List<MonthCountBean> queryMonthAllOrder() {
         return orderMapper.queryMonthAllOrder();

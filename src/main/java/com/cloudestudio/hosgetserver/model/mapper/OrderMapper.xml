@@ -232,7 +232,8 @@
             order_info_table.order_amount,
             order_info_table.order_seller,
             order_info_table.order_quantity,
-            ( CASE order_info_table.order_outWareHouse WHEN 1 THEN '出库' ELSE '未出库' END ) AS order_outWareHouse
+            ( CASE order_info_table.order_outWareHouse WHEN 1 THEN '出库' ELSE '未出库' END ) AS order_outWareHouse,
+            order_info_table.sell_type
         FROM
             order_info_table
                 INNER JOIN medicine_base_table ON medicine_base_table.medicine_code = order_info_table.medicine_code
@@ -251,7 +252,8 @@
             order_info_table.order_amount,
             order_info_table.order_seller,
             order_info_table.order_quantity,
-            ( CASE order_info_table.order_outWareHouse WHEN 1 THEN '出库' ELSE '未出库' END ) AS order_outWareHouse
+            ( CASE order_info_table.order_outWareHouse WHEN 1 THEN '出库' ELSE '未出库' END ) AS order_outWareHouse,
+            order_info_table.sell_type
         FROM
             order_info_table
                 INNER JOIN medicine_base_table ON medicine_base_table.medicine_code = order_info_table.medicine_code

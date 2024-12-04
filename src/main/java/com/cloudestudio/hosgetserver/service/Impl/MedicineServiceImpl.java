@@ -58,4 +58,10 @@ public class MedicineServiceImpl implements MedicineService {
     public MedicineAllBean queryInfoByCodeCreateTime(Map<String,Object> map) {
         return medicineMapper.queryInfoByCodeCreateTime(map);
     }
+
+    @DS("mysql")
+    @Override
+    public MedicineAllBean queryOldestMedicWareHouseInfo(String medicine_code) {
+        return medicineMapper.queryOldestMedicWareHouseInfo(medicine_code);
+    }
 }

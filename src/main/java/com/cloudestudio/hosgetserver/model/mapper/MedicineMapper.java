@@ -24,6 +24,7 @@ public interface MedicineMapper {
     MedicineBaseBean queryNearMedicineCode();
     List<MedicineBaseBean> queryMedicineBaseInfo();
     MedicineAllBean queryInfoByCodeCreateTime(Map<String,Object> map);
+    MedicineAllBean queryOldestMedicWareHouseInfo(String medicine_code);
 
     boolean addMedicineBaseInfo(Map<String,Object> map);
     boolean addMedicineToWareHouse(Map<String,Object> map);

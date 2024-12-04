@@ -61,6 +61,22 @@
             medicine_warehouse_table.towarehouse_time DESC
             LIMIT 1;
     </select>
+    <!--查询最早入库的药剂库存信息-->
+    <select id="queryOldestMedicWareHouseInfo" resultType="MedicineAllBean" parameterType="String">
+        SELECT
+            medicine_base_table.medicine_name,
+            medicine_warehouse_table.medicine_batch_number,
+            medicine_base_table.medicine_retail
+        FROM
+            medicine_warehouse_table
+                INNER JOIN medicine_base_table ON medicine_base_table.medicine_code = medicine_warehouse_table.medicine_code
+        WHERE
+            medicine_warehouse_table.medicine_code = #{medicine_code}
+          AND medicine_warehouse_table.canuse_count > 0
+        ORDER BY
+            medicine_warehouse_table.medicine_batch_number ASC
+            LIMIT 1;
+    </select>
 
 
     <!--插入逻辑-->

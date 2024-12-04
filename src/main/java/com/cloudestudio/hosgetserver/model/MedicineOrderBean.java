@@ -21,6 +21,7 @@ public class MedicineOrderBean implements Serializable {
     private String order_seller;
     private String order_quantity;
     private String order_outWareHouse;
+    private String sell_type;
     private String medicine_name;
     private String medicine_price;
     private String medicine_retail;

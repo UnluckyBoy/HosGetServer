@@ -100,7 +100,7 @@ public class MedicineController {
     }
 
     /**
-     * 获取最新药剂编码
+     * 获取最新药剂编码,并创建新药剂编码
      * @param response
      * @throws IOException
      */
@@ -230,6 +230,26 @@ public class MedicineController {
         }else{
             System.out.println(TimeUtil.GetTime(true)+" 入库失败！参数:"+requestMap.toString());
             response.getWriter().write(gson.toJson(WebServerResponse.failure("入库异常！")));
+        }
+    }
+
+    /**
+     * 查询库存中最晚的药剂信息
+     * @param medicine_code
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("/queryOldestMedicWareHouseInfo")
+    public void queryOldestMedicWareHouseInfo(@RequestParam("medicine_code") String medicine_code,
+                                      HttpServletResponse response) throws IOException {
+        MedicineAllBean request=medicineService.queryOldestMedicWareHouseInfo(medicine_code);
+        response.setContentType("application/json;charset=UTF-8");
+        if (request==null) {
+            System.out.println(TimeUtil.GetTime(true)+" 查询库存药剂信息失败！请求参数："+medicine_code);
+            response.getWriter().write(gson.toJson(WebServerResponse.failure("请求异常：药剂编码未存在！")));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" 查询库存药剂信息成功！请求参数："+medicine_code+request);
+            response.getWriter().write(gson.toJson(WebServerResponse.success("请求成功",request)));
         }
     }
     /***********************查询逻辑:MySql库********************/
