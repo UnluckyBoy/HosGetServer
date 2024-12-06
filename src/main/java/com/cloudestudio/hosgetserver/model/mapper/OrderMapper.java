@@ -29,6 +29,7 @@ public interface OrderMapper {
     List<MedicineOrderBean> queryAllSell();//药剂分类总售金额
     List<MedicineOrderBean> querySellOrderInfo();
     List<MedicineOrderBean> queryUnSellOrderInfo();
+    List<MedicineOrderBean> queryOrderAllItem(String order_uid);//查询订单条目-销售UI使用
 
     OrderBean queryCurrentDayAmount();//当日销售总金额查询
     OrderBean queryYesterdayAmount();//当日销售总金额查询
@@ -36,6 +37,7 @@ public interface OrderMapper {
     OrderBean queryLastMonthAmount();//上月销售总金额查询
     OrderBean queryCurrentYearAmount();//当日销售总金额查询
     OrderBean queryAllAmount();//销售总金额查询
+    OrderBean queryOrderItem(Map<String,Object> map);//销售总金额查询
     String queryOrderTime(String order_uid);//查询订单时间
     MedicineOrderBean queryOrderBaseAndMedicineName(Map<String, Object> map);
 
@@ -43,6 +45,6 @@ public interface OrderMapper {
 
     boolean upOrderOutWareHouse(Map<String,Object> map);//销售出库
     boolean addOrderItem(Map<String,Object> map);//创建订单条目
-    boolean updateOrderStatus(String order_uid);//交易时更新订单状态
+    boolean updateOrderStatus(Map<String,Object> map);//交易时更新订单状态
     boolean updateOrderQuantity(Map<String,Object> map);
 }

@@ -191,8 +191,6 @@ public class OrderController {
     @RequestMapping("createOrderItem")
     public void createOrderItem(@RequestParam("order_uid") String order_uid,
                                 @RequestParam("medicine_code") String medicine_code,
-                                @RequestParam("seller") String seller,
-                                @RequestParam("applyType") String applyType,
                                 HttpServletResponse response) throws IOException{
         response.setContentType("application/json;charset=UTF-8");
         System.out.println(TimeUtil.GetTime(true)+" 创建订单条目-查询参数:"+medicine_code);
@@ -209,43 +207,73 @@ public class OrderController {
             createItemMap.put("medicine_code",medicine_code);
             createItemMap.put("medicine_batch_number",requestOldestMedicine.getMedicine_batch_number());
             String timeTemp=orderService.queryOrderTime(order_uid);
-            if(StringUtil.isEmptyOrNull(timeTemp)){
-                createItemMap.put("order_time",createTime);
-            }else{
-                createItemMap.put("order_time",timeTemp);
-            }
-            createItemMap.put("order_amount",requestOldestMedicine.getMedicine_retail());
-            createItemMap.put("order_seller",seller);
-            createItemMap.put("order_quantity",1);
-            createItemMap.put("sell_type",applyType);
-            boolean createKey=orderService.addOrderItem(createItemMap);
-            if(createKey){
-                System.out.println("订单:"+order_uid+" 产品:"+medicine_code+"创建成功!");
-                MedicineOrderBean orderCreateItemBean=orderService.queryOrderBaseAndMedicineName(createItemMap);
-                if(orderCreateItemBean!=null){
-                    System.out.println(TimeUtil.GetTime(true)+" 订单:"+order_uid+" 产品:"+medicine_code+"创建成功!"+orderCreateItemBean);
-                    response.getWriter().write(gson.toJson(WebServerResponse.success("订单:"+order_uid+" 产品:"+medicine_code+"创建成功!",orderCreateItemBean)));
+            if(!StringUtil.isEmptyOrNull(timeTemp)){
+                //订单已创建--逻辑有问题--待定！！
+                OrderBean orderBeanTemp=orderService.queryOrderItem(createItemMap);
+                if(orderBeanTemp!=null){
+                    //直接更新订单的数量
+                    createItemMap.put("order_quantity",Integer.parseInt(orderBeanTemp.getOrder_quantity())+1);
+                    boolean upOrderItemQuantity=orderService.updateOrderQuantity(createItemMap);
+                    if(upOrderItemQuantity){
+                        List<MedicineOrderBean> orderResponseList=orderService.queryOrderAllItem(order_uid);
+                        if(orderResponseList==null|| orderResponseList.isEmpty()){
+                            System.out.println(TimeUtil.GetTime(true)+" 更新数量——订单:"+order_uid+" 产品:"+medicine_code+"创建成功！但返回异常!");
+                            response.getWriter().write(gson.toJson(WebServerResponse.failure("订单:"+order_uid+" 产品:"+medicine_code+"返回异常!")));
+                        }else{
+                            System.out.println(TimeUtil.GetTime(true)+" 更新数量——订单:"+order_uid+" 产品:"+medicine_code+"创建成功!"+createItemMap);
+                            response.getWriter().write(gson.toJson(WebServerResponse.success("订单创建成功!",orderResponseList)));
+                        }
+                    }else{
+                        System.out.println(TimeUtil.GetTime(true)+" 更新数量——订单:"+order_uid+" 产品:"+medicine_code+"创建异常!");
+                        response.getWriter().write(gson.toJson(WebServerResponse.failure("订单:"+order_uid+" 产品:"+medicine_code+"创建异常!")));
+                    }
                 }else{
-                    System.out.println(TimeUtil.GetTime(true)+" 订单:"+order_uid+" 产品:"+medicine_code+"创建成功！但返回异常!");
-                    response.getWriter().write(gson.toJson(WebServerResponse.failure("订单:"+order_uid+" 产品:"+medicine_code+"返回异常!")));
+                    System.out.println(TimeUtil.GetTime(true)+" orderBeanTemp为空！");
+                    createItemMap.put("order_time",createTime);
+                    createItemMap.put("order_quantity",1);
                 }
             }else{
-                System.out.println(TimeUtil.GetTime(true)+" 订单:"+order_uid+" 产品:"+medicine_code+"创建异常!");
-                response.getWriter().write(gson.toJson(WebServerResponse.failure("订单:"+order_uid+" 产品:"+medicine_code+"创建异常!")));
+                //订单未创建
+                createItemMap.put("order_time",createTime);
+                createItemMap.put("order_quantity",1);
+                createItemMap.put("order_amount",requestOldestMedicine.getMedicine_retail());
+
+                boolean createKey=orderService.addOrderItem(createItemMap);
+                if(createKey){
+                    System.out.println("订单:"+order_uid+" 产品:"+medicine_code+"创建成功!");
+                    List<MedicineOrderBean> orderResponseList=orderService.queryOrderAllItem(order_uid);
+                    if(orderResponseList==null|| orderResponseList.isEmpty()){
+                        System.out.println(TimeUtil.GetTime(true)+" 订单:"+order_uid+" 产品:"+medicine_code+"创建成功！但返回异常!");
+                        response.getWriter().write(gson.toJson(WebServerResponse.failure("订单:"+order_uid+" 产品:"+medicine_code+"返回异常!")));
+                    }else{
+                        System.out.println(TimeUtil.GetTime(true)+" 订单:"+order_uid+" 产品:"+medicine_code+"创建成功!"+createItemMap);
+                        response.getWriter().write(gson.toJson(WebServerResponse.success("订单创建成功!",orderResponseList)));
+                    }
+                }else{
+                    System.out.println(TimeUtil.GetTime(true)+" 订单:"+order_uid+" 产品:"+medicine_code+"创建异常!");
+                    response.getWriter().write(gson.toJson(WebServerResponse.failure("订单:"+order_uid+" 产品:"+medicine_code+"创建异常!")));
+                }
             }
         }
     }
 
     @RequestMapping("/freshOrderStatus")
     public void freshOrderStatus(@RequestParam("order_uid") String order_uid,
+                                 @RequestParam("seller") String seller,
+                                 @RequestParam("applyType") String applyType,
                                  HttpServletResponse response) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
         //String freshBean=orderService.queryOrderTime(order_uid);
+        Map<String,Object> freshOrderStatusMap=new HashMap<>();
+        freshOrderStatusMap.put("order_uid",order_uid);
+        freshOrderStatusMap.put("order_seller",seller);
+        freshOrderStatusMap.put("sell_type",applyType);
+        System.out.println(TimeUtil.GetTime(true)+" 订单状态更新请求参数:"+freshOrderStatusMap);
         if(StringUtil.isEmptyOrNull(orderService.queryOrderTime(order_uid))){
             System.out.println(TimeUtil.GetTime(true)+" 订单:"+order_uid+"不存在!");
             response.getWriter().write(gson.toJson(WebServerResponse.failure("订单:"+order_uid+"不存在!")));
         }else{
-            boolean freshKey=orderService.updateOrderStatus(order_uid);
+            boolean freshKey=orderService.updateOrderStatus(freshOrderStatusMap);
             if(freshKey){
                 System.out.println(TimeUtil.GetTime(true)+" 订单:"+order_uid+"结算完成!");
                 response.getWriter().write(gson.toJson(WebServerResponse.success("订单:"+order_uid+"结算完成!")));

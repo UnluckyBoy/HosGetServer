@@ -23,6 +23,7 @@ public interface OrderService {
     List<MedicineOrderBean> queryAllSell();//总售金额
     List<MedicineOrderBean> querySellOrderInfo();
     List<MedicineOrderBean> queryUnSellOrderInfo();
+    List<MedicineOrderBean> queryOrderAllItem(String order_uid);
 
     OrderBean queryCurrentDayAmount();//当日销售总金额查询
     OrderBean queryYesterdayAmount();//当日销售总金额查询
@@ -31,12 +32,13 @@ public interface OrderService {
     OrderBean queryCurrentYearAmount();//当日销售总金额查询
     OrderBean queryAllAmount();//销售总金额查询
     String queryOrderTime(String order_uid);
+    OrderBean queryOrderItem(Map<String,Object> map);
     MedicineOrderBean queryOrderBaseAndMedicineName(Map<String, Object> map);
 
     List<MonthCountBean> queryMonthAllOrder();
 
     boolean upOrderOutWareHouse(Map<String,Object> map);
     boolean addOrderItem(Map<String,Object> map);//创建订单条目
-    boolean updateOrderStatus(String order_uid);//交易时更新订单状态
+    boolean updateOrderStatus(Map<String,Object> map);//交易时更新订单状态
     boolean updateOrderQuantity(Map<String,Object> map);
 }

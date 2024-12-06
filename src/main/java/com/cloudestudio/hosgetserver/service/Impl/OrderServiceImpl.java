@@ -71,9 +71,16 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.querySellOrderInfo();
     }
 
+    @DS("mysql")
     @Override
     public List<MedicineOrderBean> queryUnSellOrderInfo() {
         return orderMapper.queryUnSellOrderInfo();
+    }
+
+    @DS("mysql")
+    @Override
+    public List<MedicineOrderBean> queryOrderAllItem(String order_uid) {
+        return orderMapper.queryOrderAllItem(order_uid);
     }
 
     @DS("mysql")
@@ -120,6 +127,12 @@ public class OrderServiceImpl implements OrderService {
 
     @DS("mysql")
     @Override
+    public OrderBean queryOrderItem(Map<String, Object> map) {
+        return orderMapper.queryOrderItem(map);
+    }
+
+    @DS("mysql")
+    @Override
     public MedicineOrderBean queryOrderBaseAndMedicineName(Map<String, Object> map) {
         return orderMapper.queryOrderBaseAndMedicineName(map);
     }
@@ -144,10 +157,11 @@ public class OrderServiceImpl implements OrderService {
 
     @DS("mysql")
     @Override
-    public boolean updateOrderStatus(String order_uid) {
-        return orderMapper.updateOrderStatus(order_uid);
+    public boolean updateOrderStatus(Map<String,Object> map) {
+        return orderMapper.updateOrderStatus(map);
     }
 
+    @DS("mysql")
     @Override
     public boolean updateOrderQuantity(Map<String, Object> map) {
         return orderMapper.updateOrderQuantity(map);
