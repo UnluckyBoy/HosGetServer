@@ -234,7 +234,7 @@ public class MedicineController {
     }
 
     /**
-     * 查询库存中最晚的药剂信息
+     * 查询库存中最早的药剂信息
      * @param medicine_code
      * @param response
      * @throws IOException

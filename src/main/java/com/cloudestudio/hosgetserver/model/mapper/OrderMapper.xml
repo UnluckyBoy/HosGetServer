@@ -260,10 +260,66 @@
         WHERE
             order_info_table.order_status = 0;
     </select>
+    <!--查询订单以及药品名-->
+    <select id="queryOrderBaseAndMedicineName" parameterType="java.util.Map" resultType="MedicineOrderBean">
+        SELECT
+            order_info_table.order_uid,
+            order_info_table.medicine_code,
+            order_info_table.medicine_batch_number,
+            order_info_table.order_time,
+            order_info_table.order_amount,
+            order_info_table.order_status,
+            order_info_table.order_quantity,
+            medicine_base_table.medicine_name
+        FROM
+            order_info_table
+                INNER JOIN medicine_base_table ON order_info_table.medicine_code = medicine_base_table.medicine_code
+        WHERE
+            order_info_table.order_uid = #{order_uid}
+          AND order_info_table.medicine_code = #{medicine_code}
+            LIMIT 1;
+    </select>
+
+    <!--查询订单时间-->
+    <select id="queryOrderTime" parameterType="String" resultType="String">
+        SELECT
+            order_info_table.order_time
+        FROM
+            order_info_table
+        WHERE
+            order_info_table.order_uid = #{order_uid}
+            LIMIT 1;
+    </select>
     <!--销售订单相关查询-->
 
 
+    <!--插入逻辑-->
+    <!--创建订单条目-->
+    <insert id="addOrderItem" parameterType="java.util.Map">
+        INSERT INTO order_info_table
+        (order_uid,medicine_code,medicine_batch_number,order_time,order_amount,order_seller,order_quantity,sell_type)
+        VALUES
+            (#{order_uid},#{medicine_code},#{medicine_batch_number},#{order_time},#{order_amount},#{order_seller},#{order_quantity},#{sell_type});
+    </insert>
+
     <!--更新逻辑-->
+    <!--更新订单交易数量-->
+    <update id="updateOrderQuantity" parameterType="java.util.Map">
+        UPDATE order_info_table
+        SET order_info_table.order_quantity = #{order_quantity}
+        WHERE
+            order_info_table.order_uid = #{order_uid}
+          AND order_info_table.medicine_code=#{medicine_code}
+          AND order_info_table.medicine_batch_number=#{medicine_batch_number};
+    </update>
+    <!--更新订单交易状态-->
+    <update id="updateOrderStatus" parameterType="String">
+        UPDATE order_info_table
+        SET order_info_table.order_status = 1
+        WHERE
+            order_info_table.order_uid = #{order_uid};
+    </update>
+    <!--更新出库订单状态-->
     <update id="upOrderOutWareHouse" parameterType="java.util.Map">
         UPDATE order_info_table
         SET order_info_table.order_outWareHouse = 1
@@ -272,4 +328,12 @@
           AND order_info_table.medicine_code = #{medicine_code}
           AND order_info_table.medicine_batch_number=#{medicine_batch_number};
     </update>
+
+    <!--删除逻辑-->
+    <!--移除订单条目-->
+    <delete id="removeOrderItem" parameterType="java.util.Map">
+        DELETE FROM order_info_table
+        WHERE order_info_table.order_uid=#{order_uid}
+            AND order_info_table.medicine_batch_number=#{medicine_batch_number};
+    </delete>
 </mapper>

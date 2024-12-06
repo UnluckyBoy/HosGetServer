@@ -36,8 +36,13 @@ public interface OrderMapper {
     OrderBean queryLastMonthAmount();//上月销售总金额查询
     OrderBean queryCurrentYearAmount();//当日销售总金额查询
     OrderBean queryAllAmount();//销售总金额查询
+    String queryOrderTime(String order_uid);//查询订单时间
+    MedicineOrderBean queryOrderBaseAndMedicineName(Map<String, Object> map);
 
     List<MonthCountBean> queryMonthAllOrder();
 
     boolean upOrderOutWareHouse(Map<String,Object> map);//销售出库
+    boolean addOrderItem(Map<String,Object> map);//创建订单条目
+    boolean updateOrderStatus(String order_uid);//交易时更新订单状态
+    boolean updateOrderQuantity(Map<String,Object> map);
 }
