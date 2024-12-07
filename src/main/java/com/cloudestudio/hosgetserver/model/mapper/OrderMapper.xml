@@ -306,6 +306,7 @@
     <select id="queryOrderAllItem" parameterType="String" resultType="MedicineOrderBean">
         SELECT
             order_info_table.order_uid,
+            order_info_table.medicine_code,
             order_info_table.medicine_batch_number,
             order_info_table.order_amount,
             order_info_table.order_quantity,
@@ -343,7 +344,7 @@
         UPDATE order_info_table
         SET order_info_table.order_status = 1,
             order_info_table.order_seller=#{order_seller},
-            order_info_table.sell_type=#{order_info_table}
+            order_info_table.sell_type=#{sell_type}
         WHERE
             order_info_table.order_uid = #{order_uid};
     </update>
@@ -361,7 +362,9 @@
     <!--移除订单条目-->
     <delete id="removeOrderItem" parameterType="java.util.Map">
         DELETE FROM order_info_table
-        WHERE order_info_table.order_uid=#{order_uid}
-            AND order_info_table.medicine_batch_number=#{medicine_batch_number};
+        WHERE
+            order_info_table.order_uid=#{order_uid}
+          AND order_info_table.medicine_code=#{medicine_code}
+          AND order_info_table.medicine_batch_number=#{medicine_batch_number};
     </delete>
 </mapper>

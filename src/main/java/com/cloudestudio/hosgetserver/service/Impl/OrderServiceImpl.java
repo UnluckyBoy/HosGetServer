@@ -166,4 +166,9 @@ public class OrderServiceImpl implements OrderService {
     public boolean updateOrderQuantity(Map<String, Object> map) {
         return orderMapper.updateOrderQuantity(map);
     }
+
+    @Override
+    public boolean removeOrderItem(Map<String, Object> map) {
+        return orderMapper.removeOrderItem(map);
+    }
 }

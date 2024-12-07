@@ -194,6 +194,7 @@ public class OrderController {
                                 HttpServletResponse response) throws IOException{
         response.setContentType("application/json;charset=UTF-8");
         System.out.println(TimeUtil.GetTime(true)+" 创建订单条目-查询参数:"+medicine_code);
+
         MedicineAllBean requestOldestMedicine=medicineService.queryOldestMedicWareHouseInfo(medicine_code);
         String createTime=TimeUtil.GetTime(true);
         if(requestOldestMedicine==null){
@@ -228,16 +229,31 @@ public class OrderController {
                         response.getWriter().write(gson.toJson(WebServerResponse.failure("订单:"+order_uid+" 产品:"+medicine_code+"创建异常!")));
                     }
                 }else{
-                    System.out.println(TimeUtil.GetTime(true)+" orderBeanTemp为空！");
+                    System.out.println(TimeUtil.GetTime(true)+" 订单参数:"+createItemMap+"为创建！");
                     createItemMap.put("order_time",createTime);
                     createItemMap.put("order_quantity",1);
+                    createItemMap.put("order_amount",requestOldestMedicine.getMedicine_retail());
+                    boolean createKey=orderService.addOrderItem(createItemMap);
+                    if(createKey){
+                        System.out.println("订单:"+order_uid+" 产品:"+medicine_code+"创建成功!");
+                        List<MedicineOrderBean> orderResponseList=orderService.queryOrderAllItem(order_uid);
+                        if(orderResponseList==null|| orderResponseList.isEmpty()){
+                            System.out.println(TimeUtil.GetTime(true)+" 订单:"+order_uid+" 产品:"+medicine_code+"创建成功！但返回异常!");
+                            response.getWriter().write(gson.toJson(WebServerResponse.failure("订单:"+order_uid+" 产品:"+medicine_code+"返回异常!")));
+                        }else{
+                            System.out.println(TimeUtil.GetTime(true)+" 订单:"+order_uid+" 产品:"+medicine_code+"创建成功!"+createItemMap);
+                            response.getWriter().write(gson.toJson(WebServerResponse.success("订单创建成功!",orderResponseList)));
+                        }
+                    }else{
+                        System.out.println(TimeUtil.GetTime(true)+" 订单:"+order_uid+" 产品:"+medicine_code+"创建异常!");
+                        response.getWriter().write(gson.toJson(WebServerResponse.failure("订单:"+order_uid+" 产品:"+medicine_code+"创建异常!")));
+                    }
                 }
             }else{
                 //订单未创建
                 createItemMap.put("order_time",createTime);
                 createItemMap.put("order_quantity",1);
                 createItemMap.put("order_amount",requestOldestMedicine.getMedicine_retail());
-
                 boolean createKey=orderService.addOrderItem(createItemMap);
                 if(createKey){
                     System.out.println("订单:"+order_uid+" 产品:"+medicine_code+"创建成功!");
@@ -257,13 +273,20 @@ public class OrderController {
         }
     }
 
-    @RequestMapping("/freshOrderStatus")
+    /**
+     * 更新订单状态
+     * @param order_uid
+     * @param seller
+     * @param applyType
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("freshOrderStatus")
     public void freshOrderStatus(@RequestParam("order_uid") String order_uid,
                                  @RequestParam("seller") String seller,
                                  @RequestParam("applyType") String applyType,
                                  HttpServletResponse response) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
-        //String freshBean=orderService.queryOrderTime(order_uid);
         Map<String,Object> freshOrderStatusMap=new HashMap<>();
         freshOrderStatusMap.put("order_uid",order_uid);
         freshOrderStatusMap.put("order_seller",seller);
@@ -281,6 +304,35 @@ public class OrderController {
                 System.out.println(TimeUtil.GetTime(true)+" 订单:"+order_uid+"结算异常!");
                 response.getWriter().write(gson.toJson(WebServerResponse.failure("订单:"+order_uid+"结算异常!")));
             }
+        }
+    }
+
+    /**
+     * 移除订单条目
+     * @param order_uid
+     * @param medicine_code
+     * @param medicine_batch_number
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("/removeOrderItem")
+    public void removeOrderItem(@RequestParam("order_uid") String order_uid,
+                                @RequestParam("medicine_code") String medicine_code,
+                                @RequestParam("medicine_batch_number") String medicine_batch_number,
+                                HttpServletResponse response) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        Map<String,Object> removeItemMap=new HashMap<>();
+        removeItemMap.put("order_uid",order_uid);
+        removeItemMap.put("medicine_code",medicine_code);
+        removeItemMap.put("medicine_batch_number",medicine_batch_number);
+        System.out.println(TimeUtil.GetTime(true)+" 移除订单条目请求参数:"+removeItemMap);
+        boolean freshKey=orderService.removeOrderItem(removeItemMap);
+        if(freshKey){
+            System.out.println(TimeUtil.GetTime(true)+" 移除订单条目"+removeItemMap+"完成!");
+            response.getWriter().write(gson.toJson(WebServerResponse.success("移除订单条目完成!")));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" 移除订单条目"+removeItemMap+"异常!");
+            response.getWriter().write(gson.toJson(WebServerResponse.failure("移除订单条目异常!")));
         }
     }
     /***********************查询逻辑:MySql库********************/

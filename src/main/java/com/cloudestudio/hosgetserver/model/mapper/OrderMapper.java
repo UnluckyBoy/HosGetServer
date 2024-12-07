@@ -47,4 +47,5 @@ public interface OrderMapper {
     boolean addOrderItem(Map<String,Object> map);//创建订单条目
     boolean updateOrderStatus(Map<String,Object> map);//交易时更新订单状态
     boolean updateOrderQuantity(Map<String,Object> map);
+    boolean removeOrderItem(Map<String,Object> map);//移除订单条目
 }
