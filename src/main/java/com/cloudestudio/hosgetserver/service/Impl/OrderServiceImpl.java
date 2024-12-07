@@ -167,6 +167,7 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.updateOrderQuantity(map);
     }
 
+    @DS("mysql")
     @Override
     public boolean removeOrderItem(Map<String, Object> map) {
         return orderMapper.removeOrderItem(map);
