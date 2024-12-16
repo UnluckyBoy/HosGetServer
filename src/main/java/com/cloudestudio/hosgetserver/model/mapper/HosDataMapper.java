@@ -1,6 +1,9 @@
 package com.cloudestudio.hosgetserver.model.mapper;
 
 import com.cloudestudio.hosgetserver.model.HosDataBean;
+import com.cloudestudio.hosgetserver.model.PatientActivityBean;
+import com.cloudestudio.hosgetserver.model.PatientBaseInfoBean;
+import com.cloudestudio.hosgetserver.model.PatientInfReport;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
@@ -65,4 +68,169 @@ public interface HosDataMapper {
             "  AND ( INHOSD_HZSQ.SQSJ BETWEEN to_date( #{startTime}, 'yyyy-mm-dd hh24:mi:ss' ) AND to_date( #{endTime}, 'yyyy-mm-dd hh24:mi:ss' ) )")
     List<HosDataBean> queryInHospital_consultation(String startTime,String endTime);//院内会诊查询
 
+    @Select("SELECT" +
+            "  PATIENT_ZCXX.BRID AS id," +
+            "  PATIENT_ZCXX.BRXM AS patientName," +
+            "  '01' AS idCardTypeCode," +
+            "  '居民身份证' AS idCardTypeName," +
+            "  PATIENT_ZCXX.SFZH AS idCard," +
+            "  PATIENT_ZCXX.BRXB AS genderCode," +
+            "  ( CASE PATIENT_ZCXX.BRXB WHEN '1' THEN '男' WHEN '2' THEN '女' ELSE '未知' END ) AS genderName," +
+            "  ( CASE WHEN ( PATIENT_ZCXX.BRSR IS NULL ) THEN '' ELSE to_char( PATIENT_ZCXX.BRSR, 'yyyy-MM-dd') END) AS birthDate," +
+            "  '156' AS nationalityCode," +
+            "  '中国' AS nationalityName," +
+            "  PATIENT_ZCXX.MZBM AS nationCode," +
+            "  (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB = '民族编码') AND (PU_SJZD.XMBM = PATIENT_ZCXX.MZBM))) AS nationName," +
+            "  '' AS permanentAddrCode," +
+            "  '' AS permanentAddrName," +
+            "  '' AS permanentAddrDetail," +
+            "  '' AS currentAddrCode," +
+            "  '' AS currentAddrName," +
+            "  PATIENT_ZCXX.JTZZ AS currentAddrDetail," +
+            "  PATIENT_ZCXX.GZDW AS workUnit," +
+            "  '' AS maritalStatusCode," +
+            "  '' AS maritalStatusName," +
+            "  '' AS educationCode," +
+            "  '' AS educationName," +
+            "  '' AS nultitudeTypeCode," +
+            "  '' AS nultitudeTypeName," +
+            "  '' AS nultitude_type_other," +
+            "  PATIENT_ZCXX.SJ AS tel," +
+            "  PATIENT_ZCXX.LXR AS contacts," +
+            "  PATIENT_ZCXX.LXRDH AS contactsTel," +
+            "  '522632003' AS orgCode," +
+            "  '榕江县中医院' AS orgName," +
+            "  '0001' AS operatorId," +
+            "  SYSDATE AS operationTime " +
+            "FROM" +
+            "  PATIENT_ZCXX " +
+            "  INNER JOIN GH_BRGH ON GH_BRGH.BRID = PATIENT_ZCXX.BRID " +
+            "WHERE" +
+            "  gh_brgh.ghxh=#{regisNumber}")
+    PatientBaseInfoBean queryPatientBaseInfo(String regisNumber);//查询患者基表
+
+    @Select("SELECT " +
+            "  MZYS_BRZD.ZDID AS id, " +
+            "  GH_BRGH.BRID AS patientId, " +
+            "  ( CASE WHEN ( GH_BRGH.JZBZ = '1' ) THEN '2' ELSE '1' END ) AS activityTypeCode, " +
+            "  ( CASE WHEN ( GH_BRGH.JZBZ = '1' ) THEN '急诊' ELSE '门诊' END ) AS activityTypeName, " +
+            "  GH_BRGH.GHXH AS serialNumber, " +
+            "  ( CASE WHEN ( GH_BRGH.JZRQ IS NULL ) THEN '' ELSE to_char( GH_BRGH.JZRQ, 'yyyy-MM-dd hh24:mi:ss' ) END ) AS activityTime, " +
+            "  PATIENT_ZCXX.BRXM AS patientName, " +
+            "  '01' AS idCardTypeCode, " +
+            "  '居民身份证' AS idCardTypeName, " +
+            "  PATIENT_ZCXX.SFZH AS idCard, " +
+            "  MZYS_BRWZ.ZS AS chiefComplaint, " +
+            "  MZYS_BRWZ.XBS AS presentIllnessHis, " +
+            "  '体温：' || CAST( MZYS_BRWZ.TGJC_TW AS VARCHAR2 (4000) ) || ',心率：' || MZYS_BRWZ.TGJC_XT || ',血压：' || MZYS_BRWZ.TGJC_XY AS physicalExamination, " +
+            "  MZYS_BRWZ.FZJC AS studiesSummaryResult, " +
+            "  to_char( MZYS_BRZD.RQ, 'yyyy-MM-dd HH24:mi:ss' ) AS diagnoseTime, " +
+            "  MZYS_BRZD.ZDBM AS diseaseCode, " +
+            "  MZYS_BRZD.ZDMC AS diseaseName, " +
+            "  MZYS_BRZD.ZDBM AS wmDiseaseCode, " +
+            "  MZYS_BRZD.ZDMC AS wmDiseaseName, " +
+            "  '' AS tcmDiseaseCode, " +
+            "  '' AS tcmDiseaseName, " +
+            "  '' AS tcmSyndromeCode, " +
+            "  '' AS tcmSyndromeName, " +
+            "  ((SELECT substr( PU_CZY.czyxm, instr( PU_CZY.czyxm, '/' ) + 1 ) FROM PU_CZY WHERE (PU_CZY.CZYBM = MZYS_BRZD.YSBM ) AND ROWNUM = 1)) AS fillDoctor, " +
+            "  GH_BRGH.GHKS AS deptCode, " +
+            "  ( SELECT KS.KSMC FROM PU_KS KS WHERE ( KS.KSBM = GH_BRGH.GHKS ) AND ROWNUM = 1 ) AS deptName, " +
+            "  '522632003' AS orgCode, " +
+            "  '榕江县中医院' AS orgName, " +
+            "  '0001' AS operatorId, " +
+            "  SYSDATE AS operationTime  " +
+            "FROM " +
+            "  MZYS_BRZD  " +
+            "  INNER JOIN GH_BRGH ON ( MZYS_BRZD.GHXH = GH_BRGH.GHXH ) " +
+            "  INNER JOIN PATIENT_ZCXX ON ( GH_BRGH.BRID = PATIENT_ZCXX.BRID ) " +
+            "  INNER JOIN MZYS_BRWZ ON ( GH_BRGH.GHXH = MZYS_BRWZ.GHXH )  " +
+            "WHERE " +
+            "  ((GH_BRGH.JZRQ IS NOT NULL) AND (MZYS_BRZD.ZDLX ='1')) " +
+            "  AND ( GH_BRGH.GHXH =#{regisNumber})")
+    List<PatientActivityBean> queryPatientActivityInfo(String regisNumber);//查询患者门诊信息
+
+    @Select("SELECT" +
+            "  PATIENT_ZCXX.BRID AS id," +
+            "  PATIENT_ZCXX.BRXM AS patientName," +
+            "  '01' AS idCardTypeCode," +
+            "  '居民身份证' AS idCardTypeName," +
+            "  PATIENT_ZCXX.SFZH AS idCard," +
+            "  PATIENT_ZCXX.BRXB AS genderCode," +
+            "  ( CASE PATIENT_ZCXX.BRXB WHEN '1' THEN '男' WHEN '2' THEN '女' ELSE '未知' END ) AS genderName," +
+            "  ( CASE WHEN ( PATIENT_ZCXX.BRSR IS NULL ) THEN '' ELSE to_char( PATIENT_ZCXX.BRSR, 'yyyy-MM-dd') END) AS birthDate," +
+            "  '156' AS nationalityCode," +
+            "  '中国' AS nationalityName," +
+            "  PATIENT_ZCXX.MZBM AS nationCode," +
+            "  (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB = '民族编码') AND (PU_SJZD.XMBM = PATIENT_ZCXX.MZBM))) AS nationName," +
+            "  '' AS permanentAddrCode," +
+            "  '' AS permanentAddrName," +
+            "  '' AS permanentAddrDetail," +
+            "  '' AS currentAddrCode," +
+            "  '' AS currentAddrName," +
+            "  PATIENT_ZCXX.JTZZ AS currentAddrDetail," +
+            "  PATIENT_ZCXX.GZDW AS workUnit," +
+            "  '' AS maritalStatusCode," +
+            "  '' AS maritalStatusName," +
+            "  '' AS educationCode," +
+            "  '' AS educationName," +
+            "  '' AS nultitudeTypeCode," +
+            "  '' AS nultitudeTypeName," +
+            "  '' AS nultitude_type_other," +
+            "  PATIENT_ZCXX.SJ AS tel," +
+            "  PATIENT_ZCXX.LXR AS contacts," +
+            "  PATIENT_ZCXX.LXRDH AS contactsTel," +
+            "  '522632003' AS orgCode," +
+            "  '榕江县中医院' AS orgName," +
+            "  '0001' AS operatorId," +
+            "  SYSDATE AS operationTime " +
+            "FROM" +
+            "  PATIENT_ZCXX " +
+            "  INNER JOIN GH_BRGH ON GH_BRGH.BRID = PATIENT_ZCXX.BRID " +
+            "WHERE" +
+            "  TRUNC(GH_BRGH.GHRQ) = TRUNC(SYSDATE) AND GH_BRGH.SFJZ='1' AND GH_BRGH.THBZ='0'")
+    List<PatientBaseInfoBean> queryPatientBaseInfoList();//当日患者信息查询
+
+    @Select("SELECT " +
+            "  MZYS_BRZD.ZDID AS id, " +
+            "  GH_BRGH.BRID AS patientId, " +
+            "  ( CASE WHEN ( GH_BRGH.JZBZ = '1' ) THEN '2' ELSE '1' END ) AS activityTypeCode, " +
+            "  ( CASE WHEN ( GH_BRGH.JZBZ = '1' ) THEN '急诊' ELSE '门诊' END ) AS activityTypeName, " +
+            "  GH_BRGH.GHXH AS serialNumber, " +
+            "  ( CASE WHEN ( GH_BRGH.JZRQ IS NULL ) THEN '' ELSE to_char( GH_BRGH.JZRQ, 'yyyy-MM-dd hh24:mi:ss' ) END ) AS activityTime, " +
+            "  PATIENT_ZCXX.BRXM AS patientName, " +
+            "  '01' AS idCardTypeCode, " +
+            "  '居民身份证' AS idCardTypeName, " +
+            "  PATIENT_ZCXX.SFZH AS idCard, " +
+            "  MZYS_BRWZ.ZS AS chiefComplaint, " +
+            "  MZYS_BRWZ.XBS AS presentIllnessHis, " +
+            "  '体温：' || CAST( MZYS_BRWZ.TGJC_TW AS VARCHAR2 (4000) ) || ',心率：' || MZYS_BRWZ.TGJC_XT || ',血压：' || MZYS_BRWZ.TGJC_XY AS physicalExamination, " +
+            "  MZYS_BRWZ.FZJC AS studiesSummaryResult, " +
+            "  to_char( MZYS_BRZD.RQ, 'yyyy-MM-dd HH24:mi:ss' ) AS diagnoseTime, " +
+            "  MZYS_BRZD.ZDBM AS diseaseCode, " +
+            "  MZYS_BRZD.ZDMC AS diseaseName, " +
+            "  MZYS_BRZD.ZDBM AS wmDiseaseCode, " +
+            "  MZYS_BRZD.ZDMC AS wmDiseaseName, " +
+            "  '' AS tcmDiseaseCode, " +
+            "  '' AS tcmDiseaseName, " +
+            "  '' AS tcmSyndromeCode, " +
+            "  '' AS tcmSyndromeName, " +
+            "  ((SELECT substr( PU_CZY.czyxm, instr( PU_CZY.czyxm, '/' ) + 1 ) FROM PU_CZY WHERE (PU_CZY.CZYBM = MZYS_BRZD.YSBM ) AND ROWNUM = 1)) AS fillDoctor, " +
+            "  GH_BRGH.GHKS AS deptCode, " +
+            "  ( SELECT KS.KSMC FROM PU_KS KS WHERE ( KS.KSBM = GH_BRGH.GHKS ) AND ROWNUM = 1 ) AS deptName, " +
+            "  '522632003' AS orgCode, " +
+            "  '榕江县中医院' AS orgName, " +
+            "  '0001' AS operatorId, " +
+            "  SYSDATE AS operationTime  " +
+            "FROM " +
+            "  MZYS_BRZD  " +
+            "  INNER JOIN GH_BRGH ON ( MZYS_BRZD.GHXH = GH_BRGH.GHXH ) " +
+            "  INNER JOIN PATIENT_ZCXX ON ( GH_BRGH.BRID = PATIENT_ZCXX.BRID ) " +
+            "  INNER JOIN MZYS_BRWZ ON ( GH_BRGH.GHXH = MZYS_BRWZ.GHXH )  " +
+            "WHERE " +
+            "  ((GH_BRGH.JZRQ IS NOT NULL) AND (MZYS_BRZD.ZDLX ='1')) " +
+            "  AND (GH_BRGH.GHXH IN (SELECT gh_brgh.ghxh FROM gh_brgh WHERE (TRUNC(GH_BRGH.GHRQ) = TRUNC(SYSDATE) AND GH_BRGH.SFJZ='1' AND GH_BRGH.THBZ='0')))")
+    List<PatientActivityBean> queryEmrActivityInfo();//当日患者门诊诊断信息查询
+
+    List<PatientInfReport> queryEmrInfReport();//查询传染病报告卡
 }

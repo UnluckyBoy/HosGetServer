@@ -2,6 +2,8 @@ package com.cloudestudio.hosgetserver.service.Impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cloudestudio.hosgetserver.model.HosDataBean;
+import com.cloudestudio.hosgetserver.model.PatientActivityBean;
+import com.cloudestudio.hosgetserver.model.PatientBaseInfoBean;
 import com.cloudestudio.hosgetserver.model.UserInfoBean;
 import com.cloudestudio.hosgetserver.model.mapper.HosDataMapper;
 import com.cloudestudio.hosgetserver.model.mapper.UserMapper;
@@ -19,9 +21,6 @@ import java.util.Map;
 @Service("HosDataService")
 public class HosDataServiceImpl implements HosDataService {
     @Autowired
-    UserMapper userMapper;
-
-    @Autowired
     HosDataMapper hosDataMapper;
 
     @DS("oracle")
@@ -30,9 +29,27 @@ public class HosDataServiceImpl implements HosDataService {
         return hosDataMapper.queryInHospital_consultation(startTime,endTime);
     }
 
-    @DS("mysql")
+    @DS("oracle")
     @Override
-    public UserInfoBean loginQuery(Map<String, Object> map) {
-        return userMapper.loginQuery(map);
+    public List<PatientBaseInfoBean> queryPatientBaseInfoList() {
+        return hosDataMapper.queryPatientBaseInfoList();
+    }
+
+    @DS("oracle")
+    @Override
+    public List<PatientActivityBean> queryEmrActivityInfo() {
+        return hosDataMapper.queryEmrActivityInfo();
+    }
+
+    @DS("oracle")
+    @Override
+    public PatientBaseInfoBean queryPatientBaseInfo(String regisNumber) {
+        return hosDataMapper.queryPatientBaseInfo(regisNumber);
+    }
+
+    @DS("oracle")
+    @Override
+    public List<PatientActivityBean> queryPatientActivityInfo(String regisNumber) {
+        return hosDataMapper.queryPatientActivityInfo(regisNumber);
     }
 }

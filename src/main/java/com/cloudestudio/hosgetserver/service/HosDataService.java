@@ -1,6 +1,8 @@
 package com.cloudestudio.hosgetserver.service;
 
 import com.cloudestudio.hosgetserver.model.HosDataBean;
+import com.cloudestudio.hosgetserver.model.PatientActivityBean;
+import com.cloudestudio.hosgetserver.model.PatientBaseInfoBean;
 import com.cloudestudio.hosgetserver.model.UserInfoBean;
 
 import java.util.Date;
@@ -16,5 +18,9 @@ import java.util.Map;
  */
 public interface HosDataService {
     List<HosDataBean> queryInHospital_consultation(String startTime,String endTime);
-    UserInfoBean loginQuery(Map<String, Object> map);
+    List<PatientBaseInfoBean> queryPatientBaseInfoList();
+    List<PatientActivityBean> queryEmrActivityInfo();
+
+    PatientBaseInfoBean queryPatientBaseInfo(String regisNumber);
+    List<PatientActivityBean> queryPatientActivityInfo(String regisNumber);
 }
