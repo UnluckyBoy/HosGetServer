@@ -1,10 +1,7 @@
 package com.cloudestudio.hosgetserver.service.Impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
-import com.cloudestudio.hosgetserver.model.HosDataBean;
-import com.cloudestudio.hosgetserver.model.PatientActivityBean;
-import com.cloudestudio.hosgetserver.model.PatientBaseInfoBean;
-import com.cloudestudio.hosgetserver.model.UserInfoBean;
+import com.cloudestudio.hosgetserver.model.*;
 import com.cloudestudio.hosgetserver.model.mapper.HosDataMapper;
 import com.cloudestudio.hosgetserver.model.mapper.UserMapper;
 import com.cloudestudio.hosgetserver.service.HosDataService;
@@ -43,6 +40,12 @@ public class HosDataServiceImpl implements HosDataService {
 
     @DS("oracle")
     @Override
+    public List<PatientInfReport> queryEmrInfReportBySerialNumber(String serial_number) {
+        return hosDataMapper.queryEmrInfReportBySerialNumber(serial_number);
+    }
+
+    @DS("oracle")
+    @Override
     public PatientBaseInfoBean queryPatientBaseInfo(String regisNumber) {
         return hosDataMapper.queryPatientBaseInfo(regisNumber);
     }
@@ -51,5 +54,29 @@ public class HosDataServiceImpl implements HosDataService {
     @Override
     public List<PatientActivityBean> queryPatientActivityInfo(String regisNumber) {
         return hosDataMapper.queryPatientActivityInfo(regisNumber);
+    }
+
+    @DS("oracle")
+    @Override
+    public ReportQueryPatientBaseInfo createReportQueryBaseInfo(String serial_number) {
+        return hosDataMapper.createReportQueryBaseInfo(serial_number);
+    }
+
+    @DS("oracle")
+    @Override
+    public int queryInfectiousDiseaseCount() {
+        return hosDataMapper.queryInfectiousDiseaseCount();
+    }
+
+    @DS("oracle")
+    @Override
+    public List<AddrInfo> queryAddrInfo(String addr) {
+        return hosDataMapper.queryAddrInfo(addr);
+    }
+
+    @DS("oracle2")
+    @Override
+    public String queryAddrCode(String addr) {
+        return hosDataMapper.queryAddrCode(addr);
     }
 }

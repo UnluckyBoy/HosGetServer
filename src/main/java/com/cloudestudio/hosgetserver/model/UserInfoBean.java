@@ -14,6 +14,7 @@ import java.io.Serializable;
 public class UserInfoBean implements Serializable {
     private String uAccount;
     private String uName;
+    private String uTel;
     private String organization_name;
     private String headerImageUrl;
     private String authority_key;

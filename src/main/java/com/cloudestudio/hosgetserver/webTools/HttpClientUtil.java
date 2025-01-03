@@ -52,27 +52,5 @@ public class HttpClientUtil {
                 return new PushResponse(false, desc, errorCode, errorName, id);
             }
         }
-//        int responseCode = connection.getResponseCode();
-//        if (responseCode == HttpURLConnection.HTTP_OK) {
-//            try (BufferedReader br = new BufferedReader(
-//                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
-//
-//                StringBuilder response = new StringBuilder();
-//                String responseLine;
-//                while ((responseLine = br.readLine()) != null) {
-//                    response.append(responseLine.trim());
-//                }
-//
-//                JSONObject jsonObject = new JSONObject(response.toString());
-//                boolean result = jsonObject.getBoolean("result");
-//                String desc = jsonObject.getString("desc");
-//                String errorCode = jsonObject.optString("errorCode", null); // 使用 optString 以防字段不存在
-//                String errorName = jsonObject.optString("errorName", null);
-//                String id = jsonObject.getString("id");
-//                return new PushResponse(result, desc, errorCode, errorName, id);
-//            }
-//        } else {
-//            return new PushResponse(false, "HTTP error code: " + responseCode, null, null, null);
-//        }
     }
 }

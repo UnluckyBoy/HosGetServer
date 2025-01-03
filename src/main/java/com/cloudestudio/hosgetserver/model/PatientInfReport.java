@@ -49,7 +49,7 @@ public class PatientInfReport {
     private String disease_name;
     private String disease_other;
     private String diagnose_state_code;
-    private String diagnose_statename;
+    private String diagnose_state_name;
     private String case_type_code;
     private String case_type_name;
     private String dead_date;
@@ -57,8 +57,8 @@ public class PatientInfReport {
     private String is_dead_by_this_name;
     private String symptoms_code;
     private String symptoms_name;
-    private String laboratory_detection_verdict_code;
-    private String laboratory_detection_verdict_name;
+    private String verdict_code;//laboratory_detection_verdict_code
+    private String verdict_name;//laboratory_detection_verdict_name
     private String detection_positive_date;
     private String detection_org_code;
     private String dt_diagnose;

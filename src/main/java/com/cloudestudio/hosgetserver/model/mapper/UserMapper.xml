@@ -9,6 +9,7 @@
         SELECT
             login_info_table.uAccount,
             login_info_table.uName,
+            login_info_table.uTel,
             login_info_table.organization_name,
             login_info_table.headerImageUrl,
             GROUP_CONCAT( authority_table.authority_key ORDER BY authority_table.authority_key SEPARATOR ',' ) AS authority_key
@@ -21,6 +22,7 @@
         GROUP BY
             login_info_table.uAccount,
             login_info_table.uName,
+            login_info_table.uTel,
             login_info_table.organization_name,
             login_info_table.headerImageUrl;
     </select>
