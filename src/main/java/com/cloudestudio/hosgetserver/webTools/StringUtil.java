@@ -32,4 +32,17 @@ public class StringUtil {
             return input;
         }
     }
+
+    /**
+     * 将null转""
+     * @param input
+     * @return
+     */
+    public static String strNullToEmpty(String input) {
+        return (input != null) ? input : "";
+    }
+
+    public static String clearStr(String input) {
+        return (input.equals("null")) ? "" : input;
+    }
 }

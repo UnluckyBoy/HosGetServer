@@ -401,7 +401,7 @@ public interface HosDataMapper {
 
 
     /**插入逻辑**/
-    @Insert("INSERT INTO table_name (INFECTIOUS_DISEASE.CARD_ID, INFECTIOUS_DISEASE.SERIAL_NUMBER, INFECTIOUS_DISEASE.REPORT_TYPE," +
+    @Insert("INSERT INTO INFECTIOUS_DISEASE (INFECTIOUS_DISEASE.CARD_ID, INFECTIOUS_DISEASE.SERIAL_NUMBER, INFECTIOUS_DISEASE.REPORT_TYPE," +
             "INFECTIOUS_DISEASE.PATIENT_NAME,INFECTIOUS_DISEASE.PATIENT_CONTRACT,INFECTIOUS_DISEASE.PATIENT_IDCARD_TYPE,INFECTIOUS_DISEASE.PATIENT_IDCARD," +
             "INFECTIOUS_DISEASE.PATIENT_BIRTH,INFECTIOUS_DISEASE.PATIENT_GENDER,INFECTIOUS_DISEASE.PATIENT_AGE,INFECTIOUS_DISEASE.PATIENT_AGE_TYPE," +
             "INFECTIOUS_DISEASE.WORK_UNIT,INFECTIOUS_DISEASE.CONTRACT_TEL,INFECTIOUS_DISEASE.ADDR_TYPE,INFECTIOUS_DISEASE.ADDR,INFECTIOUS_DISEASE.PERSON_TYPE," +
@@ -415,7 +415,105 @@ public interface HosDataMapper {
             "INFECTIOUS_DISEASE.HFM_DISEASE_LEVEL,INFECTIOUS_DISEASE.MONKEYPOX_RESULT,INFECTIOUS_DISEASE.PERTUSSIS_LEVEL,INFECTIOUS_DISEASE.INTIMATE_CONTACT_SYMPTOM," +
             "INFECTIOUS_DISEASE.UPDATE_DISEASE_NAME,INFECTIOUS_DISEASE.ROLLBACK_CARD_REASON,INFECTIOUS_DISEASE.REPORT_ORG,INFECTIOUS_DISEASE.REPORT_DOCTOR," +
             "INFECTIOUS_DISEASE.REPORT_DOCTOR_TEL,INFECTIOUS_DISEASE.REPORT_CREATE_TIME,INFECTIOUS_DISEASE.REMARK) " +
-            "VALUES (#{reportCardId}, #{serialNumber}, #{reportCardType},#{patientName},#{patientContract},#{idCardType},#{idCard},#{patientBirthday}," +
-            "#{patientGender},#{patientAge},#{patientAgeType},#{workUnit},#{patientTel},#{addrType},#{patientBirthday},)")
-    boolean createCReportCard(Map<String,Object> map);
+            "VALUES (#{reportCardId}, #{serialNumber}, #{personType},#{patientName},#{patientContract},#{idCardType},#{idCard},TO_DATE(#{patientBirthday},'YYYY-MM-DD Hh24:MI:SS')," +
+            "#{patientGender},#{patientAge},#{patientAgeType},#{workUnit},#{patientTel},#{addrType},#{currentAddrDetailed},#{personType},#{personTypeOther}," +
+            "#{maritalStatus},#{educationLevel},#{illnessType},#{diagnosisType},TO_DATE(#{illnessTime},'YYYY-MM-DD Hh24:MI:SS'),TO_DATE(#{diagnosisTime},'YYYY-MM-DD Hh24:MI:SS')," +
+            "TO_DATE(#{deathTime},'YYYY-MM-DD Hh24:MI:SS'),#{diseaseA},#{diseaseB},#{diseaseC},#{diseaseD},#{covid19Level},#{covid19Type}," +
+            "TO_DATE(#{covid19OutHosTime},'YYYY-MM-DD Hh24:MI:SS'),#{stdExposurePattern},#{stdExposureSource},#{stdExposureType},#{stdExposureSample}," +
+            "TO_DATE(#{stdExposureTime},'YYYY-MM-DD Hh24:MI:SS'),#{stdExposureOrg},TO_DATE(#{hepatitisBHBsAgTime},'YYYY-MM-DD Hh24:MI:SS'),#{hepatitisBIgM1}," +
+            "#{hepatitisBPunctureResult},#{hepatitisBHBsAgResult},TO_DATE(#{hepatitisBTime},'YYYY-MM-DD Hh24:MI:SS'),#{hepatitisBAlt},#{hfmDiseaseResult},#{hfmDiseaseLevel}," +
+            "#{monkeyPoxResult},#{pertussisLevel},#{intimateContactSymptom},#{updateDiseaseName},#{rollbackCardReason},#{reportOrg},#{reportDoctor},#{reportDoctorTel}," +
+            "TO_DATE(#{reportCreateTime},'YYYY-MM-DD Hh24:MI:SS'),#{remark})")
+    boolean createCReportCard(Map<String,Object> map);//报告卡填写写入
+    
+    @Select("SELECT" +
+            "  INFECTIOUS_DISEASE.CARD_ID AS reportCardId," +
+            "  INFECTIOUS_DISEASE.REPORT_TYPE AS reportCardType," +
+            "  INFECTIOUS_DISEASE.SERIAL_NUMBER AS serialNumber," +
+            "  INFECTIOUS_DISEASE.Patient_Name AS patientName," +
+            "  INFECTIOUS_DISEASE.Patient_Gender AS patientGender," +
+            "  INFECTIOUS_DISEASE.Patient_Age AS patientAge," +
+            "  INFECTIOUS_DISEASE.Contract_Tel AS patientTel," +
+            "  INFECTIOUS_DISEASE.Patient_Contract AS patientContract," +
+            "  INFECTIOUS_DISEASE.Patient_Birth AS patientBirthday," +
+            "  INFECTIOUS_DISEASE.Patient_Idcard_Type AS idCardType," +
+            "  INFECTIOUS_DISEASE.Patient_Idcard AS idCard," +
+            "  INFECTIOUS_DISEASE.Work_Unit AS workUnit," +
+            "  (SELECT ADDR_INFO.ADDR_NAME FROM ADDR_INFO WHERE ADDR_INFO.ADDR_CODE=INFECTIOUS_DISEASE.Addr) AS currentAddrDetailed," +
+            "  INFECTIOUS_DISEASE.Morbidity_Time AS illnessTime," +
+            "  INFECTIOUS_DISEASE.Diagnose_Time AS diagnosisTime," +
+            "  INFECTIOUS_DISEASE.Death_Time AS deathTime," +
+            "  INFECTIOUS_DISEASE.Addr_Type AS addrType," +
+            "  INFECTIOUS_DISEASE.Person_Type AS personType," +
+            "  INFECTIOUS_DISEASE.Person_Type_Other AS personTypeOther," +
+            "  INFECTIOUS_DISEASE.Disease_Type," +
+            "  INFECTIOUS_DISEASE.Diagnose_Type AS diagnosisType," +
+            "  INFECTIOUS_DISEASE.Disease_a AS diseaseA," +
+            "  INFECTIOUS_DISEASE.Disease_b AS diseaseB," +
+            "  INFECTIOUS_DISEASE.Disease_c AS diseaseC," +
+            "  INFECTIOUS_DISEASE.Other_Disease AS diseaseD," +
+            "  INFECTIOUS_DISEASE.Marital_Status AS maritalStatus," +
+            "  INFECTIOUS_DISEASE.Education_Level AS educationLevel," +
+            "  INFECTIOUS_DISEASE.Covid_19_Level AS covid19Level," +
+            "  INFECTIOUS_DISEASE.Covid_19_Type AS covid19Type," +
+            "  INFECTIOUS_DISEASE.Covid_19_Outhos_Time AS covid19OutHosTime," +
+            "  INFECTIOUS_DISEASE.Std_Exposure_Pattern AS stdExposurePattern," +
+            "  INFECTIOUS_DISEASE.Std_Exposure_Source AS stdExposureSource," +
+            "  INFECTIOUS_DISEASE.Std_Exposure_Type AS stdExposureType," +
+            "  INFECTIOUS_DISEASE.Std_Exposure_Org AS stdExposureOrg," +
+            "  INFECTIOUS_DISEASE.Std_Exposure_Time AS stdExposureTime," +
+            "  INFECTIOUS_DISEASE.Std_Exposure_Sample AS stdExposureSample," +
+            "  INFECTIOUS_DISEASE.Hepatitisb_Hbsag_Uptime AS hepatitisBHBsAgTime," +
+            "  INFECTIOUS_DISEASE.Hepatitisb_Igm1 AS hepatitisBIgM1," +
+            "  INFECTIOUS_DISEASE.Hepatitisb_Puncture_Result AS hepatitisBPunctureResult," +
+            "  INFECTIOUS_DISEASE.Hepatitisb_Hbsag_Upresult AS hepatitisBHBsAgResult," +
+            "  INFECTIOUS_DISEASE.Hepatitisb_Symptom_Time AS hepatitisBTime," +
+            "  INFECTIOUS_DISEASE.Hepatitisb_Alt AS hepatitisBAlt," +
+            "  INFECTIOUS_DISEASE.Hfm_Disease_Result AS hfmDiseaseResult," +
+            "  INFECTIOUS_DISEASE.Hfm_Disease_Level AS hfmDiseaseLevel," +
+            "  INFECTIOUS_DISEASE.Monkeypox_Result AS monkeyPoxResult," +
+            "  INFECTIOUS_DISEASE.Pertussis_Level AS pertussisLevel," +
+            "  INFECTIOUS_DISEASE.Intimate_Contact_Symptom AS intimateContactSymptom," +
+            "  INFECTIOUS_DISEASE.Update_Disease_Name AS updateDiseaseName," +
+            "  INFECTIOUS_DISEASE.Rollback_Card_Reason AS rollbackCardReason," +
+            "  INFECTIOUS_DISEASE.Report_Org AS reportOrg," +
+            "  INFECTIOUS_DISEASE.Report_Doctor AS reportDoctor," +
+            "  INFECTIOUS_DISEASE.Report_Doctor_Tel AS reportDoctorTel," +
+            "  INFECTIOUS_DISEASE.Report_Create_Time AS reportCreateTime," +
+            "  INFECTIOUS_DISEASE.Remark AS remark " +
+            "FROM" +
+            "  INFECTIOUS_DISEASE " +
+            "WHERE" +
+            "  INFECTIOUS_DISEASE.SERIAL_NUMBER IN (#{serialNumber})")
+    ReportCardBody queryReportCard(String serialNumber);//查询传染病报告卡
+
+    @Select("SELECT " +
+            "MZYS_JYSQ.Ryghxh AS serialNumber," +
+            "(SELECT patient_zcxx.brxm FROM patient_zcxx WHERE patient_zcxx.brid=gh_brgh.brid) AS patientName," +
+            "(SELECT DECODE(patient_zcxx.brxb,'1','男','2','女','3','未知') FROM patient_zcxx WHERE patient_zcxx.brid=gh_brgh.brid) AS patientGender," +
+            "(gh_brgh.brnl||DECODE(gh_brgh.brnldw,'1','岁','2','月','3','天','4','时')) AS patientAge," +
+            "'' AS patientBedNum," +
+            "(MZYS_BRWZ.Cbzd||','||MZYS_BRWZ.Qtzd||','||MZYS_BRWZ.Qtzd2||','||MZYS_BRWZ.Qtzd3) AS diagnose,"+
+            "(SELECT pu_czy.czyxm FROM pu_czy WHERE pu_czy.czybm=MZYS_JYSQ.Sqys) AS doctorName," +
+            "(SELECT pu_ks.ksmc FROM pu_ks WHERE pu_ks.ksbm=MZYS_JYSQ.Mzks) AS doctorDepartment," +
+            "(SELECT patient_zcxx.sj FROM patient_zcxx WHERE patient_zcxx.brid=gh_brgh.brid) AS patientTel " +
+            "FROM MZYS_JYSQ " +
+            "INNER JOIN MZYS_JYSQMX ON MZYS_JYSQMX.JYSQH=MZYS_JYSQ.JYSQH " +
+            "INNER JOIN gh_brgh ON gh_brgh.ghxh=MZYS_JYSQ.Ryghxh " +
+            "INNER JOIN MZYS_BRWZ ON MZYS_BRWZ.GHXH=MZYS_JYSQ.Ryghxh "+
+            "WHERE (MZYS_JYSQ.JYSQH=#{queryKey} OR MZYS_JYSQ.Ryghxh=#{queryKey}) " +
+            "AND ROWNUM=1" +
+            "UNION ALL " +
+            "SELECT " +
+            "inhos_rydj.zyh AS serialNumber," +
+            "(SELECT patient_zcxx.brxm FROM patient_zcxx WHERE patient_zcxx.brid=inhos_rydj.brid) AS patientName," +
+            "(SELECT DECODE(patient_zcxx.brxb,'1','男','2','女','3','未知') FROM patient_zcxx WHERE patient_zcxx.brid=inhos_rydj.brid) AS patientGender," +
+            "(inhos_rydj.brnl||DECODE(inhos_rydj.brnldw,'1','岁','2','月','3','天','4','时')) AS patientAge," +
+            "(SELECT INHOS_CWH.CWBH FROM INHOS_CWH WHERE INHOS_CWH.CWID=inhos_rydj.rycwid) AS patientBedNum," +
+            "inhos_rydj.mzxyzdmc AS diagnose,"+
+            "(SELECT pu_czy.czyxm FROM pu_czy WHERE pu_czy.czybm=inhos_rydj.zyys) AS doctorName," +
+            "(SELECT pu_ks.ksmc FROM pu_ks WHERE pu_ks.ksbm=inhos_rydj.ryks) AS doctorDepartment," +
+            "(SELECT patient_zcxx.sj FROM patient_zcxx WHERE patient_zcxx.brid=inhos_rydj.brid) AS patientTel " +
+            "FROM inhos_rydj WHERE inhos_rydj.zyh=#{queryKey}")
+    PathologyPatientInfoBean queryPathology(String queryKey);//病理申请患者信息查询
 }

@@ -74,6 +74,24 @@ public class HosDataServiceImpl implements HosDataService {
         return hosDataMapper.queryAddrInfo(addr);
     }
 
+    @DS("oracle")
+    @Override
+    public boolean createCReportCard(Map<String, Object> map) {
+        return hosDataMapper.createCReportCard(map);
+    }
+
+    @DS("oracle")
+    @Override
+    public ReportCardBody queryReportCard(String serialNumber) {
+        return hosDataMapper.queryReportCard(serialNumber);
+    }
+
+    @DS("oracle")
+    @Override
+    public PathologyPatientInfoBean queryPathology(String queryKey) {
+        return hosDataMapper.queryPathology(queryKey);
+    }
+
     @DS("oracle2")
     @Override
     public String queryAddrCode(String addr) {

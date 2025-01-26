@@ -18,4 +18,5 @@ public class UserInfoBean implements Serializable {
     private String organization_name;
     private String headerImageUrl;
     private String authority_key;
+    private String department_name;
 }

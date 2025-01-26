@@ -1,10 +1,7 @@
 package com.cloudestudio.hosgetserver.controller;
 
 import com.cloudestudio.hosgetserver.model.*;
-import com.cloudestudio.hosgetserver.service.HosDataService;
-import com.cloudestudio.hosgetserver.service.MedicineService;
-import com.cloudestudio.hosgetserver.service.PrintStyleService;
-import com.cloudestudio.hosgetserver.service.UserLoginService;
+import com.cloudestudio.hosgetserver.service.*;
 import com.cloudestudio.hosgetserver.webTools.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,11 +11,12 @@ import com.google.zxing.WriterException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -33,6 +31,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 数据控制类
@@ -48,6 +47,9 @@ public class DataController {
 
     @Autowired
     private UserLoginService userLoginService;
+
+    @Autowired
+    private PathologyService pathologyService;
 
     private static final Gson gson=new Gson();//Json数据对象
     private static final Gson gsonConfig=new GsonBuilder().serializeNulls().create();//Json数据对象,强制将NULL返回
@@ -288,42 +290,55 @@ public class DataController {
         }
     }
 
-    @RequestMapping("createReportCard")
-    public void createReport(HttpServletResponse response,
-                             @RequestParam("reportCardId") String reportCardId,@RequestParam("reportCardType") String reportCardType,
-                             @RequestParam("serialNumber") String serialNumber,@RequestParam("patientName") String patientName,
-                             @RequestParam("patientGender") String patientGender,@RequestParam("patientAge") String patientAge,
-                             @RequestParam("patientTel") String patientTel,@RequestParam("patientContract") String patientContract,
-                             @RequestParam("patientBirthday") String patientBirthday,@RequestParam("idCardType") String idCardType,
-                             @RequestParam("idCard") String idCard,@RequestParam("workUnit") String workUnit,
-                             @RequestParam("currentAddrDetailed") String currentAddrDetailed,@RequestParam("illnessTime") String illnessTime,
-                             @RequestParam("diagnosisTime") String diagnosisTime,@RequestParam("deathTime") String deathTime,
-                             @RequestParam("addrType") String addrType,@RequestParam("personType") String personType,
-                             @RequestParam("illnessType") String illnessType,@RequestParam("diagnosisType") String diagnosisType,
-                             @RequestParam("diseaseA") String diseaseA,@RequestParam("diseaseB") String diseaseB,@RequestParam("diseaseC") String diseaseC,
-                             @RequestParam("diseaseD") String diseaseD,@RequestParam("maritalStatus") String maritalStatus,@RequestParam("educationLevel") String educationLevel,
-                             @RequestParam("covid19Level") String covid19Level,@RequestParam("covid19Type") String covid19Type, @RequestParam("covid19OutHosTime") String covid19OutHosTime,
-                             @RequestParam("stdExposurePattern") String stdExposurePattern,@RequestParam("stdExposureSource") String stdExposureSource,
-                             @RequestParam("stdExposureType") String stdExposureType,@RequestParam("stdExposureOrg") String stdExposureOrg,
-                             @RequestParam("stdExposureTime") String stdExposureTime,@RequestParam("stdExposureSample") String stdExposureSample,
-                             @RequestParam("hepatitisBHBsAgTime") String hepatitisBHBsAgTime,@RequestParam("hepatitisBIgM1") String hepatitisBIgM1,
-                             @RequestParam("hepatitisBPunctureResult") String hepatitisBPunctureResult,@RequestParam("hepatitisBHBsAgResult") String hepatitisBHBsAgResult,
-                             @RequestParam("hepatitisBTime") String hepatitisBTime,@RequestParam("hepatitisBAlt") String hepatitisBAlt,
-                             @RequestParam("hfmDiseaseResult") String hfmDiseaseResult,@RequestParam("hfmDiseaseLevel") String hfmDiseaseLevel,
-                             @RequestParam("monkeyPoxResult") String monkeyPoxResult,@RequestParam("pertussisLevel") String pertussisLevel,
-                             @RequestParam("intimateContactSymptom") String intimateContactSymptom,@RequestParam("updateDiseaseName") String updateDiseaseName,
-                             @RequestParam("rollbackCardReason") String rollbackCardReason,@RequestParam("reportOrg") String reportOrg,
-                             @RequestParam("reportDoctor") String reportDoctor,@RequestParam("reportDoctorTel") String reportDoctorTel,
-                             @RequestParam("reportCreateTime") String reportCreateTime,@RequestParam("remark") String remark)throws IOException{
+    /**
+     * 传染病报告卡查询
+     * @param response
+     * @param serialNumber
+     */
+    @RequestMapping("queryReport")
+    public void queryReport(HttpServletResponse response,String serialNumber) throws URISyntaxException,IOException{
         response.setContentType("application/json;charset=UTF-8");
+
+        ReportCardBody body=hosDataService.queryReportCard(serialNumber);
+        if(body==null){
+            System.out.println(TimeUtil.GetTime(true)+" ---报告卡查询失败:"+serialNumber);
+            response.getWriter().write(gson.toJson(WebServerResponse.failure("报告卡未存在")));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" ---报告卡查询成功:"+body);
+            response.getWriter().write(gson.toJson(WebServerResponse.success("报告卡查询成功",body)));
+        }
+    }
+
+    /**
+     * 创建报告卡
+     * @param response
+     * @param reportCardBody
+     * @throws IOException
+     */
+    @RequestMapping("createReportCard")
+    public void createReport(HttpServletResponse response, @RequestBody ReportCardBody reportCardBody)throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        System.out.println(TimeUtil.GetTime(true)+" ---报告卡创建请求参数:"+gsonConfig.toJson(reportCardBody));
+
         Map<String,Object> requestMap=new HashMap<>();
-        requestMap.put("reportCardId",reportCardId);
-        requestMap.put("reportCardType",reportCardType);
-        requestMap.put("serialNumber",serialNumber);
-        requestMap.put("patientName",patientName);
-        requestMap.put("patientGender",patientGender);
-        String[] parts = patientAge.matches("(\\d+)([\\u4E00-\\u9FFF]+)") ?
-                patientAge.replaceAll("(\\d+)([\\u4E00-\\u9FFF]+)", "$1 $2").split(" ") :
+        requestMap.put("reportCardId",StringUtil.strNullToEmpty(reportCardBody.getReportCardId()));
+        requestMap.put("reportCardType",StringUtil.strNullToEmpty(reportCardBody.getReportCardType()));
+        requestMap.put("serialNumber",StringUtil.strNullToEmpty(reportCardBody.getSerialNumber()));
+        requestMap.put("patientName",StringUtil.strNullToEmpty(reportCardBody.getPatientName()));
+        switch(reportCardBody.getPatientGender()){
+            case"男":
+                requestMap.put("patientGender","1");
+                break;
+            case "女":
+                requestMap.put("patientGender","2");
+                break;
+            default:
+                requestMap.put("patientGender","0");
+                break;
+        }
+        //requestMap.put("patientGender",StringUtil.strNullToEmpty(reportCardBody.getPatientGender()));
+        String[] parts = reportCardBody.getPatientAge().matches("(\\d+)([\\u4E00-\\u9FFF]+)") ?
+                reportCardBody.getPatientAge().replaceAll("(\\d+)([\\u4E00-\\u9FFF]+)", "$1 $2").split(" ") :
                 new String[]{"", ""};
         String ageTemp=null,ageTypeTemp=null;
         if (parts.length == 2) {
@@ -334,59 +349,236 @@ public class DataController {
         }
         requestMap.put("patientAge",ageTemp);
         requestMap.put("patientAgeType",AgeUnitConverter.getValue(ageTypeTemp));
-        requestMap.put("patientTel",patientTel);
-        requestMap.put("patientContract",patientContract);
-        requestMap.put("patientBirthday",patientBirthday);
-        requestMap.put("idCardType",idCardType);
-        requestMap.put("idCard",idCard);
-        requestMap.put("workUnit",workUnit);
-        requestMap.put("currentAddrDetailed",currentAddrDetailed);
-        requestMap.put("illnessTime",illnessTime);
-        requestMap.put("diagnosisTime",diagnosisTime);
-        requestMap.put("deathTime",deathTime);
-        requestMap.put("addrType",addrType);
-        requestMap.put("personType",personType);
-        requestMap.put("personTypeOther","");
-        requestMap.put("illnessType",illnessType);
-        requestMap.put("diagnosisType",diagnosisType);
-        requestMap.put("diseaseA",diseaseA);
-        requestMap.put("diseaseB",diseaseB);
-        requestMap.put("diseaseC",diseaseC);
-        requestMap.put("diseaseD",diseaseD);
-        requestMap.put("maritalStatus",maritalStatus);
-        requestMap.put("educationLevel",educationLevel);
-        requestMap.put("covid19Level",covid19Level);
-        requestMap.put("covid19Type",covid19Type);
-        requestMap.put("covid19OutHosTime",covid19OutHosTime);
-        requestMap.put("stdExposurePattern",stdExposurePattern);
-        requestMap.put("stdExposureSource",stdExposureSource);
-        requestMap.put("stdExposureType",stdExposureType);
-        requestMap.put("stdExposureOrg",stdExposureOrg);
-        requestMap.put("stdExposureTime",stdExposureTime);
-        requestMap.put("stdExposureSample",stdExposureSample);
-        requestMap.put("hepatitisBHBsAgTime",hepatitisBHBsAgTime);
-        requestMap.put("hepatitisBIgM1",hepatitisBIgM1);
-        requestMap.put("hepatitisBPunctureResult",hepatitisBPunctureResult);
-        requestMap.put("hepatitisBHBsAgResult",hepatitisBHBsAgResult);
-        requestMap.put("hepatitisBTime",hepatitisBTime);
-        requestMap.put("hepatitisBAlt",hepatitisBAlt);
-        requestMap.put("hfmDiseaseResult",hfmDiseaseResult);
-        requestMap.put("hfmDiseaseLevel",hfmDiseaseLevel);
-        requestMap.put("monkeyPoxResult",monkeyPoxResult);
-        requestMap.put("pertussisLevel",pertussisLevel);
-        requestMap.put("intimateContactSymptom",intimateContactSymptom);
-        requestMap.put("updateDiseaseName",updateDiseaseName);
-        requestMap.put("rollbackCardReason",rollbackCardReason);
-        requestMap.put("reportOrg",reportOrg);
-        requestMap.put("reportDoctor",reportDoctor);
-        requestMap.put("reportDoctorTel",reportDoctorTel);
-        requestMap.put("reportCreateTime",reportCreateTime);
-        requestMap.put("remark",remark);
-        System.out.println(TimeUtil.GetTime(true)+" ---报告卡创建请求参数:"+requestMap);
+        requestMap.put("patientTel",StringUtil.strNullToEmpty(reportCardBody.getPatientTel()));
+        requestMap.put("patientContract",StringUtil.strNullToEmpty(reportCardBody.getPatientContract()));
+        requestMap.put("patientBirthday",StringUtil.strNullToEmpty(reportCardBody.getPatientBirthday()));
+        requestMap.put("idCardType",StringUtil.strNullToEmpty(reportCardBody.getIdCardType()));
+        requestMap.put("idCard",StringUtil.strNullToEmpty(reportCardBody.getIdCard()));
+        requestMap.put("workUnit",StringUtil.strNullToEmpty(reportCardBody.getWorkUnit()));
+        //requestMap.put("workUnit",(reportCardBody.getWorkUnit() != null) ? reportCardBody.getWorkUnit() : "");
+        requestMap.put("currentAddrDetailed",StringUtil.strNullToEmpty(reportCardBody.getCurrentAddrDetailed()));
+        requestMap.put("illnessTime",StringUtil.strNullToEmpty(reportCardBody.getIllnessTime()));
+        requestMap.put("diagnosisTime",StringUtil.strNullToEmpty(reportCardBody.getDiagnosisTime()));
+        requestMap.put("deathTime",StringUtil.strNullToEmpty(reportCardBody.getDeathTime()));
+        requestMap.put("addrType",StringUtil.strNullToEmpty(reportCardBody.getAddrType()));
+        requestMap.put("personType",StringUtil.strNullToEmpty(reportCardBody.getPersonType()));
+        requestMap.put("personTypeOther",StringUtil.strNullToEmpty(reportCardBody.getPersonTypeOther()));
+        requestMap.put("illnessType",StringUtil.strNullToEmpty(reportCardBody.getIllnessType()));
+        requestMap.put("diagnosisType",StringUtil.strNullToEmpty(reportCardBody.getDiagnosisType()));
+        requestMap.put("diseaseA",StringUtil.strNullToEmpty(reportCardBody.getDiseaseA()));
+        requestMap.put("diseaseB",StringUtil.strNullToEmpty(reportCardBody.getDiseaseB()));
+        requestMap.put("diseaseC",StringUtil.strNullToEmpty(reportCardBody.getDiseaseC()));
+        requestMap.put("diseaseD",StringUtil.strNullToEmpty(reportCardBody.getDiseaseD()));
+        requestMap.put("maritalStatus",StringUtil.strNullToEmpty(reportCardBody.getMaritalStatus()));
+        requestMap.put("educationLevel",StringUtil.strNullToEmpty(reportCardBody.getEducationLevel()));
+        requestMap.put("covid19Level",StringUtil.strNullToEmpty(reportCardBody.getCovid19Level()));
+        requestMap.put("covid19Type",StringUtil.strNullToEmpty(reportCardBody.getCovid19Type()));
+        requestMap.put("covid19OutHosTime",StringUtil.strNullToEmpty(reportCardBody.getCovid19OutHosTime()));
+        requestMap.put("stdExposurePattern",StringUtil.strNullToEmpty(reportCardBody.getStdExposurePattern()));
+        requestMap.put("stdExposureSource",StringUtil.strNullToEmpty(reportCardBody.getStdExposureSource()));
+        requestMap.put("stdExposureType",StringUtil.strNullToEmpty(reportCardBody.getStdExposureType()));
+        requestMap.put("stdExposureOrg",StringUtil.strNullToEmpty(reportCardBody.getStdExposureOrg()));
+        requestMap.put("stdExposureTime",StringUtil.strNullToEmpty(reportCardBody.getStdExposureTime()));
+        requestMap.put("stdExposureSample",StringUtil.strNullToEmpty(reportCardBody.getStdExposureSample()));
+        requestMap.put("hepatitisBHBsAgTime",StringUtil.strNullToEmpty(reportCardBody.getHepatitisBHBsAgTime()));
+        requestMap.put("hepatitisBIgM1",StringUtil.strNullToEmpty(reportCardBody.getHepatitisBIgM1()));
+        requestMap.put("hepatitisBPunctureResult",StringUtil.strNullToEmpty(reportCardBody.getHepatitisBPunctureResult()));
+        requestMap.put("hepatitisBHBsAgResult",StringUtil.strNullToEmpty(reportCardBody.getHepatitisBHBsAgResult()));
+        requestMap.put("hepatitisBTime",StringUtil.strNullToEmpty(reportCardBody.getHepatitisBTime()));
+        requestMap.put("hepatitisBAlt",StringUtil.strNullToEmpty(reportCardBody.getHepatitisBAlt()));
+        requestMap.put("hfmDiseaseResult",StringUtil.strNullToEmpty(reportCardBody.getHfmDiseaseResult()));
+        requestMap.put("hfmDiseaseLevel",StringUtil.strNullToEmpty(reportCardBody.getHfmDiseaseLevel()));
+        requestMap.put("monkeyPoxResult",StringUtil.strNullToEmpty(reportCardBody.getMonkeyPoxResult()));
+        requestMap.put("pertussisLevel",StringUtil.strNullToEmpty(reportCardBody.getPertussisLevel()));
+        requestMap.put("intimateContactSymptom",StringUtil.strNullToEmpty(reportCardBody.getIntimateContactSymptom()));
+        requestMap.put("updateDiseaseName",StringUtil.strNullToEmpty(reportCardBody.getUpdateDiseaseName()));
+        requestMap.put("rollbackCardReason",StringUtil.strNullToEmpty(reportCardBody.getRollbackCardReason()));
+        requestMap.put("reportOrg",StringUtil.strNullToEmpty(reportCardBody.getReportOrg()));
+        requestMap.put("reportDoctor",StringUtil.strNullToEmpty(reportCardBody.getReportDoctor()));
+        requestMap.put("reportDoctorTel",StringUtil.strNullToEmpty(reportCardBody.getReportDoctorTel()));
+        requestMap.put("reportCreateTime",StringUtil.strNullToEmpty(reportCardBody.getReportCreateTime()));
+        requestMap.put("remark",StringUtil.strNullToEmpty(reportCardBody.getRemark()));
+        System.out.println(TimeUtil.GetTime(true)+" ---报告卡创建参数:"+requestMap);
 
-        response.getWriter().write(gsonConfig.toJson(WebServerResponse.success("报告卡创建成功")));
+        boolean createResult=hosDataService.createCReportCard(requestMap);
+        if(createResult){
+            System.out.println(TimeUtil.GetTime(true)+" ---报告卡创建成功:"+requestMap);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.success("报告卡创建成功")));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" ---报告卡创建失败:"+requestMap);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("报告卡创建失败")));
+        }
     }
 
+    /**
+     * 查询申请病理患者基本信息
+     * @param response
+     * @param serialNumber
+     * @throws IOException
+     */
+    @RequestMapping("PathologyPatientInfo")
+    public void queryPathology(HttpServletResponse response, @RequestParam("serialNumber") String serialNumber)throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        System.out.println(TimeUtil.GetTime(true)+" ---请求参数:"+serialNumber);
+        PathologyPatientInfoBean responseBean=hosDataService.queryPathology(serialNumber);
+        if(responseBean==null){
+            System.out.println(TimeUtil.GetTime(true)+" ---获取失败_参数:"+serialNumber);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("查询失败")));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" ---获取成功_参数:"+serialNumber+"--"+responseBean);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.success("查询成功",responseBean)));
+        }
+    }
+
+    /*
+    *
+    * */
+    @PostMapping("/upload/pdf")
+    public void upLoadFile(HttpServletResponse response,
+                                     @RequestParam("serialNumber") String serialNumber,
+                                     @RequestParam("patientName") String patientName,
+                                     @RequestParam("patientGender") String patientGender,
+                                     @RequestParam("patientAge") String patientAge,
+                                     @RequestParam("patientBedNum") String patientBedNum,
+                                     @RequestParam("doctorName") String doctorName,
+                                     @RequestParam("doctorDepartment") String doctorDepartment,
+                                     @RequestParam("patientTel") String patientTel,
+                                     @RequestParam("inspectionItem") String inspectionItem,
+                                     @RequestParam("inspectionTime") String inspectionTime,
+                                     @RequestParam("diagnose") String diagnose,
+                                     @RequestParam("file") MultipartFile file)throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        Map<String,Object> requestMap=new HashMap<>();
+        requestMap.put("serialNumber",serialNumber);
+        requestMap.put("patientName",patientName);
+        requestMap.put("patientGender",patientGender);
+        requestMap.put("patientAge",patientAge);
+        requestMap.put("patientBedNum",StringUtil.clearStr(patientBedNum));
+        requestMap.put("doctorName",doctorName);
+        requestMap.put("doctorDepartment",doctorDepartment);
+        requestMap.put("patientTel",patientTel);
+        requestMap.put("inspectionItem",inspectionItem);
+        requestMap.put("inspectionTime",inspectionTime);
+        requestMap.put("diagnose",diagnose);
+        System.out.println(TimeUtil.GetTime(true)+" ---请求参数:"+requestMap);
+
+        if(file.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---获取失败_参数:"+serialNumber);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("上传异常！文件缺失。。。")));
+        }else{
+            String originalFilename = file.getOriginalFilename();
+            String fileSuffix = originalFilename.substring(originalFilename.lastIndexOf(".")+1).toLowerCase();//文件名后缀
+            String fileName=serialNumber+"_"+patientName+"."+fileSuffix;
+            System.out.println(TimeUtil.GetTime(true)+" ---文件名:"+fileName);
+            boolean saveKey=FileUtil.writePdfFile(fileName,file);
+            if(saveKey){
+                requestMap.put("reportPath","/Uploads/"+fileName);
+
+                boolean insertKey=pathologyService.createPathologyReport(requestMap);
+                if(insertKey){
+                    System.out.println(TimeUtil.GetTime(true)+" ---参数:"+requestMap);
+                    response.getWriter().write(gsonConfig.toJson(WebServerResponse.success(patientName+"-病理报告上传成功")));
+                }else{
+                    System.out.println(TimeUtil.GetTime(true)+" ---参数:"+requestMap);
+                    response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("上传异常-数据库写入异常!")));
+                }
+            }else{
+                response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("上传异常-文件写入异常!")));
+            }
+        }
+    }
+
+    /**
+     * 按科室查询病理报告
+     * @param response
+     * @param doctorDepartment
+     * @throws IOException
+     */
+    @RequestMapping("PathologyReportByDepartment")
+    public void queryPathologyByDepart(HttpServletResponse response,
+                                       @RequestParam("doctorDepartment") String doctorDepartment)throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+
+        List<PathologyPatientInfoBean> reportBean=pathologyService.queryPathologyByDepart(doctorDepartment);
+        if(reportBean==null){
+            System.out.println(TimeUtil.GetTime(true)+" 病历报告查询异常---参数:"+doctorDepartment+null);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("病历报告查询异常!")));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" 病理报告查询成功---参数:"+doctorDepartment+reportBean);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.success("病理报告查询成功",reportBean)));
+        }
+    }
+
+    /**
+     * 管理员
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("PathologyReport")
+    public void queryPathologyReport(HttpServletResponse response)throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        List<PathologyPatientInfoBean> reportBean=pathologyService.queryPathologyReport();
+        if(reportBean==null){
+            System.out.println(TimeUtil.GetTime(true)+" 病历报告查询异常---参数:管理员"+null);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("病历报告查询异常!")));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" 病理报告查询成功---参数:管理员"+reportBean);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.success("病理报告查询成功",reportBean)));
+        }
+    }
+
+    /**
+     * 按月-科室统计
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("statisticsByDepartMonth")
+    public void statisticsByDepartMonth(HttpServletResponse response)throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+
+        List<StatisticsBean> statisticsBeans=pathologyService.statisticsByDepartMonth();
+        if(statisticsBeans==null|| statisticsBeans.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" 统计异常"+null);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("统计异常!")));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" 统计成功---参数:管理员"+statisticsBeans);
+
+            // 使用Stream API进行分组和转换
+            Map<String, List<Integer>> groupedData = statisticsBeans.stream()
+                    .collect(Collectors.groupingBy(
+                            StatisticsBean::getDoctorDepartment, // 按照科室分组
+                            Collectors.mapping(
+                                    StatisticsBean::getSNum, // 提取序列号计数
+                                    Collectors.toList() // 收集到列表中
+                            )
+                    ));
+
+            // 将分组后的数据转换为DepartmentStatistics对象列表
+            List<DepartmentStatistics> departmentStatisticsList = new ArrayList<>();
+            for (Map.Entry<String, List<Integer>> entry : groupedData.entrySet()) {
+                departmentStatisticsList.add(new DepartmentStatistics(entry.getKey(), entry.getValue()));
+            }
+            departmentStatisticsList.forEach(System.out::println);
+
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.success("统计成功",departmentStatisticsList)));
+        }
+    }
+
+
+    @RequestMapping("RemoveReport")
+    public void removeReport(HttpServletResponse response,
+                             @RequestParam("serialNumber") String serialNumber) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+
+        boolean removeKey=pathologyService.removeReport(serialNumber);
+        if(removeKey){
+            System.out.println(TimeUtil.GetTime(true)+" 删除成功_参数:"+serialNumber);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.success("报告删除成功:"+serialNumber)));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" 删除异常_参数:"+serialNumber);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("报告删除异常!---"+serialNumber)));
+        }
+    }
 
     @RequestMapping("/test")
     public void Test(HttpServletResponse response,

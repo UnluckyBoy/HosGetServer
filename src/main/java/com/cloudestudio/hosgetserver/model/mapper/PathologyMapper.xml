@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudestudio.hosgetserver.model.mapper.PathologyMapper">
+    <!--查询逻辑-->
+    <!--全部病理报告查询-->
+    <select id="queryPathologyReport" resultType="PathologyPatientInfoBean">
+        SELECT
+            pathology_table.serialNumber,
+            pathology_table.patientName,
+            pathology_table.patientGender,
+            pathology_table.patientAge,
+            pathology_table.diagnose,
+            pathology_table.inspectionTime,
+            pathology_table.doctorName,
+            pathology_table.doctorDepartment,
+            pathology_table.reportPath
+        FROM
+            pathology_table;
+    </select>
+    <!--按科室查询病理报告-->
+    <select id="queryPathologyByDepart" resultType="PathologyPatientInfoBean" parameterType="String">
+        SELECT
+            pathology_table.serialNumber,
+            pathology_table.patientName,
+            pathology_table.patientGender,
+            pathology_table.patientAge,
+            pathology_table.diagnose,
+            pathology_table.inspectionTime,
+            pathology_table.doctorName,
+            pathology_table.doctorDepartment,
+            pathology_table.reportPath
+        FROM
+            pathology_table
+        WHERE
+            pathology_table.doctorDepartment LIKE CONCAT('%', #{department}, '%');
+</select>
+
+    <!--按科室-月份统计-->
+    <select id="statisticsByDepartMonth" resultType="StatisticsBean">
+        WITH RECURSIVE MonthSeries AS ( SELECT 1 AS month_num UNION ALL SELECT month_num + 1 FROM MonthSeries WHERE month_num &lt; 12 ),
+            DepartmentMonths AS (
+                SELECT DISTINCT
+                    d.doctorDepartment,
+                    m.month_num,
+                    YEAR( CURRENT_DATE ) AS year_num
+                FROM
+                    pathology_table p
+                    CROSS JOIN MonthSeries m
+                    JOIN ( SELECT DISTINCT doctorDepartment FROM pathology_table ) d),
+            MonthlyStats AS (
+                SELECT
+                doctorDepartment,
+                MONTH( inspectionTime ) AS month_num,
+                YEAR( inspectionTime ) AS year_num,
+                COUNT( serialNumber ) AS serialNumberCount
+            FROM
+                pathology_table
+            GROUP BY
+                doctorDepartment,
+                MONTH( inspectionTime ),
+                YEAR( inspectionTime )
+            )
+            SELECT
+                dm.doctorDepartment,
+                CASE
+                dm.month_num
+                WHEN 1 THEN
+                '1月'
+                WHEN 2 THEN
+                '2月'
+                WHEN 3 THEN
+                '3月'
+                WHEN 4 THEN
+                '4月'
+                WHEN 5 THEN
+                '5月'
+                WHEN 6 THEN
+                '6月'
+                WHEN 7 THEN
+                '7月'
+                WHEN 8 THEN
+                '8月'
+                WHEN 9 THEN
+                '9月'
+                WHEN 10 THEN
+                '10月'
+                WHEN 11 THEN
+                '11月'
+                WHEN 12 THEN
+                '12月'
+                END AS sMonth,
+                COALESCE( ms.serialNumberCount, 0 ) AS sNum
+            FROM
+                DepartmentMonths dm
+                LEFT JOIN MonthlyStats ms ON dm.doctorDepartment = ms.doctorDepartment
+                AND dm.month_num = ms.month_num
+                AND dm.year_num = ms.year_num
+                ORDER BY
+                dm.doctorDepartment,
+                dm.month_num;
+    </select>
+
+    <!--插入逻辑-->
+    <insert id="createPathologyReport">
+        insert into pathology_table (pathology_table.serialNumber,pathology_table.patientName,pathology_table.patientGender,
+                                     pathology_table.patientAge,pathology_table.patientBedNum,pathology_table.doctorName,
+                                     pathology_table.doctorDepartment,pathology_table.patientTel,pathology_table.inspectionItem,
+                                     pathology_table.inspectionTime,pathology_table.diagnose,pathology_table.reportPath)
+        values (#{serialNumber},#{patientName},#{patientGender},#{patientAge},#{patientBedNum},#{doctorName},
+                #{doctorDepartment},#{patientTel},#{inspectionItem},#{inspectionTime},#{diagnose},#{reportPath});
+    </insert>
+
+    <!--删除逻辑-->
+    <delete id="removeReport" parameterType="String">
+        delete from pathology_table where pathology_table.serialNumber=#{serialNumber};
+    </delete>
+</mapper>

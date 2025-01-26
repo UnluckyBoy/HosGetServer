@@ -47,7 +47,7 @@ public class CorsConfig extends WebMvcConfigurationSupport {
          */
         if (backResourceDir != null && !backResourceDir.isEmpty()) {
             backResourceDir = backResourceDir.endsWith(File.separator) ? backResourceDir : backResourceDir + File.separator;
-            registry.addResourceHandler("/image/**").addResourceLocations("file:" + backResourceDir);
+            registry.addResourceHandler("/files/**").addResourceLocations("file:" + backResourceDir);
         }
         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/","classpath:/templates/");
     }

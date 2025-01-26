@@ -24,6 +24,10 @@ public interface HosDataService {
     ReportQueryPatientBaseInfo createReportQueryBaseInfo(String serial_number);
     int queryInfectiousDiseaseCount();
     List<AddrInfo> queryAddrInfo(String addr);
+    boolean createCReportCard(Map<String,Object> map);
+
+    ReportCardBody queryReportCard(String serialNumber);
+    PathologyPatientInfoBean queryPathology(String queryKey);
 
     /** Oracle2库**/
     String queryAddrCode(String addr);
