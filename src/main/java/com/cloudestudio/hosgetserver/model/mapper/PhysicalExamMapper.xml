@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudestudio.hosgetserver.model.mapper.PhysicalExamMapper">
+    <!--查询逻辑-->
+    <!--按注册日期查询-->
+    <select id="queryPatientInfoByDate" parameterType="String" resultType="com.cloudestudio.hosgetserver.model.physicalExamination.PatientInfoBean">
+        SELECT
+            patient_zcxx.brid AS patientId,
+            patient_zcxx.brxm AS patientName,
+            patient_zcxx.brxb AS sex,
+            TRUNC( patient_zcxx.brsr ) AS birthday,
+            DECODE(patient_zcxx.zjlx,NULL,'1',patient_zcxx.zjlx) AS idCardType,
+            patient_zcxx.sfzh AS idCard,
+            (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB='民族编码') AND (PU_SJZD.XMBM=patient_zcxx.mzbm))) AS nation,
+            '中国' AS citizenship,
+            patient_zcxx.sj AS phone,
+            PATIENT_YLKXX.YLKH AS medCardNo,
+            '' AS allergicHistory,
+            (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB='职业编码') AND (PU_SJZD.XMBM=patient_zcxx.zybm))) AS professional,
+            ((SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB ='省级编码') AND ( PU_SJZD.XMBM = patient_zcxx.xzz_sheng ) ) ) || ( SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ( ( PU_SJZD.XMLB = '市级编码' ) AND ( PU_SJZD.XMBM = patient_zcxx.xzz_shi ) ) ) || ( SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ( ( PU_SJZD.XMLB = '县级编码' ) AND ( PU_SJZD.XMBM = patient_zcxx.xzz_xian ) ) ) || patient_zcxx.xzz_xxdz
+                ) AS address
+        FROM
+            patient_zcxx
+                INNER JOIN PATIENT_YLKXX ON PATIENT_YLKXX.Brid = patient_zcxx.brid
+        WHERE
+            patient_zcxx.zcrq BETWEEN to_date(#{startDate},'yyyy-mm-dd hh24:mi:ss') AND to_date(#{endDate},'yyyy-mm-dd hh24:mi:ss')
+    </select>
+    <!--按就诊卡号查询-->
+    <select id="queryPatientInfoByMedCard" parameterType="String" resultType="com.cloudestudio.hosgetserver.model.physicalExamination.PatientInfoBean">
+        SELECT
+            patient_zcxx.brid AS patientId,
+            patient_zcxx.brxm AS patientName,
+            patient_zcxx.brxb AS sex,
+            TRUNC( patient_zcxx.brsr ) AS birthday,
+            DECODE(patient_zcxx.zjlx,NULL,'1',patient_zcxx.zjlx) AS idCardType,
+            patient_zcxx.sfzh AS idCard,
+            (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB='民族编码') AND (PU_SJZD.XMBM=patient_zcxx.mzbm))) AS nation,
+            '中国' AS citizenship,
+            patient_zcxx.sj AS phone,
+            PATIENT_YLKXX.YLKH AS medCardNo,
+            '' AS allergicHistory,
+            (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB='职业编码') AND (PU_SJZD.XMBM=patient_zcxx.zybm))) AS professional,
+            ((SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB ='省级编码') AND ( PU_SJZD.XMBM = patient_zcxx.xzz_sheng ) ) ) || ( SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ( ( PU_SJZD.XMLB = '市级编码' ) AND ( PU_SJZD.XMBM = patient_zcxx.xzz_shi ) ) ) || ( SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ( ( PU_SJZD.XMLB = '县级编码' ) AND ( PU_SJZD.XMBM = patient_zcxx.xzz_xian ) ) ) || patient_zcxx.xzz_xxdz
+                ) AS address
+        FROM
+            patient_zcxx
+                INNER JOIN PATIENT_YLKXX ON PATIENT_YLKXX.Brid = patient_zcxx.brid
+        WHERE
+            PATIENT_YLKXX.Ylkh IN (#{medCardNo})
+    </select>
+    <!--按身份证号查询-->
+    <select id="queryPatientInfoByIdCard" parameterType="String" resultType="com.cloudestudio.hosgetserver.model.physicalExamination.PatientInfoBean">
+        SELECT
+            patient_zcxx.brid AS patientId,
+            patient_zcxx.brxm AS patientName,
+            patient_zcxx.brxb AS sex,
+            TRUNC( patient_zcxx.brsr ) AS birthday,
+            DECODE(patient_zcxx.zjlx,NULL,'1',patient_zcxx.zjlx) AS idCardType,
+            patient_zcxx.sfzh AS idCard,
+            (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB='民族编码') AND (PU_SJZD.XMBM=patient_zcxx.mzbm))) AS nation,
+            '中国' AS citizenship,
+            patient_zcxx.sj AS phone,
+            PATIENT_YLKXX.YLKH AS medCardNo,
+            '' AS allergicHistory,
+            (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB='职业编码') AND (PU_SJZD.XMBM=patient_zcxx.zybm))) AS professional,
+            ((SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB ='省级编码') AND ( PU_SJZD.XMBM = patient_zcxx.xzz_sheng ) ) ) || ( SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ( ( PU_SJZD.XMLB = '市级编码' ) AND ( PU_SJZD.XMBM = patient_zcxx.xzz_shi ) ) ) || ( SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ( ( PU_SJZD.XMLB = '县级编码' ) AND ( PU_SJZD.XMBM = patient_zcxx.xzz_xian ) ) ) || patient_zcxx.xzz_xxdz
+                ) AS address
+        FROM
+            patient_zcxx
+                INNER JOIN PATIENT_YLKXX ON PATIENT_YLKXX.Brid = patient_zcxx.brid
+        WHERE
+            patient_zcxx.sfzh IN (#{idCard})
+    </select>
+
+</mapper>

@@ -15,6 +15,9 @@ public class StringUtil {
     public static boolean isEmptyOrNull(String str){
         return str==null||str.isEmpty();
     }
+    public static boolean isNotEmptyOrNotNull(String str) {
+        return !isEmptyOrNull(str);
+    }
 
     /**
      * 截取、之前的字符串
