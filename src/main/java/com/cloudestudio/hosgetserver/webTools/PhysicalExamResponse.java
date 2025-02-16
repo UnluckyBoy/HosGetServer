@@ -20,16 +20,24 @@ public class PhysicalExamResponse {
     public static PhysicalExamResponse success(Object data){
         PhysicalExamResponse resultResponse=new PhysicalExamResponse();
         resultResponse.setSuccess(true);
-        resultResponse.setMessage("请求成功!");
-        resultResponse.setCode(200);
+        resultResponse.setMessage(ResponseCode.SUCCESS.getMsg());
+        resultResponse.setCode(ResponseCode.SUCCESS.getCode());
         resultResponse.setContent(data);
         return resultResponse;
     }
     public static PhysicalExamResponse failure(){
         PhysicalExamResponse resultResponse=new PhysicalExamResponse();
         resultResponse.setSuccess(false);
-        resultResponse.setMessage("请求失败!");
-        resultResponse.setCode(404);
+        resultResponse.setMessage(ResponseCode.FAILED.getMsg());
+        resultResponse.setCode(ResponseCode.FAILED.getCode());
+        resultResponse.setContent(null);
+        return resultResponse;
+    }
+    public static PhysicalExamResponse paramError(){
+        PhysicalExamResponse resultResponse=new PhysicalExamResponse();
+        resultResponse.setSuccess(false);
+        resultResponse.setMessage(ResponseCode.PARAM_ERROR.getMsg());
+        resultResponse.setCode(ResponseCode.PARAM_ERROR.getCode());
         resultResponse.setContent(null);
         return resultResponse;
     }

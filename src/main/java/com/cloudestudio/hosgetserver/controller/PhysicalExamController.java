@@ -1,8 +1,10 @@
 package com.cloudestudio.hosgetserver.controller;
 
 import com.cloudestudio.hosgetserver.model.HosDataBean;
+import com.cloudestudio.hosgetserver.model.paramBody.PatientVisitBody;
 import com.cloudestudio.hosgetserver.model.paramBody.QueryBodyPatientInfo;
 import com.cloudestudio.hosgetserver.model.physicalExamination.PatientInfoBean;
+import com.cloudestudio.hosgetserver.service.PhysicalExam.PatientInfoService;
 import com.cloudestudio.hosgetserver.service.PhysicalExamService;
 import com.cloudestudio.hosgetserver.webTools.PhysicalExamResponse;
 import com.cloudestudio.hosgetserver.webTools.StringUtil;
@@ -30,33 +32,23 @@ import java.util.List;
 @RequestMapping("/PhysicalExamApi")
 public class PhysicalExamController {
     @Autowired
-    PhysicalExamService physicalExamService;
+    PatientInfoService patientInfoService;
 
     private static final Gson gson=new Gson();//Json数据对象
     private static final Gson gsonConfig=new GsonBuilder().serializeNulls().create();//Json数据对象,强制将NULL返回
+
 
     @RequestMapping("/getPatientInfo")
     public void getPatientInfo(HttpServletResponse response, @RequestBody QueryBodyPatientInfo requestBody) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
         System.out.println(TimeUtil.GetTime(true)+"---"+requestBody.toString());
-        List<PatientInfoBean> queryBean=null;
-        if(StringUtil.isNotEmptyOrNotNull(requestBody.getStartDate())&&StringUtil.isNotEmptyOrNotNull(requestBody.getEndDate())
-                &&StringUtil.isEmptyOrNull(requestBody.getMedCardNo())&&StringUtil.isEmptyOrNull(requestBody.getIdCard())){
-            queryBean=physicalExamService.queryPatientInfoByDate(requestBody.getStartDate(),requestBody.getEndDate());
-        }else if(StringUtil.isEmptyOrNull(requestBody.getStartDate())&&StringUtil.isEmptyOrNull(requestBody.getEndDate())
-                &&StringUtil.isNotEmptyOrNotNull(requestBody.getMedCardNo())&&StringUtil.isEmptyOrNull(requestBody.getIdCard())){
-            queryBean=physicalExamService.queryPatientInfoByMedCard(requestBody.getMedCardNo());
-        }else if(StringUtil.isEmptyOrNull(requestBody.getStartDate())&&StringUtil.isEmptyOrNull(requestBody.getEndDate())
-                &&StringUtil.isEmptyOrNull(requestBody.getMedCardNo())&&StringUtil.isNotEmptyOrNotNull(requestBody.getIdCard())){
-            queryBean=physicalExamService.queryPatientInfoByIdCard(requestBody.getIdCard());
-        }else{
-            queryBean=physicalExamService.queryPatientInfoByDate(TimeUtil.GetTime(false)+" 00:00:00",TimeUtil.GetTime(true));
-        }
-        if (queryBean!=null && queryBean.isEmpty()) {
-            response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("请求失败")));
-        }else{
-            System.out.println(TimeUtil.GetTime(true)+" ---查询成功:"+queryBean);
-            response.getWriter().write(gsonConfig.toJson(PhysicalExamResponse.success(queryBean)));
-        }
+        response.getWriter().write(gsonConfig.toJson(PhysicalExamResponse.success(patientInfoService.getPatientInfo(requestBody))));
+    }
+
+    @RequestMapping("/getPatientVisitRecord")
+    public void getPatientVisitRecord(HttpServletResponse response, @RequestBody PatientVisitBody requestBody) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        System.out.println(TimeUtil.GetTime(true)+"---"+requestBody.toString());
+        response.getWriter().write(gsonConfig.toJson(PhysicalExamResponse.success(patientInfoService.getPatientVisitRecord(requestBody))));
     }
 }

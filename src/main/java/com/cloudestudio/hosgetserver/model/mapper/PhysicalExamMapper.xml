@@ -4,6 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudestudio.hosgetserver.model.mapper.PhysicalExamMapper">
     <!--查询逻辑-->
+    <!--查询患者基本信息-->
     <!--按注册日期查询-->
     <select id="queryPatientInfoByDate" parameterType="String" resultType="com.cloudestudio.hosgetserver.model.physicalExamination.PatientInfoBean">
         SELECT
@@ -14,7 +15,7 @@
             DECODE(patient_zcxx.zjlx,NULL,'1',patient_zcxx.zjlx) AS idCardType,
             patient_zcxx.sfzh AS idCard,
             (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB='民族编码') AND (PU_SJZD.XMBM=patient_zcxx.mzbm))) AS nation,
-            '中国' AS citizenship,
+            (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB='国籍编码') AND (PU_SJZD.XMBM=patient_zcxx.gjbm))) AS citizenship,
             patient_zcxx.sj AS phone,
             PATIENT_YLKXX.YLKH AS medCardNo,
             '' AS allergicHistory,
@@ -37,7 +38,7 @@
             DECODE(patient_zcxx.zjlx,NULL,'1',patient_zcxx.zjlx) AS idCardType,
             patient_zcxx.sfzh AS idCard,
             (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB='民族编码') AND (PU_SJZD.XMBM=patient_zcxx.mzbm))) AS nation,
-            '中国' AS citizenship,
+            (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB='国籍编码') AND (PU_SJZD.XMBM=patient_zcxx.gjbm))) AS citizenship,
             patient_zcxx.sj AS phone,
             PATIENT_YLKXX.YLKH AS medCardNo,
             '' AS allergicHistory,
@@ -60,7 +61,7 @@
             DECODE(patient_zcxx.zjlx,NULL,'1',patient_zcxx.zjlx) AS idCardType,
             patient_zcxx.sfzh AS idCard,
             (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB='民族编码') AND (PU_SJZD.XMBM=patient_zcxx.mzbm))) AS nation,
-            '中国' AS citizenship,
+            (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB='国籍编码') AND (PU_SJZD.XMBM=patient_zcxx.gjbm))) AS citizenship,
             patient_zcxx.sj AS phone,
             PATIENT_YLKXX.YLKH AS medCardNo,
             '' AS allergicHistory,
@@ -72,6 +73,48 @@
                 INNER JOIN PATIENT_YLKXX ON PATIENT_YLKXX.Brid = patient_zcxx.brid
         WHERE
             patient_zcxx.sfzh IN (#{idCard})
+    </select>
+    <!--查询患者基本信息-->
+
+    <!--查询患者就诊记录-->
+    <select id="queryPatientVisitRecord" parameterType="String" resultType="com.cloudestudio.hosgetserver.model.physicalExamination.VisitRecordBean">
+        SELECT
+            'MZ' AS type,
+            MZYS_BRWZ.GHXH AS clinicNo,
+            patient_zcxx.brid AS patientId,
+            patient_zcxx.brxm AS patientName,
+            patient_zcxx.brxb AS sex,
+            gh_brgh.brnl||(DECODE(gh_brgh.brnldw,'1','岁','2','月','3','天','4','时','5','分')) AS age,
+            gh_brgh.jzrq AS visitTime,
+            (SELECT pu_ks.ksmc FROM pu_ks WHERE pu_ks.ksbm IN (SELECT pu_czy.ksbm FROM pu_czy WHERE pu_czy.czybm=MZYS_BRWZ.ysbm)) AS deptName,
+            (SELECT pu_czy.czyxm FROM pu_czy WHERE pu_czy.czybm=MZYS_BRWZ.ysbm) AS doctorName,
+            (SELECT pu_sjzd.xmmc FROM pu_sjzd WHERE pu_sjzd.xmlb='婚姻状况' AND pu_sjzd.xmbm= patient_zcxx.hyzkbm) AS marriage,
+            ((SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB ='省级编码') AND (PU_SJZD.XMBM=patient_zcxx.xzz_sheng))) || (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB ='市级编码')AND (PU_SJZD.XMBM=patient_zcxx.xzz_shi))) || ( SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ( (PU_SJZD.XMLB = '县级编码' ) AND ( PU_SJZD.XMBM = patient_zcxx.xzz_xian ) ) ) || patient_zcxx.xzz_xxdz) AS address
+        FROM MZYS_BRWZ
+                 INNER JOIN gh_brgh ON gh_brgh.ghxh=MZYS_BRWZ.Ghxh
+                 INNER JOIN patient_zcxx ON patient_zcxx.brid=gh_brgh.brid
+        WHERE
+            patient_zcxx.brid=#{patientId}
+          AND gh_brgh.jzrq BETWEEN to_date(#{startDate},'yyyy-mm-dd hh24:mi:ss') AND to_date(#{endDate},'yyyy-mm-dd hh24:mi:ss')
+        UNION ALL
+        SELECT
+            'ZY' AS type,
+            inhos_rydj.zyh AS clinicNo,
+            patient_zcxx.brid AS patientId,
+            patient_zcxx.brxm AS patientName,
+            patient_zcxx.brxb AS sex,
+            inhos_rydj.brnl||(DECODE(inhos_rydj.brnldw,'1','岁','2','月','3','天','4','时','5','分')) AS age,
+            inhos_rydj.ryrq AS visitTime,
+            (SELECT pu_ks.ksmc FROM pu_ks WHERE pu_ks.ksbm=inhos_rydj.ryks) AS deptName,
+            (SELECT pu_czy.czyxm FROM pu_czy WHERE pu_czy.czybm=inhos_rydj.zyys) AS doctorName,
+            (SELECT pu_sjzd.xmmc FROM pu_sjzd WHERE pu_sjzd.xmlb='婚姻状况' AND pu_sjzd.xmbm= patient_zcxx.hyzkbm) AS marriage,
+            ((SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB ='省级编码') AND (PU_SJZD.XMBM=patient_zcxx.xzz_sheng))) || (SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ((PU_SJZD.XMLB ='市级编码')AND (PU_SJZD.XMBM=patient_zcxx.xzz_shi))) || ( SELECT PU_SJZD.XMMC FROM PU_SJZD WHERE ( (PU_SJZD.XMLB = '县级编码' ) AND ( PU_SJZD.XMBM = patient_zcxx.xzz_xian ) ) ) || patient_zcxx.xzz_xxdz) AS address
+        FROM inhos_rydj
+                 INNER JOIN  patient_zcxx ON patient_zcxx.brid=inhos_rydj.brid
+        WHERE
+            inhos_rydj.brid=#{patientId}
+          AND inhos_rydj.ryrq BETWEEN to_date(#{startDate},'yyyy-mm-dd hh24:mi:ss') AND to_date(#{endDate},'yyyy-mm-dd hh24:mi:ss')
+          AND inhos_rydj.ifzf='0'
     </select>
 
 </mapper>

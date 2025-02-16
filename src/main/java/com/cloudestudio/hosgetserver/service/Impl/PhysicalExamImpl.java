@@ -3,6 +3,7 @@ package com.cloudestudio.hosgetserver.service.Impl;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cloudestudio.hosgetserver.model.mapper.PhysicalExamMapper;
 import com.cloudestudio.hosgetserver.model.physicalExamination.PatientInfoBean;
+import com.cloudestudio.hosgetserver.model.physicalExamination.VisitRecordBean;
 import com.cloudestudio.hosgetserver.service.PhysicalExamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,5 +37,11 @@ public class PhysicalExamImpl implements PhysicalExamService {
     @Override
     public List<PatientInfoBean> queryPatientInfoByIdCard(String idCard) {
         return physicalExamMapper.queryPatientInfoByIdCard(idCard);
+    }
+
+    @DS("oracle")
+    @Override
+    public List<VisitRecordBean> queryPatientVisitRecord(String patientId, String startDate, String endDate) {
+        return physicalExamMapper.queryPatientVisitRecord(patientId,startDate,endDate);
     }
 }

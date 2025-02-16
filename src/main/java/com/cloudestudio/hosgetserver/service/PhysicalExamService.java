@@ -1,6 +1,7 @@
 package com.cloudestudio.hosgetserver.service;
 
 import com.cloudestudio.hosgetserver.model.physicalExamination.PatientInfoBean;
+import com.cloudestudio.hosgetserver.model.physicalExamination.VisitRecordBean;
 
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface PhysicalExamService {
     List<PatientInfoBean> queryPatientInfoByDate(String startDate, String endDate);
     List<PatientInfoBean> queryPatientInfoByMedCard(String medCardNo);
     List<PatientInfoBean> queryPatientInfoByIdCard(String idCard);
+
+    List<VisitRecordBean> queryPatientVisitRecord(String patientId, String startDate, String endDate);
 }
