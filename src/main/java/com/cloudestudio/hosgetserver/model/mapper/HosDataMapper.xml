@@ -6,4 +6,24 @@
     <!--查询逻辑-->
     <!--查询患者基本信息-->
 
+    <!--查询床日数-->
+    <select id="QueryBedDay" parameterType="java.util.Map" resultType="BedDayBean">
+        SELECT pu_czy.czyxm AS Doctor,
+               inhos_rydj.zyh AS InhosNumber,
+               (SELECT PU_BXLB.BXLBMC FROM PU_BXLB WHERE PU_BXLB.BXLBBM=inhos_rydj.bxlbbm) AS InsuranceType,
+               ROUND(inhos_rydj.cyrq - inhos_rydj.ryrq) AS OnhosTime,
+               pu_ks.ksmc AS DepartMent,
+               inhos_rydj.ryrq AS InhosTime
+        FROM inhos_rydj
+                 INNER JOIN pu_czy ON pu_czy.czybm=inhos_rydj.zyys
+                 INNER JOIN pu_ks ON pu_ks.ksbm=inhos_rydj.cyks
+        WHERE (inhos_rydj.cyrq BETWEEN to_date(#{startTime},'yyyy-mm-dd hh24:mi:ss') AND to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss'))
+          AND inhos_rydj.ifzf='0'
+        ORDER BY inhos_rydj.cyks,inhos_rydj.zyys,inhos_rydj.ryrq ASC
+    </select>
+
+    <!--删除逻辑-->
+    <delete id="releaseYfClock" parameterType="String">
+        DELETE FROM YF_BQBY_LOCK WHERE YF_BQBY_LOCK.sqdh = #{requestNum}
+    </delete>
 </mapper>

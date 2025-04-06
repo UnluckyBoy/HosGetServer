@@ -1,6 +1,7 @@
 package com.cloudestudio.hosgetserver.model.mapper;
 
 import com.cloudestudio.hosgetserver.model.*;
+import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -100,7 +101,6 @@ public interface HosDataMapper {
             "  '522632003' AS orgCode," +
             "  '榕江县中医院' AS orgName," +
             "  '0001' AS operatorId," +
-            /*"  GH_BRGH.GHRQ AS operationTime " +*/
             "  SYSDATE AS operationTime " +
             "FROM" +
             "  PATIENT_ZCXX " +
@@ -139,7 +139,6 @@ public interface HosDataMapper {
             "  '522632003' AS orgCode, " +
             "  '榕江县中医院' AS orgName, " +
             "  '0001' AS operatorId, " +
-            /*"  MZYS_BRZD.RQ AS operationTime  " +*/
             "  SYSDATE AS operationTime  " +
             "FROM " +
             "  MZYS_BRZD  " +
@@ -184,7 +183,6 @@ public interface HosDataMapper {
             "  '522632003' AS orgCode," +
             "  '榕江县中医院' AS orgName," +
             "  '0001' AS operatorId," +
-            /*"  GH_BRGH.GHRQ AS operationTime " +*/
             "  SYSDATE AS operationTime " +
             "FROM" +
             "  PATIENT_ZCXX " +
@@ -223,7 +221,6 @@ public interface HosDataMapper {
             "  '522632003' AS orgCode, " +
             "  '榕江县中医院' AS orgName, " +
             "  '0001' AS operatorId, " +
-            /*"  MZYS_BRZD.RQ AS operationTime  " +*/
             "  SYSDATE AS operationTime  " +
             "FROM " +
             "  MZYS_BRZD  " +
@@ -356,8 +353,6 @@ public interface HosDataMapper {
             "  GH_BRGH.GHXH = #{serial_number}")
     List<PatientInfReport> queryEmrInfReportBySerialNumber(String serial_number);//查询传染病报告卡
 
-//    @Select("")
-//    List<PatientInfReport> queryEmrInfReport();//当月报告卡查询
 
     @Select("SELECT" +
             " jc_zd_yw.bm " +
@@ -516,4 +511,9 @@ public interface HosDataMapper {
             "(SELECT patient_zcxx.sj FROM patient_zcxx WHERE patient_zcxx.brid=inhos_rydj.brid) AS patientTel " +
             "FROM inhos_rydj WHERE inhos_rydj.zyh=#{queryKey}")
     PathologyPatientInfoBean queryPathology(String queryKey);//病理申请患者信息查询
+
+
+    boolean releaseYfClock(String requestNum);//解除药房锁
+
+    List<BedDayBean> QueryBedDay(BedDayBody queryMap);//床日数
 }

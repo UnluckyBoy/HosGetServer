@@ -4,6 +4,7 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cloudestudio.hosgetserver.model.*;
 import com.cloudestudio.hosgetserver.model.mapper.HosDataMapper;
 import com.cloudestudio.hosgetserver.model.mapper.UserMapper;
+import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.service.HosDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -90,6 +91,18 @@ public class HosDataServiceImpl implements HosDataService {
     @Override
     public PathologyPatientInfoBean queryPathology(String queryKey) {
         return hosDataMapper.queryPathology(queryKey);
+    }
+
+    @DS("oracle")
+    @Override
+    public boolean releaseYfClock(String requestNum) {
+        return hosDataMapper.releaseYfClock(requestNum);
+    }
+
+    @DS("oracle")
+    @Override
+    public List<BedDayBean> QueryBedDay(BedDayBody queryMap) {
+        return hosDataMapper.QueryBedDay(queryMap);
     }
 
     @DS("oracle2")

@@ -1,6 +1,7 @@
 package com.cloudestudio.hosgetserver.service;
 
 import com.cloudestudio.hosgetserver.model.*;
+import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 
 import java.util.Date;
 import java.sql.Timestamp;
@@ -28,6 +29,9 @@ public interface HosDataService {
 
     ReportCardBody queryReportCard(String serialNumber);
     PathologyPatientInfoBean queryPathology(String queryKey);
+
+    boolean releaseYfClock(String requestNum);
+    List<BedDayBean> QueryBedDay(BedDayBody queryMap);
 
     /** Oracle2库**/
     String queryAddrCode(String addr);

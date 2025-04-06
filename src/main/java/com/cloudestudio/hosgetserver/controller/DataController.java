@@ -1,6 +1,7 @@
 package com.cloudestudio.hosgetserver.controller;
 
 import com.cloudestudio.hosgetserver.model.*;
+import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.service.*;
 import com.cloudestudio.hosgetserver.webTools.*;
 import com.google.gson.Gson;
@@ -579,6 +580,38 @@ public class DataController {
             response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("报告删除异常!---"+serialNumber)));
         }
     }
+
+    @RequestMapping("ReleaseYfClock")
+    public void ReleaseYfClock(HttpServletResponse response,
+                             @RequestParam("requestNum") String requestNum) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+
+        boolean removeKey=hosDataService.releaseYfClock(requestNum);
+        if(removeKey){
+            System.out.println(TimeUtil.GetTime(true)+" 删除成功_参数:"+requestNum);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.success("报告删除成功:"+requestNum)));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" 删除异常_参数:"+requestNum);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("删除异常!---"+requestNum)));
+        }
+    }
+    @RequestMapping("QueryBedDay")
+    public void queryBedDay(HttpServletResponse response,@RequestBody BedDayBody params) throws IOException{
+        System.out.println(TimeUtil.GetTime(true)+" 参数:"+params);
+        response.setContentType("application/json;charset=UTF-8");
+        params.setStartTime(params.getStartTime()+"00:00:00");
+        params.setEndTime(params.getEndTime()+"23:59:59");
+        List<BedDayBean> queryList=hosDataService.QueryBedDay(params);
+        if(queryList==null||queryList.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" 查询失败_参数:"+params.toString());
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.success("查询失败",queryList)));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" 查询成功_参数:"+params.toString());
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.success("查询成功",queryList)));
+        }
+    }
+
+
 
     @RequestMapping("/test")
     public void Test(HttpServletResponse response,

@@ -27,6 +27,6 @@
             login_info_table.uTel,
             login_info_table.organization_name,
             login_info_table.headerImageUrl,
-            department_table.department_name;
+            department_table.department_name
     </select>
 </mapper>
