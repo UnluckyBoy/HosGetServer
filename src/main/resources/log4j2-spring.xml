@@ -1,36 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%t] %-40.40c{1.} : %m%n</Property>
+        <Property name="LOG_DIR">logs</Property>
+        <Property name="LOG_FILE_NAME">server-%d{yyyy-MM-dd}</Property>
+    </Properties>
+
     <Appenders>
+        <!-- 控制台输出 -->
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"/>
+            <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
-<!--        <File name="File" fileName="logs/server.log">-->
-<!--            <PatternLayout>-->
-<!--                <Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n</Pattern>-->
-<!--            </PatternLayout>-->
-<!--        </File>-->
 
-        <RollingFile name="RollingFileAppender" fileName="logs/server.log"
-                     filePattern="logs/server-%d{yyyy-MM-dd-HH}.log.gz">
-            <PatternLayout>
-                <Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n</Pattern>
-            </PatternLayout>
+        <!-- 文件输出 -->
+        <RollingFile name="File" fileName="${LOG_DIR}/${LOG_FILE_NAME}.log"
+                     filePattern="${LOG_DIR}/${LOG_FILE_NAME}-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies>
-                <!-- 基于时间的触发策略配置 -->
+                <!-- 每天滚动一次 -->
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <!-- 文件大小超过10MB时滚动 -->
+                <SizeBasedTriggeringPolicy size="512MB"/>
             </Policies>
-            <!-- 可选：定义要保留的最大文件数量及其大小 -->
-            <DefaultRolloverStrategy max="24" fileIndex="max" />
+            <!-- 最多保留30个日志文件 -->
+            <DefaultRolloverStrategy max="30"/>
         </RollingFile>
-
     </Appenders>
+
     <Loggers>
         <Root level="info">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="File"/>
         </Root>
+
+        <!-- 可以针对特定包设置不同的日志级别 -->
         <Logger name="com.cloudestudio.hosgetserver" level="debug" additivity="false">
-            <AppenderRef ref="Console"/>
             <AppenderRef ref="File"/>
         </Logger>
     </Loggers>

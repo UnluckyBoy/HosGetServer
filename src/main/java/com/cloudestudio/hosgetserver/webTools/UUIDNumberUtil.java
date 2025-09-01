@@ -15,7 +15,17 @@ public class UUIDNumberUtil {
      */
     public static String randUUIDNumber(){
         UUID uuid = UUID.randomUUID();
-        return TimeUtil.timeToString(uuid.toString().substring(0, 8));
+        return TimeUtil.timeToString(uuid.toString().substring(0, 9));
+    }
+
+    public static String randUUIDMediumNumber(){
+        UUID uuid = UUID.randomUUID();
+        return TimeUtil.timeToString(uuid.toString().substring(0, 13));
+    }
+
+    public static String randUUIDLageNumber(){
+        UUID uuid = UUID.randomUUID();
+        return TimeUtil.timeToString(uuid.toString().substring(0, 17));
     }
 
     /**

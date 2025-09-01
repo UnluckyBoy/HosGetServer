@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudestudio.hosgetserver.model.mapper.GreenChannelMapper">
+    <!--查询逻辑-->
+    <!--查询患者-->
+    <select id="queryPatient" parameterType="String" resultType="com.cloudestudio.hosgetserver.model.greenChannel.PatientBean">
+        SELECT
+            patientbaseinfo_table.patientId,
+            patientbaseinfo_table.idCardTypeName,
+            patientbaseinfo_table.idCard,
+            patientbaseinfo_table.patientName,
+            patientbaseinfo_table.birthDate,
+            patientbaseinfo_table.patientAge,
+            patientbaseinfo_table.ageUnit,
+            patientbaseinfo_table.tel,
+            patientbaseinfo_table.contacts,
+            patientbaseinfo_table.contactsRelation,
+            patientbaseinfo_table.nationalityName,
+            patientbaseinfo_table.nationName,
+            patientbaseinfo_table.genderName,
+            patientbaseinfo_table.patientAddress
+        FROM
+            patientbaseinfo_table
+        WHERE
+            patientbaseinfo_table.idCard = #{idCard}
+    </select>
+
+    <!--查询病案号序号-->
+    <select id="queryHisNum" resultType="String">
+        SELECT
+            LPAD(COUNT(greenchannelcasehis_table.recordNumber) + 1, 4, '0') AS regisNum
+        FROM
+            greenchannelcasehis_table
+        WHERE
+            DATE(greenchannelcasehis_table.createTime) = CURRENT_DATE()
+    </select>
+    <!--分诊重复创建判断-->
+    <select id="queryRepeatHis" resultType="int" parameterType="String">
+        SELECT
+            COUNT(greenchannelcasehis_table.recordNumber)
+        FROM
+            greenchannelcasehis_table
+        WHERE
+            DATE(greenchannelcasehis_table.createTime) = CURRENT_DATE() and greenchannelcasehis_table.patientId=#{patientId}
+    </select>
+    <!--查询所有分诊病案-->
+    <select id="queryAllHis" resultType="com.cloudestudio.hosgetserver.model.greenChannel.GreenChannelCaseHis">
+        SELECT greenchannelcasehis_table.recordNumber,
+               IF(patientbaseinfo_table.infoKey = 1, '普通患者', '三无患者')                                        AS infoKey,
+               greenchannelcasehis_table.patientId,
+               patientbaseinfo_table.idCardTypeName,
+               patientbaseinfo_table.patientName,
+               patientbaseinfo_table.idCard,
+               DATE_FORMAT(patientbaseinfo_table.birthDate, '%Y-%m-%d')                                             AS birthDate,
+               CONCAT(patientbaseinfo_table.patientAge,
+                      patientbaseinfo_table.ageUnit)                                                                AS patientAge,
+               patientbaseinfo_table.tel,
+               patientbaseinfo_table.contacts,
+               patientbaseinfo_table.contactsRelation,
+               patientbaseinfo_table.nationalityName,
+               patientbaseinfo_table.nationName,
+               patientbaseinfo_table.genderName,
+               patientbaseinfo_table.patientAddress,
+               CONCAT(greenchannelcasehis_table.morbidity,'时') AS morbidity,
+               greenchannelcasehis_table.inHosType,
+               greenchannelcasehis_table.toHosTime,
+               greenchannelcasehis_table.vitalSigns,
+               greenchannelcasehis_table.systolicPressure,
+               greenchannelcasehis_table.diastolicPressure,
+               CONCAT(greenchannelcasehis_table.systolicPressure, '/',greenchannelcasehis_table.diastolicPressure) AS bloodPressure,
+               greenchannelcasehis_table.breathing,
+               greenchannelcasehis_table.bloodSugar,
+               greenchannelcasehis_table.temperature,
+               greenchannelcasehis_table.heartRate,
+               greenchannelcasehis_table.pulse,
+               greenchannelcasehis_table.bOxygenSaturation,
+               greenchannelcasehis_table.levelConsciousness,
+               greenchannelcasehis_table.triageType,
+               greenchannelcasehis_table.triageArea,
+               greenchannelcasehis_table.triageDepartment,
+               greenchannelcasehis_table.isGreenChannel,
+               greenchannelcasehis_table.diseaseType,
+               greenchannelcasehis_table.descriptionType,
+               greenchannelcasehis_table.description,
+               greenchannelcasehis_table.createOperator,
+               greenchannelcasehis_table.createTime,
+               CONCAT(greenchannelcasehis_table.caseTime,'秒') AS caseTime
+        FROM greenchannelcasehis_table
+                 INNER JOIN patientbaseinfo_table
+                            ON greenchannelcasehis_table.patientId = patientbaseinfo_table.patientId
+        ORDER BY greenchannelcasehis_table.createTime DESC
+    </select>
+    <!--时间段查询分诊档案-->
+    <select id="queryHisParam" parameterType="String" resultType="com.cloudestudio.hosgetserver.model.greenChannel.GreenChannelCaseHis">
+        SELECT
+            greenchannelcasehis_table.recordNumber,
+            CASE
+                WHEN patientbaseinfo_table.infoKey = 1 THEN '普通患者'
+                ELSE '三无患者'
+            END AS infoKey,
+            greenchannelcasehis_table.patientId,
+            patientbaseinfo_table.idCardTypeName,
+            patientbaseinfo_table.patientName,
+            patientbaseinfo_table.idCard,
+            DATE_FORMAT(patientbaseinfo_table.birthDate, '%Y-%m-%d') AS birthDate,
+            CONCAT(patientbaseinfo_table.patientAge,patientbaseinfo_table.ageUnit) AS patientAge,
+            patientbaseinfo_table.tel,
+            patientbaseinfo_table.contacts,
+            patientbaseinfo_table.contactsRelation,
+            patientbaseinfo_table.nationalityName,
+            patientbaseinfo_table.nationName,
+            patientbaseinfo_table.genderName,
+            patientbaseinfo_table.patientAddress,
+            CONCAT(greenchannelcasehis_table.morbidity,'时') AS morbidity,
+            greenchannelcasehis_table.inHosType,
+            greenchannelcasehis_table.toHosTime,
+            greenchannelcasehis_table.vitalSigns,
+            CONCAT(greenchannelcasehis_table.systolicPressure, '/', greenchannelcasehis_table.diastolicPressure) AS bloodPressure,
+            greenchannelcasehis_table.breathing,
+            greenchannelcasehis_table.bloodSugar,
+            greenchannelcasehis_table.temperature,
+            greenchannelcasehis_table.heartRate,
+            greenchannelcasehis_table.pulse,
+            greenchannelcasehis_table.bOxygenSaturation,
+            greenchannelcasehis_table.levelConsciousness,
+            greenchannelcasehis_table.triageType,
+            greenchannelcasehis_table.triageArea,
+            greenchannelcasehis_table.triageDepartment,
+            greenchannelcasehis_table.isGreenChannel,
+            greenchannelcasehis_table.diseaseType,
+            greenchannelcasehis_table.descriptionType,
+            greenchannelcasehis_table.description,
+            greenchannelcasehis_table.createOperator,
+            greenchannelcasehis_table.createTime,
+            CONCAT(greenchannelcasehis_table.caseTime,'秒') AS caseTime
+        FROM
+            greenchannelcasehis_table
+                INNER JOIN patientbaseinfo_table ON greenchannelcasehis_table.patientId = patientbaseinfo_table.patientId
+        WHERE greenchannelcasehis_table.createTime BETWEEN #{startTime} AND #{endTime}
+        ORDER BY
+            greenchannelcasehis_table.createTime DESC
+    </select>
+    <!--查询逻辑-->
+
+    <!--插入逻辑-->
+    <!--患者基本信息写入-->
+    <insert id="cGCPatientInfo">
+        insert into patientbaseinfo_table (patientbaseinfo_table.infoKey,patientbaseinfo_table.patientId,patientbaseinfo_table.idCardTypeName,
+                                           patientbaseinfo_table.idCard,patientbaseinfo_table.patientName,patientbaseinfo_table.birthDate,
+                                           patientbaseinfo_table.patientAge,patientbaseinfo_table.tel,patientbaseinfo_table.contacts,
+                                           patientbaseinfo_table.contactsRelation,patientbaseinfo_table.nationalityName,
+                                           patientbaseinfo_table.nationName,patientbaseinfo_table.genderName,
+                                           patientbaseinfo_table.patientAddress)
+        values (#{infoKey},#{patientId},#{idCardTypeName},#{idCard},#{patientName},#{birthDate},#{patientAge},#{tel},#{contacts},
+                #{contactsRelation},#{nationalityName},#{nationName},#{genderName},#{patientAddress});
+    </insert>
+    <!--三无患者基本信息写入-->
+    <insert id="cGCPatientInfoTN">
+        insert into patientbaseinfo_table (patientbaseinfo_table.infoKey,patientbaseinfo_table.patientId,
+                                           patientbaseinfo_table.patientName,patientbaseinfo_table.genderName)
+        values (#{infoKey},#{patientId},#{patientName},#{genderName});
+    </insert>
+    <insert id="cGCCaseHis">
+        insert into greenchannelcasehis_table (greenchannelcasehis_table.recordNumber,greenchannelcasehis_table.patientId,
+                                               greenchannelcasehis_table.morbidity,greenchannelcasehis_table.inHosType,
+                                               greenchannelcasehis_table.toHosTime,greenchannelcasehis_table.vitalSigns,
+                                               greenchannelcasehis_table.systolicPressure,greenchannelcasehis_table.diastolicPressure,
+                                               greenchannelcasehis_table.breathing,greenchannelcasehis_table.bloodSugar,
+                                               greenchannelcasehis_table.temperature,greenchannelcasehis_table.heartRate,
+                                               greenchannelcasehis_table.pulse,greenchannelcasehis_table.bOxygenSaturation,
+                                               greenchannelcasehis_table.levelConsciousness,greenchannelcasehis_table.triageType,
+                                               greenchannelcasehis_table.triageArea,greenchannelcasehis_table.triageDepartment,
+                                               greenchannelcasehis_table.isGreenChannel,
+                                               greenchannelcasehis_table.diseaseType,greenchannelcasehis_table.descriptionType,
+                                               greenchannelcasehis_table.description,greenchannelcasehis_table.createOperator,
+                                               greenchannelcasehis_table.createTime,greenchannelcasehis_table.caseTime)
+        values (#{recordNumber},#{patientId},#{morbidity},#{inHosType},#{toHosTime},#{vitalSigns},#{systolicPressure},#{diastolicPressure},
+                #{breathing},#{bloodSugar},#{temperature},#{heartRate},#{pulse},#{bOxygenSaturation},#{levelConsciousness},#{triageType},
+                #{triageArea},#{triageDepartment},#{isGreenChannel},#{diseaseType},#{descriptionType},#{description},#{createOperator},#{createTime},#{caseTime});
+    </insert>
+    <!--插入逻辑-->
+</mapper>

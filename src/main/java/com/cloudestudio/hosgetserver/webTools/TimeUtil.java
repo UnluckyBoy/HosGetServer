@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 /**
@@ -29,12 +30,10 @@ public class TimeUtil {
         //转换提日期输出格式
         if(add_hour){
             SimpleDateFormat dateFormat =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String st = dateFormat.format(date);
-            return st;
+            return dateFormat.format(date);
         }else{
             SimpleDateFormat dateFormat =new SimpleDateFormat("yyyy-MM-dd");
-            String st = dateFormat.format(date);
-            return st;
+            return dateFormat.format(date);
         }
     }
 
@@ -98,5 +97,50 @@ public class TimeUtil {
             //System.out.println(" 小月");
             return false;
         }
+    }
+
+    /**
+     * 计算时差
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    public static long calculateTimeSeconds(String startTime, String endTime,String timeType){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime start = LocalDateTime.parse(startTime, formatter);
+        LocalDateTime end = LocalDateTime.parse(endTime, formatter);
+        long result = 0;
+        switch (timeType){
+            case "year":
+                result=start.until(end, ChronoUnit.YEARS);
+                break;
+            case "month":
+                result= start.until(end, ChronoUnit.MONTHS);
+                break;
+            case "day":
+                result= start.until(end, ChronoUnit.DAYS);
+                break;
+            case "hour":
+                result= start.until(end, ChronoUnit.HOURS);
+                break;
+            case "minute":
+                result= start.until(end, ChronoUnit.MINUTES);
+                break;
+            case "second":
+                result= start.until(end, ChronoUnit.SECONDS);
+                break;
+        }
+//        long years = start.until(end, ChronoUnit.YEARS);
+//        start = start.plusYears(years);
+//        long months = start.until(end, ChronoUnit.MONTHS);
+//        start = start.plusMonths(months);
+//        long days = start.until(end, ChronoUnit.DAYS);
+//        start = start.plusDays(days);
+//        long hours = start.until(end, ChronoUnit.HOURS);
+//        start = start.plusHours(hours);
+//        long minutes = start.until(end, ChronoUnit.MINUTES);
+//        start = start.plusMinutes(minutes);
+//        long seconds = start.until(end, ChronoUnit.SECONDS);
+        return result;
     }
 }

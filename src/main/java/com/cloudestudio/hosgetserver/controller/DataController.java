@@ -63,7 +63,10 @@ public class DataController {
                                    @RequestParam("startTime") String startTime,
                                    @RequestParam("endTime") String endTime) throws IOException {
         System.out.println(TimeUtil.GetTime(true)+"---"+startTime+"---"+endTime);
-        List<HosDataBean> resultList=hosDataService.queryInHospital_consultation(startTime,endTime);//TimeUtil.stingToTime("2024-01-01 00:00:00")
+        Map<String,String> timeMap=new HashMap<>();
+        timeMap.put("startTime",startTime);
+        timeMap.put("endTime",endTime);
+        List<HosDataBean> resultList=hosDataService.queryInHospital_consultation(timeMap);//TimeUtil.stingToTime("2024-01-01 00:00:00")
         response.setContentType("application/json;charset=UTF-8");
         if (resultList.isEmpty()) {
             response.getWriter().write(gson.toJson(WebServerResponse.failure("请求失败")));
@@ -125,6 +128,25 @@ public class DataController {
             response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("查询患者基本信息失败")));
         }
     }
+
+    @RequestMapping("/pushPatientInfoByID")
+    public void pushPatientInfoByID(HttpServletResponse response,
+                                @RequestParam("PatientID") String PatientID,
+                                @RequestParam("apiUrl") String apiUrl) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        PatientBaseInfoBean resultBean=hosDataService.QueryBaseInfoByID(PatientID);
+        if(resultBean!=null){
+            System.out.println(TimeUtil.GetTime(true)+" ---查询患者基本信息成功:"+resultBean);
+            System.out.println(TimeUtil.GetTime(true)+" ---查询患者基本信息成功--数据处理:"+gsonConfig.toJson(resultBean));
+            PushResponse pushResult=HttpClientUtil.pushDataInfo(apiUrl,gsonConfig.toJson(resultBean));
+            response.getWriter().write(gson.toJson(pushResult));
+            System.out.println(TimeUtil.GetTime(true)+" ---成功--数据处理:"+gson.toJson(pushResult));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" ---查询患者基本信息失败:"+ null);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("查询患者基本信息失败")));
+        }
+    }
+
     @RequestMapping("/pushPatientActivity")
     public void pushPatientActivity(HttpServletResponse response,
                                 @RequestParam("regisNumber") String regisNumber,
@@ -227,6 +249,47 @@ public class DataController {
             }
             response.getWriter().write(gson.toJson(WebServerResponse.success("",resultList)));
             System.out.println(TimeUtil.GetTime(true)+" ---报告卡处理成功:"+gson.toJson(resultList));
+        }else {
+            System.out.println(TimeUtil.GetTime(true) + " ---查询报告卡失败:" + null);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("查询报考卡失败")));
+        }
+    }
+
+    @RequestMapping("getReportBySerialNumber")
+    public void getReportBySerialNumber(HttpServletResponse response,
+                           @RequestParam("apiUrl") String apiUrl,
+                           @RequestParam("serial_number") String serial_number) throws URISyntaxException,IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        List<PatientInfReport> resultBean=hosDataService.queryEmrInfReportBySerialNumber(serial_number);
+        if(resultBean!=null){
+            System.out.println(TimeUtil.GetTime(true)+" ---查询报告卡成功:"+resultBean);
+            System.out.println(TimeUtil.GetTime(true)+" ---查询报告卡成功--数据处理:"+gsonConfig.toJson(resultBean));
+//            List<PushResponse> resultList=new ArrayList<PushResponse>();
+//            for (PatientInfReport data : resultBean){
+//                Map<String,Object> tempMap=setReportParamMap(data);
+//                System.out.println(TimeUtil.GetTime(true)+" ---报告卡处理成功:"+gsonConfig.toJson(tempMap));
+//                PushResponse pushResult=HttpClientUtil.pushDataInfo(apiUrl,gsonConfig.toJson(tempMap));
+//                resultList.add(pushResult);
+//            }
+            response.getWriter().write(gson.toJson(WebServerResponse.success("",resultBean)));
+            System.out.println(TimeUtil.GetTime(true)+" ---报告卡处理成功:"+gson.toJson(resultBean));
+        }else {
+            System.out.println(TimeUtil.GetTime(true) + " ---查询报告卡失败:" + null);
+            response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("查询报考卡失败")));
+        }
+    }
+
+    @RequestMapping("getReportByZYH")
+    public void getReportByZYH(HttpServletResponse response,
+                                        @RequestParam("apiUrl") String apiUrl,
+                                        @RequestParam("zyh") String zyh) throws URISyntaxException,IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        List<PatientInfReport> resultBean=hosDataService.getReportBody(zyh);
+        if(resultBean!=null){
+            System.out.println(TimeUtil.GetTime(true)+" ---查询报告卡成功:"+resultBean);
+            System.out.println(TimeUtil.GetTime(true)+" ---查询报告卡成功--数据处理:"+gsonConfig.toJson(resultBean));
+            response.getWriter().write(gson.toJson(WebServerResponse.success("",resultBean)));
+            System.out.println(TimeUtil.GetTime(true)+" ---报告卡处理成功:"+gson.toJson(resultBean));
         }else {
             System.out.println(TimeUtil.GetTime(true) + " ---查询报告卡失败:" + null);
             response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("查询报考卡失败")));

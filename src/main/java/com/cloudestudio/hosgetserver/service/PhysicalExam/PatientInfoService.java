@@ -2,7 +2,7 @@ package com.cloudestudio.hosgetserver.service.PhysicalExam;
 
 import com.cloudestudio.hosgetserver.model.paramBody.PatientVisitBody;
 import com.cloudestudio.hosgetserver.model.paramBody.QueryBodyPatientInfo;
-import com.cloudestudio.hosgetserver.webTools.PhysicalExamResponse;
+import com.cloudestudio.hosgetserver.webTools.WebResponse;
 
 /**
  * @Class PatientInfoService
@@ -11,6 +11,6 @@ import com.cloudestudio.hosgetserver.webTools.PhysicalExamResponse;
  * 获取体检用户信息接口
  */
 public interface PatientInfoService {
-    PhysicalExamResponse getPatientInfo(QueryBodyPatientInfo requestBody);
-    PhysicalExamResponse getPatientVisitRecord(PatientVisitBody requestBody);
+    WebResponse getPatientInfo(QueryBodyPatientInfo requestBody);
+    WebResponse getPatientVisitRecord(PatientVisitBody requestBody);
 }

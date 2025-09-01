@@ -15,12 +15,14 @@ import java.util.Map;
  * @Date 2024/11/13 下午1:56
  */
 public interface HosDataService {
-    List<HosDataBean> queryInHospital_consultation(String startTime,String endTime);
+    List<HosDataBean> queryInHospital_consultation(Map<String,String> map);
     List<PatientBaseInfoBean> queryPatientBaseInfoList();
     List<PatientActivityBean> queryEmrActivityInfo();
     List<PatientInfReport> queryEmrInfReportBySerialNumber(String serial_number);
+    List<PatientInfReport> getReportBody(String serial_number);
 
     PatientBaseInfoBean queryPatientBaseInfo(String regisNumber);
+    PatientBaseInfoBean QueryBaseInfoByID(String PatientID);
     List<PatientActivityBean> queryPatientActivityInfo(String regisNumber);
     ReportQueryPatientBaseInfo createReportQueryBaseInfo(String serial_number);
     int queryInfectiousDiseaseCount();

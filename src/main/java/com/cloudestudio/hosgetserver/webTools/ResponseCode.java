@@ -8,11 +8,14 @@ package com.cloudestudio.hosgetserver.webTools;
  */
 public enum ResponseCode {
 
-    FAILED(404,"请求失败!"),
     SUCCESS(200,"请求成功!"),
+    REPEAT_ERROR(402,"重数据重复!"),
+    SERVER_ERROR(403,"服务器异常!"),
+    FAILED(404,"请求失败!"),
     NO_LOGIN(405,"未登录"),
     TOKEN_ERROR(501,"令牌错误"),
     TOKEN_EXPIRED(502,"令牌过期"),
+    QUERY_ERROR(504,"查询异常!"),
     PARAM_ERROR(505,"请求参数异常!");
 
 

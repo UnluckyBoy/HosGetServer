@@ -16,8 +16,8 @@ public class PatientInfoBean implements Serializable {
     private String patientName;//就诊人姓名
     private String sex;//就诊人性别(1:男,0:女)
     private String birthday;//出生日期(yyyy-MM-dd)
-    private String idCardType;//证件类型：1 身份证 2 港澳通行证 3 护照
-    private String idCard;//身份证号码
+    private String idCardType;//证件类型
+    private String idCard;//证件号码
     private String nation;//民族
     private String citizenship;//国籍
     private String phone;//手机号

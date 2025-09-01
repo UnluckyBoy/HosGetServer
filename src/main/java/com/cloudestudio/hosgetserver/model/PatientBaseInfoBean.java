@@ -18,6 +18,7 @@ public class PatientBaseInfoBean {
     private String genderCode;
     private String genderName;
     private String birthDate;
+    private String patientAge;
     private String nationalityCode;
     private String nationalityName;
     private String nationCode;
@@ -37,6 +38,7 @@ public class PatientBaseInfoBean {
     private String nultitudeTypeName;
     private String tel;
     private String contacts;
+    private String contactsRelation;
     private String contactsTel;
     private String orgCode;
     private String orgName;

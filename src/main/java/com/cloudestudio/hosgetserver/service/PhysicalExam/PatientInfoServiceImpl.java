@@ -4,9 +4,8 @@ import com.cloudestudio.hosgetserver.model.paramBody.PatientVisitBody;
 import com.cloudestudio.hosgetserver.model.paramBody.QueryBodyPatientInfo;
 import com.cloudestudio.hosgetserver.model.physicalExamination.PatientInfoBean;
 import com.cloudestudio.hosgetserver.model.physicalExamination.VisitRecordBean;
-import com.cloudestudio.hosgetserver.service.PathologyService;
 import com.cloudestudio.hosgetserver.service.PhysicalExamService;
-import com.cloudestudio.hosgetserver.webTools.PhysicalExamResponse;
+import com.cloudestudio.hosgetserver.webTools.WebResponse;
 import com.cloudestudio.hosgetserver.webTools.StringUtil;
 import com.cloudestudio.hosgetserver.webTools.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ public class PatientInfoServiceImpl implements PatientInfoService{
      * @return
      */
     @Override
-    public PhysicalExamResponse getPatientInfo(QueryBodyPatientInfo requestBody) {
+    public WebResponse getPatientInfo(QueryBodyPatientInfo requestBody) {
         List<PatientInfoBean> queryBean;
         if(StringUtil.isNotEmptyOrNotNull(requestBody.getStartDate())&&StringUtil.isNotEmptyOrNotNull(requestBody.getEndDate())
                 &&StringUtil.isEmptyOrNull(requestBody.getMedCardNo())&&StringUtil.isEmptyOrNull(requestBody.getIdCard())){
@@ -47,10 +46,10 @@ public class PatientInfoServiceImpl implements PatientInfoService{
         }
         if (queryBean!=null && queryBean.isEmpty()) {
             System.out.println(TimeUtil.GetTime(true)+" ---查询体检患者基本信息失败!---参数:"+ requestBody);
-            return PhysicalExamResponse.failure();
+            return WebResponse.failure();
         }else{
             System.out.println(TimeUtil.GetTime(true)+" ---查询体检患者基本信息成功!---参数:"+ requestBody+"  ---返回值："+queryBean);
-            return PhysicalExamResponse.success(queryBean);
+            return WebResponse.success(queryBean);
         }
     }
 
@@ -60,18 +59,18 @@ public class PatientInfoServiceImpl implements PatientInfoService{
      * @return
      */
     @Override
-    public PhysicalExamResponse getPatientVisitRecord(PatientVisitBody requestBody) {
+    public WebResponse getPatientVisitRecord(PatientVisitBody requestBody) {
         if(requestBody==null){
-            return PhysicalExamResponse.paramError();
+            return WebResponse.paramError();
         }
         List<VisitRecordBean> queryBean=physicalExamService.queryPatientVisitRecord(requestBody.getPatientId(),
                 requestBody.getStartDate()+"00:00:00", requestBody.getEndDate()+"23:59:59");
         if(queryBean!=null && queryBean.isEmpty()){
             System.out.println(TimeUtil.GetTime(true)+" ---查询患者就诊记录失败!---参数:"+ requestBody);
-            return PhysicalExamResponse.failure();
+            return WebResponse.failure();
         }else{
             System.out.println(TimeUtil.GetTime(true)+" ---查询患者就诊记录失败!---参数:"+ requestBody+"  ---返回值："+queryBean);
-            return PhysicalExamResponse.success(queryBean);
+            return WebResponse.success(queryBean);
         }
     }
 }

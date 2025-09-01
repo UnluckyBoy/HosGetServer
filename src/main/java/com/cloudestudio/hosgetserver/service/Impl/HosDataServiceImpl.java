@@ -23,8 +23,8 @@ public class HosDataServiceImpl implements HosDataService {
 
     @DS("oracle")
     @Override
-    public List<HosDataBean> queryInHospital_consultation(String startTime,String endTime) {
-        return hosDataMapper.queryInHospital_consultation(startTime,endTime);
+    public List<HosDataBean> queryInHospital_consultation(Map<String,String> map) {
+        return hosDataMapper.queryInHospital_consultation(map);
     }
 
     @DS("oracle")
@@ -47,8 +47,20 @@ public class HosDataServiceImpl implements HosDataService {
 
     @DS("oracle")
     @Override
+    public List<PatientInfReport> getReportBody(String serial_number) {
+        return hosDataMapper.getReportBody(serial_number);
+    }
+
+    @DS("oracle")
+    @Override
     public PatientBaseInfoBean queryPatientBaseInfo(String regisNumber) {
         return hosDataMapper.queryPatientBaseInfo(regisNumber);
+    }
+
+    @DS("oracle")
+    @Override
+    public PatientBaseInfoBean QueryBaseInfoByID(String PatientID) {
+        return hosDataMapper.QueryBaseInfoByID(PatientID);
     }
 
     @DS("oracle")
