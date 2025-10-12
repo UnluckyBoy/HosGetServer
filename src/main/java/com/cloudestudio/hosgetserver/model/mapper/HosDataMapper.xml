@@ -448,7 +448,35 @@
           AND ( INHOSD_HZSQ.SQSJ BETWEEN to_date( #{startTime}, 'yyyy-mm-dd hh24:mi:ss' ) AND to_date( #{endTime}, 'yyyy-mm-dd hh24:mi:ss' ) )
     </select>
 
-
+    <select id="queryOutSettlementReport" parameterType="java.util.Map" resultType="OutSettlementReport">
+        SELECT M_JSJL.JSJLID AS settlementId,
+               M_JSJL.GHXH AS serialNumber,
+               patient_zcxx.brxm AS patientName,
+               (SELECT PU_BXLB.BXLBMC FROM PU_BXLB WHERE PU_BXLB.BXLBBM=M_JSJL.BXLBBM) AS insuranceType,
+               (SELECT PU_BRFB.FBMC FROM PU_BRFB WHERE PU_BRFB.FBBM=patient_zcxx.fbbm) AS expenseType,
+               M_JSJL.FYHJ AS expenseTotal,
+               M_JSJL.XJZF AS cashAmount,
+               M_JSJL.YLKZF AS medicalAmount,
+               M_JSJL.YBKZF AS otherTotal,
+               ((to_number(NVL((SELECT SUM(qtzf.zfje) bxje FROM m_qtzfjl qtzf,ybjk_bxzffsdy bxzf WHERE qtzf.jsjlid=M_JSJL.Jsjlid AND qtzf.zffsbm=bxzf.zflxbm),0)))-
+                (to_number(NVL((SELECT ybjk_sxjg.value FROM ybjk_sxjg WHERE ybjk_sxjg.sxbm='hosp_part_amt' AND ybjk_sxjg.id IN (
+                    SELECT ybjk_jsxx.id FROM ybjk_jsxx WHERE ybjk_jsxx.jsjlid=M_JSJL.Jsjlid)),0.00)))) AS insuranceAmount,
+               (to_number(NVL(
+                       (SELECT ybjk_sxjg.value FROM ybjk_sxjg WHERE ybjk_sxjg.sxbm='hosp_part_amt' AND ybjk_sxjg.id IN (
+                           SELECT ybjk_jsxx.id FROM ybjk_jsxx WHERE ybjk_jsxx.jsjlid=M_JSJL.Jsjlid)),0.00)
+               )) AS hospAmount,
+               to_number (nvl((select sum(zfje) from m_qtzfjl where jsjlid=M_JSJL.Jsjlid and zffsbm not in(select zflxbm from ybjk_bxzffsdy) ),0)) AS otherAmount,
+               M_JSJL.BZMS AS remark,
+               M_JSJL.JSRQ AS settlementTime,
+               (SELECT PU_CZY.CZYXM FROM PU_CZY WHERE PU_CZY.CZYBM=M_JSJL.CZYBM) AS operator,
+               M_JSJL.JKPZH AS paymentVoucher,
+               M_JSJL.BRID AS patientId
+        FROM M_JSJL
+                 LEFT OUTER JOIN patient_zcxx
+                                 ON M_JSJL.brid = patient_zcxx.brid
+        WHERE (M_JSJL.JSRQ BETWEEN to_date(#{startTime},'yyyy-mm-dd hh24:mi:ss') AND to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss'))
+        ORDER BY M_JSJL.JSRQ ASC
+    </select>
 
     <!--病人ID上传基本信息-->
     <select id="QueryBaseInfoByID" parameterType="String" resultType="PatientBaseInfoBean">
@@ -666,9 +694,16 @@
         ORDER BY inhos_rydj.cyks,inhos_rydj.zyys,inhos_rydj.ryrq ASC
     </select>
 
+    <!--Update逻辑-->
+    <update id="freshCostEndTime" parameterType="java.util.Map">
+        UPDATE INHOS_BRFY SET INHOS_BRFY.SFRQ = TO_DATE(#{endTime},'yyyy-mm-dd hh24:mi:ss') WHERE INHOS_BRFY.ZYH = #{serialNumber} AND INHOS_BRFY.SFRQ &gt;= TO_DATE(#{endTime},'yyyy-mm-dd hh24:mi:ss')
+    </update>
+
     <!--删除逻辑-->
+    <!--解除药房锁-->
     <delete id="releaseYfClock" parameterType="String">
-        DELETE FROM YF_BQBY_LOCK WHERE YF_BQBY_LOCK.sqdh = #{requestNum}
+        <!--DELETE FROM YF_BQBY_LOCK WHERE YF_BQBY_LOCK.sqdh = #{requestNum}-->
+        DELETE FROM YF_BQBY_LOCK
     </delete>
 
     <!--插入逻辑-->

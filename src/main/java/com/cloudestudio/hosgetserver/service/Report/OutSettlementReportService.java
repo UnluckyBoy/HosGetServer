@@ -1,0 +1,15 @@
+package com.cloudestudio.hosgetserver.service.Report;
+
+import com.cloudestudio.hosgetserver.webTools.WebResponse;
+
+import java.util.Map;
+
+/**
+ * @Class OutSettlementReportService
+ * @Author Create By Matrix·张
+ * @Date 2025/10/12 下午3:27
+ * 门诊结算分析报表
+ */
+public interface OutSettlementReportService {
+    WebResponse queryOutSettlementReport(Map<String,Object> map);
+}

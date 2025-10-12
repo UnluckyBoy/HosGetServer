@@ -2,10 +2,13 @@ package com.cloudestudio.hosgetserver.service.Impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cloudestudio.hosgetserver.model.*;
+import com.cloudestudio.hosgetserver.model.ReportBean.OutSettlementReport;
 import com.cloudestudio.hosgetserver.model.mapper.HosDataMapper;
 import com.cloudestudio.hosgetserver.model.mapper.UserMapper;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.service.HosDataService;
+import com.cloudestudio.hosgetserver.webTools.TimeUtil;
+import com.cloudestudio.hosgetserver.webTools.WebResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -95,6 +98,32 @@ public class HosDataServiceImpl implements HosDataService {
 
     @DS("oracle")
     @Override
+    public WebResponse releaseYfClock() {
+        boolean result=hosDataMapper.releaseYfClock();
+        if(result){
+            System.out.println(TimeUtil.GetTime(true)+" ---解锁药房锁-失败！");
+            return WebResponse.failure();
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" ---解锁药房锁-成功!");
+            return WebResponse.success();
+        }
+    }
+
+    @DS("oracle")
+    @Override
+    public WebResponse freshCostEndTime(Map<String, Object> map) {
+        boolean result=hosDataMapper.freshCostEndTime(map);
+        if(result){
+            System.out.println(TimeUtil.GetTime(true)+" ---更新时间-成功!--->>>参数:"+map.toString());
+            return WebResponse.success();
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" ---更新时间-失败！--->>>参数:"+ map.toString());
+            return WebResponse.paramError();
+        }
+    }
+
+    @DS("oracle")
+    @Override
     public ReportCardBody queryReportCard(String serialNumber) {
         return hosDataMapper.queryReportCard(serialNumber);
     }
@@ -107,14 +136,14 @@ public class HosDataServiceImpl implements HosDataService {
 
     @DS("oracle")
     @Override
-    public boolean releaseYfClock(String requestNum) {
-        return hosDataMapper.releaseYfClock(requestNum);
+    public List<BedDayBean> QueryBedDay(BedDayBody queryMap) {
+        return hosDataMapper.QueryBedDay(queryMap);
     }
 
     @DS("oracle")
     @Override
-    public List<BedDayBean> QueryBedDay(BedDayBody queryMap) {
-        return hosDataMapper.QueryBedDay(queryMap);
+    public List<OutSettlementReport> queryOutSettlementReport(Map<String,Object> map) {
+        return hosDataMapper.queryOutSettlementReport(map);
     }
 
     @DS("oracle2")

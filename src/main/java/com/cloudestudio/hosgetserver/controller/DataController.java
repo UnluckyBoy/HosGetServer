@@ -644,20 +644,6 @@ public class DataController {
         }
     }
 
-    @RequestMapping("ReleaseYfClock")
-    public void ReleaseYfClock(HttpServletResponse response,
-                             @RequestParam("requestNum") String requestNum) throws IOException{
-        response.setContentType("application/json;charset=UTF-8");
-
-        boolean removeKey=hosDataService.releaseYfClock(requestNum);
-        if(removeKey){
-            System.out.println(TimeUtil.GetTime(true)+" 删除成功_参数:"+requestNum);
-            response.getWriter().write(gsonConfig.toJson(WebServerResponse.success("报告删除成功:"+requestNum)));
-        }else{
-            System.out.println(TimeUtil.GetTime(true)+" 删除异常_参数:"+requestNum);
-            response.getWriter().write(gsonConfig.toJson(WebServerResponse.failure("删除异常!---"+requestNum)));
-        }
-    }
     @RequestMapping("QueryBedDay")
     public void queryBedDay(HttpServletResponse response,@RequestBody BedDayBody params) throws IOException{
         System.out.println(TimeUtil.GetTime(true)+" 参数:"+params);
@@ -674,6 +660,21 @@ public class DataController {
         }
     }
 
+    @RequestMapping("ReleaseYfClock")
+    public void ReleaseYfClock(HttpServletResponse response) throws IOException{//@RequestParam("requestNum") String requestNum
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(gsonConfig.toJson(hosDataService.releaseYfClock()));
+    }
+
+    @RequestMapping("FreshCostEndTime")
+    public void FreshCostEndTime(HttpServletResponse response,@RequestBody BedDayBody params) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+
+        Map<String,Object> requestMap=new HashMap<>();
+        requestMap.put("serialNumber",params.getStartTime());
+        requestMap.put("endTime",params.getEndTime());
+        response.getWriter().write(gsonConfig.toJson(hosDataService.freshCostEndTime(requestMap)));
+    }
 
 
     @RequestMapping("/test")
