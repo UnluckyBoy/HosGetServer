@@ -1,7 +1,7 @@
 package com.cloudestudio.hosgetserver.controller;
 
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
-import com.cloudestudio.hosgetserver.service.Report.OutSettlementReportService;
+import com.cloudestudio.hosgetserver.service.Report.HosReportService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,7 +24,7 @@ import java.util.Map;
 @RequestMapping("/reportApi")
 public class ReportController {
     @Autowired
-    OutSettlementReportService outSettlementReportService;
+    HosReportService hosReportService;
 
     private static final Gson gson=new Gson();//Json数据对象
     private static final Gson gsonConfig=new GsonBuilder().serializeNulls().create();//Json数据对象,强制将NULL返回
@@ -36,6 +36,17 @@ public class ReportController {
         Map<String,Object> map=new HashMap<>();
         map.put("startTime",body.getStartTime()+" 00:00:00");
         map.put("endTime",body.getEndTime()+" 23:59:59");
-        response.getWriter().write(gsonConfig.toJson(outSettlementReportService.queryOutSettlementReport(map)));
+        response.getWriter().write(gsonConfig.toJson(hosReportService.queryOutSettlementReport(map)));
+    }
+
+    /**
+     * 查询日门诊量API
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("/getDayOutpatient")
+    public void getDayOutpatient(HttpServletResponse response) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(gsonConfig.toJson(hosReportService.queryDayOutPatient()));
     }
 }

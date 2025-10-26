@@ -74,4 +74,17 @@ public class WebResponse {
         resultResponse.setContent(null);
         return resultResponse;
     }
+
+    /**
+     * 查询数据为0
+     * @return
+     */
+    public static WebResponse queryZeroResult(Object object){
+        WebResponse resultResponse=new WebResponse();
+        resultResponse.setSuccess(false);
+        resultResponse.setMessage(ResponseCode.ZERO_RESULT.getMsg());
+        resultResponse.setCode(ResponseCode.QUERY_ERROR.getCode());
+        resultResponse.setContent(object);
+        return resultResponse;
+    }
 }

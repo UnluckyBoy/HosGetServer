@@ -16,7 +16,8 @@ public enum ResponseCode {
     TOKEN_ERROR(501,"令牌错误"),
     TOKEN_EXPIRED(502,"令牌过期"),
     QUERY_ERROR(504,"查询异常!"),
-    PARAM_ERROR(505,"请求参数异常!");
+    PARAM_ERROR(505,"请求参数异常!"),
+    ZERO_RESULT(999,"0数据结果");
 
 
     private int code;

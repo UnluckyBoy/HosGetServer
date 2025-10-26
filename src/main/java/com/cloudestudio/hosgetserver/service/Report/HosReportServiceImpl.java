@@ -1,5 +1,6 @@
 package com.cloudestudio.hosgetserver.service.Report;
 
+import com.cloudestudio.hosgetserver.model.ReportBean.DayOutPatientBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.OutSettlementReport;
 import com.cloudestudio.hosgetserver.service.HosDataService;
 import com.cloudestudio.hosgetserver.webTools.TimeUtil;
@@ -16,7 +17,7 @@ import java.util.Map;
  * @Date 2025/10/12 下午3:30
  */
 @Service("OutSettlementReportService")
-public class OutSettlementReportServiceImpl implements OutSettlementReportService {
+public class HosReportServiceImpl implements HosReportService {
     @Autowired
     HosDataService hosDataService;
 
@@ -34,5 +35,17 @@ public class OutSettlementReportServiceImpl implements OutSettlementReportServic
         }
         System.out.println(TimeUtil.GetTime(true)+" ---门诊结算分析报表---查询成功--->>>参数:"+ map);
         return WebResponse.success(resultList);
+    }
+
+    @Override
+    public WebResponse queryDayOutPatient() {
+        List<DayOutPatientBean> resultList=hosDataService.queryDayOutPatient();
+        if(resultList.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---日门诊量---查询为0");
+            return WebResponse.queryZeroResult(null);
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" ---日门诊量---查询成功--->>>参数:"+ resultList);
+            return WebResponse.success(resultList);
+        }
     }
 }

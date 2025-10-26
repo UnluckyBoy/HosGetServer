@@ -10,6 +10,7 @@ import java.util.Map;
  * @Date 2025/10/12 下午3:27
  * 门诊结算分析报表
  */
-public interface OutSettlementReportService {
+public interface HosReportService {
     WebResponse queryOutSettlementReport(Map<String,Object> map);
+    WebResponse queryDayOutPatient();
 }

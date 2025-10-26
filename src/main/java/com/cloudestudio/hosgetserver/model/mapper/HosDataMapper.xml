@@ -478,6 +478,19 @@
         ORDER BY M_JSJL.JSRQ ASC
     </select>
 
+    <!---->
+    <select id="queryDayOutPatient" resultType="DayOutPatientBean">
+        SELECT
+            COUNT(GH_BRGH.GHXH) AS dayNum,
+            (SELECT PU_KS.KSMC FROM PU_KS WHERE PU_KS.Ksbm=GH_BRGH.GHKS) AS inDepartment
+        FROM GH_BRGH
+        WHERE TRUNC(GH_BRGH.GHRQ) =TRUNC(SYSDATE)
+          AND GH_BRGH.Sfjz='1'
+          AND GH_BRGH.Thbz='0'
+        GROUP BY GH_BRGH.GHKS
+        ORDER BY DAYNUM DESC
+    </select>
+
     <!--病人ID上传基本信息-->
     <select id="QueryBaseInfoByID" parameterType="String" resultType="PatientBaseInfoBean">
         SELECT

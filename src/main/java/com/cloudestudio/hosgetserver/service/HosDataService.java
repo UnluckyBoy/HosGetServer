@@ -1,6 +1,7 @@
 package com.cloudestudio.hosgetserver.service;
 
 import com.cloudestudio.hosgetserver.model.*;
+import com.cloudestudio.hosgetserver.model.ReportBean.DayOutPatientBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.OutSettlementReport;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.webTools.WebResponse;
@@ -31,14 +32,15 @@ public interface HosDataService {
     ReportCardBody queryReportCard(String serialNumber);
     PathologyPatientInfoBean queryPathology(String queryKey);
     List<BedDayBean> QueryBedDay(BedDayBody queryMap);
-    List<OutSettlementReport> queryOutSettlementReport(Map<String,Object> map);
+    List<OutSettlementReport> queryOutSettlementReport(Map<String,Object> map);//门诊结算分析
+    List<DayOutPatientBean> queryDayOutPatient();
 
     /** Oracle2库**/
     String queryAddrCode(String addr);
 
     //boolean releaseYfClock(String requestNum);
     boolean createCReportCard(Map<String,Object> map);
-    //boolean freshCostEndTime(Map<String,Object> map);
+
     WebResponse releaseYfClock();
     WebResponse freshCostEndTime(Map<String,Object> map);
 }
