@@ -33,6 +33,14 @@ public class WebServerResponse {
         resultResponse.setHandleData(null);
         return resultResponse;
     }
+    public static WebServerResponse success(Object object){
+        WebServerResponse resultResponse=new WebServerResponse();
+        resultResponse.setHandleType(true);
+        resultResponse.setHandleCode(200);
+        resultResponse.setHandleMessage("请求成功");
+        resultResponse.setHandleData(object);
+        return resultResponse;
+    }
     public static WebServerResponse success(String message){
         WebServerResponse resultResponse=new WebServerResponse();
         resultResponse.setHandleType(true);

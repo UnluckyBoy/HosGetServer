@@ -1,5 +1,6 @@
 package com.cloudestudio.hosgetserver.service.Report;
 
+import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.webTools.WebResponse;
 
 import java.util.Map;
@@ -13,4 +14,5 @@ import java.util.Map;
 public interface HosReportService {
     WebResponse queryOutSettlementReport(Map<String,Object> map);
     WebResponse queryDayOutPatient();
+    WebResponse QueryWorksNum(BedDayBody queryMap);
 }

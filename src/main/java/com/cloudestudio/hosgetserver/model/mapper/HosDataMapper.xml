@@ -458,13 +458,15 @@
                M_JSJL.XJZF AS cashAmount,
                M_JSJL.YLKZF AS medicalAmount,
                M_JSJL.YBKZF AS otherTotal,
-               ((to_number(NVL((SELECT SUM(qtzf.zfje) bxje FROM m_qtzfjl qtzf,ybjk_bxzffsdy bxzf WHERE qtzf.jsjlid=M_JSJL.Jsjlid AND qtzf.zffsbm=bxzf.zflxbm),0)))-
+               /*((to_number(NVL((SELECT SUM(qtzf.zfje) bxje FROM m_qtzfjl qtzf,ybjk_bxzffsdy bxzf WHERE qtzf.jsjlid=M_JSJL.Jsjlid AND qtzf.zffsbm=bxzf.zflxbm),0)))-
                 (to_number(NVL((SELECT ybjk_sxjg.value FROM ybjk_sxjg WHERE ybjk_sxjg.sxbm='hosp_part_amt' AND ybjk_sxjg.id IN (
-                    SELECT ybjk_jsxx.id FROM ybjk_jsxx WHERE ybjk_jsxx.jsjlid=M_JSJL.Jsjlid)),0.00)))) AS insuranceAmount,
-               (to_number(NVL(
+                    SELECT ybjk_jsxx.id FROM ybjk_jsxx WHERE ybjk_jsxx.jsjlid=M_JSJL.Jsjlid)),0.00)))) AS insuranceAmount,*/
+               /*(to_number(NVL(
                        (SELECT ybjk_sxjg.value FROM ybjk_sxjg WHERE ybjk_sxjg.sxbm='hosp_part_amt' AND ybjk_sxjg.id IN (
                            SELECT ybjk_jsxx.id FROM ybjk_jsxx WHERE ybjk_jsxx.jsjlid=M_JSJL.Jsjlid)),0.00)
-               )) AS hospAmount,
+               )) AS hospAmount,*/
+                ((to_number(nvl((select sum(qtzf.zfje) bxje from m_qtzfjl qtzf,ybjk_bxzffsdy bxzf where qtzf.jsjlid=M_JSJL.Jsjlid and qtzf.zffsbm=bxzf.zflxbm AND zffsbm !='05'),0)))) AS insuranceAmount,
+                ( select zfje from m_qtzfjl a  WHERE   a.jsjlid=m_jsjl.jsjlid AND zffsbm='05' AND ROWNUM=1) AS hospAmount,
                to_number (nvl((select sum(zfje) from m_qtzfjl where jsjlid=M_JSJL.Jsjlid and zffsbm not in(select zflxbm from ybjk_bxzffsdy) ),0)) AS otherAmount,
                M_JSJL.BZMS AS remark,
                M_JSJL.JSRQ AS settlementTime,
@@ -699,12 +701,28 @@
                  INNER JOIN pu_czy ON pu_czy.czybm=inhos_rydj.zyys
                  INNER JOIN pu_ks ON pu_ks.ksbm=inhos_rydj.cyks
         WHERE inhos_rydj.zyh IN (
-            SELECT bagl_basy_zdxx.zyh
-            FROM bagl_basy_zdxx
-            WHERE bagl_basy_zdxx.cyrq
-                BETWEEN to_date(#{startTime},'yyyy-mm-dd hh24:mi:ss') AND to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss'))
+            SELECT inhos_jsjl.zyh
+            FROM inhos_jsjl
+            WHERE inhos_jsjl.jszt='0'
+              AND inhos_jsjl.jsrq BETWEEN to_date(#{startTime},'yyyy-mm-dd hh24:mi:ss')
+                  AND to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss')
+            )
           AND inhos_rydj.ifzf='0'
         ORDER BY inhos_rydj.cyks,inhos_rydj.zyys,inhos_rydj.ryrq ASC
+    </select>
+    <!--门诊工作量-->
+    <select id="QueryWorksNum" parameterType="java.util.Map" resultType="WorkNums">
+        SELECT
+            FN_GET_CZYMC(JZYS) AS M_DOCTOR,
+            FN_GET_KSMC(GH_BRGH.GHKS) AS M_DEP,
+            FN_GET_GHZL(GH_BRGH.GHZLBM) AS M_TYPE,
+            COUNT(DISTINCT GH_BRGH.GHXH) AS PATIENT_NUM
+        FROM GH_BRGH
+        WHERE GH_BRGH.SFJZ='1'
+          AND GH_BRGH.THBZ='0'
+          AND (GH_BRGH.GHRQ BETWEEN TO_DATE(#{startTime},'YYYY-MM-DD HH24:MI:SS') AND TO_DATE(#{endTime},'YYYY-MM-DD HH24:MI:SS'))
+        GROUP BY GH_BRGH.JZYS,GH_BRGH.GHZLBM,GH_BRGH.GHKS
+        ORDER BY GH_BRGH.JZYS
     </select>
 
     <!--Update逻辑-->

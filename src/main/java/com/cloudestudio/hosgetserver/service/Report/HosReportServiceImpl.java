@@ -2,6 +2,8 @@ package com.cloudestudio.hosgetserver.service.Report;
 
 import com.cloudestudio.hosgetserver.model.ReportBean.DayOutPatientBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.OutSettlementReport;
+import com.cloudestudio.hosgetserver.model.ReportBean.WorkNums;
+import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.service.HosDataService;
 import com.cloudestudio.hosgetserver.webTools.TimeUtil;
 import com.cloudestudio.hosgetserver.webTools.WebResponse;
@@ -48,4 +50,19 @@ public class HosReportServiceImpl implements HosReportService {
             return WebResponse.success(resultList);
         }
     }
+
+    @Override
+    public WebResponse QueryWorksNum(BedDayBody queryMap) {
+        System.out.println(TimeUtil.GetTime(true)+" ---门诊工作量---查询成功--->>>参数:"+ queryMap);
+        List<WorkNums> resultList=hosDataService.QueryWorksNum(queryMap);
+        if(resultList.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---门诊工作量---查询为0");
+            return WebResponse.queryZeroResult(null);
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" ---门诊工作量---查询成功--->>>参数:"+ queryMap+"--->结果:"+resultList);
+            return WebResponse.success(resultList);
+        }
+    }
+
+
 }

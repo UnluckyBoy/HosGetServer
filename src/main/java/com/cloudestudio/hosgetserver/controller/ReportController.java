@@ -2,6 +2,8 @@ package com.cloudestudio.hosgetserver.controller;
 
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.service.Report.HosReportService;
+import com.cloudestudio.hosgetserver.webTools.WebResponse;
+import com.cloudestudio.hosgetserver.webTools.WebServerResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import jakarta.servlet.http.HttpServletResponse;
@@ -48,5 +50,18 @@ public class ReportController {
     public void getDayOutpatient(HttpServletResponse response) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(gsonConfig.toJson(hosReportService.queryDayOutPatient()));
+    }
+
+    /**
+     * 查询门诊工作量API
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("/getDayWorks")
+    public void getDayWorks(HttpServletResponse response,@RequestBody BedDayBody body) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        body.setStartTime(body.getStartTime()+" 00:00:00");
+        body.setEndTime(body.getEndTime()+" 23:59:59");
+        response.getWriter().write(gsonConfig.toJson(hosReportService.QueryWorksNum(body)));
     }
 }
