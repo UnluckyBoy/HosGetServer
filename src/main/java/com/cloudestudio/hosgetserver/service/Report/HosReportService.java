@@ -15,4 +15,5 @@ public interface HosReportService {
     WebResponse queryOutSettlementReport(Map<String,Object> map);
     WebResponse queryDayOutPatient();
     WebResponse QueryWorksNum(BedDayBody queryMap);
+    WebResponse QuerySettlement(BedDayBody queryMap);
 }

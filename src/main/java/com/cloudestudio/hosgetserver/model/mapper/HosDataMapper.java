@@ -3,6 +3,7 @@ package com.cloudestudio.hosgetserver.model.mapper;
 import com.cloudestudio.hosgetserver.model.*;
 import com.cloudestudio.hosgetserver.model.ReportBean.DayOutPatientBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.OutSettlementReport;
+import com.cloudestudio.hosgetserver.model.ReportBean.SettlementBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkNums;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import org.apache.ibatis.annotations.Insert;
@@ -42,6 +43,7 @@ public interface HosDataMapper {
     List<OutSettlementReport> queryOutSettlementReport(Map<String,Object> map);//门诊结算分析报表
     List<DayOutPatientBean> queryDayOutPatient();// 当日门诊人次数
     List<WorkNums> QueryWorksNum(BedDayBody queryMap);//门诊工作量
+    List<SettlementBean> QuerySettlement(BedDayBody queryMap);//结算分析明细
 
 
     boolean createCReportCard(Map<String,Object> map);//报告卡填写写入

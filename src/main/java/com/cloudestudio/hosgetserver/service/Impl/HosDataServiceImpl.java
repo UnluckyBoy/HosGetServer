@@ -4,6 +4,7 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cloudestudio.hosgetserver.model.*;
 import com.cloudestudio.hosgetserver.model.ReportBean.DayOutPatientBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.OutSettlementReport;
+import com.cloudestudio.hosgetserver.model.ReportBean.SettlementBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkNums;
 import com.cloudestudio.hosgetserver.model.mapper.HosDataMapper;
 import com.cloudestudio.hosgetserver.model.mapper.UserMapper;
@@ -158,6 +159,12 @@ public class HosDataServiceImpl implements HosDataService {
     @Override
     public List<WorkNums> QueryWorksNum(BedDayBody queryMap) {
         return hosDataMapper.QueryWorksNum(queryMap);
+    }
+
+    @DS("oracle")
+    @Override
+    public List<SettlementBean> QuerySettlement(BedDayBody queryMap) {
+        return hosDataMapper.QuerySettlement(queryMap);
     }
 
     @DS("oracle2")

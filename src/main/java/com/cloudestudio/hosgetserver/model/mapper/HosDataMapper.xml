@@ -724,6 +724,34 @@
         GROUP BY GH_BRGH.JZYS,GH_BRGH.GHZLBM,GH_BRGH.GHKS
         ORDER BY GH_BRGH.JZYS
     </select>
+    <!--门诊结算明细查询：属性结果表-->
+    <select id="QuerySettlement" parameterType="java.util.Map" resultType="SettlementBean">
+        WITH TEMP_MOUNT AS (
+            SELECT
+                MAX(CASE WHEN SXBM = 'prm_aac003' THEN VALUE END) AS PATIENT_NAME,
+                MAX(CASE WHEN SXBM = 'prm_aac002' THEN VALUE END) AS IDCARD_NUMBER,
+                MAX(CASE WHEN SXBM = 'prm_akc190' THEN VALUE END) AS VISIT_NUMBER,
+                MAX(CASE WHEN SXBM = 'prm_yka103' THEN VALUE END) AS SETTLEMENT_NUMBER,
+                DECODE((MAX(CASE WHEN SXBM = 'prm_aka130' THEN VALUE END)),'108','辅助生殖门诊','11','普通门诊','110102','个人账户代支','1102','新冠门诊','12','药店购药','18','特殊门诊','31','普通住院','32','重大疾病住院','36','转外住院','37','转院住院','990105','发热门诊新冠病毒检测','G11','(工伤)普通门诊','G31','(工伤)普通住院','M11','门诊产前检查','M31','生育住院','M32','计划生育手术住院','M33','分娩住院') AS SETTLEMENT_TYPE,
+                MAX(CASE WHEN SXBM = 'prm_aae036' THEN VALUE END) AS OPERATION_TIME,
+                NVL(MAX(CASE WHEN SXBM = 'prm_ykc141' THEN VALUE END),(SELECT FN_GET_CZYMC(YBJK_JSXX.JBR) FROM YBJK_JSXX WHERE YBJK_JSXX.ID=YBJK_SXJG.ID)) AS OPERATOR_NAME,
+                TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka055' THEN VALUE END)) AS TOTAL_EXPENSES,
+                TO_NUMBER(MAX(CASE WHEN SXBM = 'psn_cash_pay' THEN VALUE END)) AS CASH_PAYMENT,
+                ((TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka248' THEN VALUE END)))+(TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka065' THEN VALUE END)))) AS MEDICAL_TOTAL_AMOUNT,
+                TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka248' THEN VALUE END)) AS BASIC_MEDICAL_AMOUNT,
+                TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka065' THEN VALUE END)) AS PERSONAL_AMOUNT,
+                NVL((TO_NUMBER(MAX(CASE WHEN SXBM = 'hosp_part_amt' THEN VALUE END))),0) AS HOS_AMOUNT,
+                TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_ake181' THEN VALUE END)) AS ASSISTANCE_AMOUNT,
+                TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yke030' THEN VALUE END)) AS CIVIL_SERVANT_AMOUNT,
+                TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka062' THEN VALUE END)) AS SERIOUS_ILLNESS_AMOUNT,
+                TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_akc087' THEN VALUE END)) AS BALANCE_PERSONAL_ACCOUNT
+            FROM YBJK_SXJG
+            WHERE
+                YBJK_SXJG.ID IN (SELECT YBJK_JSXX.ID FROM YBJK_JSXX WHERE (YBJK_JSXX.JSRQ BETWEEN TO_DATE(#{startTime},'YYYY-MM-DD HH24:MI:SS') AND TO_DATE(#{endTime},'YYYY-MM-DD HH24:MI:SS')) AND YBJK_JSXX.ZFBZ='0' AND YBJK_JSXX.BRLY='mzjs')
+            GROUP BY YBJK_SXJG.ID
+        )
+        SELECT TEMP_MOUNT.* FROM TEMP_MOUNT ORDER BY TEMP_MOUNT.OPERATION_TIME ASC
+    </select>
 
     <!--Update逻辑-->
     <update id="freshCostEndTime" parameterType="java.util.Map">

@@ -2,6 +2,7 @@ package com.cloudestudio.hosgetserver.service.Report;
 
 import com.cloudestudio.hosgetserver.model.ReportBean.DayOutPatientBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.OutSettlementReport;
+import com.cloudestudio.hosgetserver.model.ReportBean.SettlementBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkNums;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.service.HosDataService;
@@ -53,8 +54,21 @@ public class HosReportServiceImpl implements HosReportService {
 
     @Override
     public WebResponse QueryWorksNum(BedDayBody queryMap) {
-        System.out.println(TimeUtil.GetTime(true)+" ---门诊工作量---查询成功--->>>参数:"+ queryMap);
+        System.out.println(TimeUtil.GetTime(true)+" ---门诊工作量--->>>参数:"+ queryMap);
         List<WorkNums> resultList=hosDataService.QueryWorksNum(queryMap);
+        if(resultList.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---门诊工作量---查询为0");
+            return WebResponse.queryZeroResult(null);
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" ---门诊工作量---查询成功--->>>参数:"+ queryMap+"--->结果:"+resultList);
+            return WebResponse.success(resultList);
+        }
+    }
+
+    @Override
+    public WebResponse QuerySettlement(BedDayBody queryMap) {
+        System.out.println(TimeUtil.GetTime(true)+" ---门诊结算分析--->>>参数:"+ queryMap);
+        List<SettlementBean> resultList=hosDataService.QuerySettlement(queryMap);
         if(resultList.isEmpty()){
             System.out.println(TimeUtil.GetTime(true)+" ---门诊工作量---查询为0");
             return WebResponse.queryZeroResult(null);

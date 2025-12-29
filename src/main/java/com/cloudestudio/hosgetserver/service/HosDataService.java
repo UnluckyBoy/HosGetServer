@@ -3,6 +3,7 @@ package com.cloudestudio.hosgetserver.service;
 import com.cloudestudio.hosgetserver.model.*;
 import com.cloudestudio.hosgetserver.model.ReportBean.DayOutPatientBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.OutSettlementReport;
+import com.cloudestudio.hosgetserver.model.ReportBean.SettlementBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkNums;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.webTools.WebResponse;
@@ -36,6 +37,7 @@ public interface HosDataService {
     List<OutSettlementReport> queryOutSettlementReport(Map<String,Object> map);//门诊结算分析
     List<DayOutPatientBean> queryDayOutPatient();
     List<WorkNums> QueryWorksNum(BedDayBody queryMap);
+    List<SettlementBean> QuerySettlement(BedDayBody queryMap);
 
     /** Oracle2库**/
     String queryAddrCode(String addr);

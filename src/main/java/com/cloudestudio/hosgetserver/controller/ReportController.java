@@ -64,4 +64,12 @@ public class ReportController {
         body.setEndTime(body.getEndTime()+" 23:59:59");
         response.getWriter().write(gsonConfig.toJson(hosReportService.QueryWorksNum(body)));
     }
+
+    @RequestMapping("/getQuerySettlement")
+    public void getQuerySettlement(HttpServletResponse response,@RequestBody BedDayBody body) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        body.setStartTime(body.getStartTime()+" 00:00:00");
+        body.setEndTime(body.getEndTime()+" 23:59:59");
+        response.getWriter().write(gsonConfig.toJson(hosReportService.QuerySettlement(body)));
+    }
 }
