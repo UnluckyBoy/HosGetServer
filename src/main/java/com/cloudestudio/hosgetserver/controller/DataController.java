@@ -4,6 +4,7 @@ import com.cloudestudio.hosgetserver.model.*;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.model.paramBody.CommonParam;
 import com.cloudestudio.hosgetserver.service.*;
+import com.cloudestudio.hosgetserver.service.Report.HosReportService;
 import com.cloudestudio.hosgetserver.webTools.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -49,6 +50,9 @@ public class DataController {
 
     @Autowired
     private UserLoginService userLoginService;
+
+    @Autowired
+    private HosReportService hosReportService;
 
     @Autowired
     private PathologyService pathologyService;
@@ -687,7 +691,7 @@ public class DataController {
     public void freshJrzyInfo(HttpServletResponse response,@RequestBody CommonParam body) throws IOException{
         response.setContentType("application/json;charset=UTF-8");
 
-        response.getWriter().write(gsonConfig.toJson(hosDataService.freshJrzyInfo(body.getOrderId())));
+        response.getWriter().write(gsonConfig.toJson(hosReportService.freshJrzyInfo(body.getOrderId())));
     }
 
 
