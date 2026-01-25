@@ -44,6 +44,7 @@ public interface HosDataService {
 
     //boolean releaseYfClock(String requestNum);
     boolean createCReportCard(Map<String,Object> map);
+    boolean freshJrzyInfo(String orderId); // 更新退费JRZY_INFO状态
 
     WebResponse releaseYfClock();
     WebResponse freshCostEndTime(Map<String,Object> map);

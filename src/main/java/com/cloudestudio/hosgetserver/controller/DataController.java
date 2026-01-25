@@ -2,6 +2,7 @@ package com.cloudestudio.hosgetserver.controller;
 
 import com.cloudestudio.hosgetserver.model.*;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
+import com.cloudestudio.hosgetserver.model.paramBody.CommonParam;
 import com.cloudestudio.hosgetserver.service.*;
 import com.cloudestudio.hosgetserver.webTools.*;
 import com.google.gson.Gson;
@@ -674,6 +675,19 @@ public class DataController {
         requestMap.put("serialNumber",params.getStartTime());
         requestMap.put("endTime",params.getEndTime());
         response.getWriter().write(gsonConfig.toJson(hosDataService.freshCostEndTime(requestMap)));
+    }
+
+    /**
+     * 更新JRZY_INFO状态
+     * @param response
+     * @param body
+     * @throws IOException
+     */
+    @RequestMapping("freshJrzyInfo")
+    public void freshJrzyInfo(HttpServletResponse response,@RequestBody CommonParam body) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+
+        response.getWriter().write(gsonConfig.toJson(hosDataService.freshJrzyInfo(body.getOrderId())));
     }
 
 

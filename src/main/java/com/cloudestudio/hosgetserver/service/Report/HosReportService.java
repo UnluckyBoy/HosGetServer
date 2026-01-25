@@ -16,4 +16,5 @@ public interface HosReportService {
     WebResponse queryDayOutPatient();
     WebResponse QueryWorksNum(BedDayBody queryMap);
     WebResponse QuerySettlement(BedDayBody queryMap);
+    WebResponse freshJrzyInfo(String orderId);
 }

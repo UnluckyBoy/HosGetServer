@@ -49,4 +49,5 @@ public interface HosDataMapper {
     boolean createCReportCard(Map<String,Object> map);//报告卡填写写入
     boolean releaseYfClock();//解除药房锁
     boolean freshCostEndTime(Map<String,Object> map);//刷新收费日期
+    boolean freshJrzyInfo(String orderId); // 更新退费JRZY_INFO状态
 }

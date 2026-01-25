@@ -78,5 +78,18 @@ public class HosReportServiceImpl implements HosReportService {
         }
     }
 
+    @Override
+    public WebResponse freshJrzyInfo(String orderId) {
+        System.out.println(TimeUtil.GetTime(true)+" ---退费id--->>>参数:"+ orderId);
+        boolean result=hosDataService.freshJrzyInfo(orderId);
+        if(!result){
+            System.out.println(TimeUtil.GetTime(true)+" ---退费id---异常");
+            return WebResponse.queryZeroResult(null);
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" ---退费id---成功--->>>参数:"+ orderId);
+            return WebResponse.success();
+        }
+    }
+
 
 }

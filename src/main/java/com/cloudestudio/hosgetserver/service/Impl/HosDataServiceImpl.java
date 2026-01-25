@@ -101,6 +101,12 @@ public class HosDataServiceImpl implements HosDataService {
 
     @DS("oracle")
     @Override
+    public boolean freshJrzyInfo(String orderId) {
+        return hosDataMapper.freshJrzyInfo(orderId);
+    }
+
+    @DS("oracle")
+    @Override
     public WebResponse releaseYfClock() {
         boolean result=hosDataMapper.releaseYfClock();
         if(result){

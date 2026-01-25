@@ -694,7 +694,7 @@
         SELECT pu_czy.czyxm AS Doctor,
                inhos_rydj.zyh AS InhosNumber,
                (SELECT PU_BXLB.BXLBMC FROM PU_BXLB WHERE PU_BXLB.BXLBBM=inhos_rydj.bxlbbm) AS InsuranceType,
-               ROUND((SELECT bagl_basy_zdxx.cyrq FROM bagl_basy_zdxx WHERE bagl_basy_zdxx.zyh=inhos_rydj.zyh)  - (SELECT bagl_basy_zdxx.ryrq FROM bagl_basy_zdxx WHERE bagl_basy_zdxx.zyh=inhos_rydj.zyh)) AS OnhosTime,
+               CEIL((SELECT bagl_basy_zdxx.cyrq FROM bagl_basy_zdxx WHERE bagl_basy_zdxx.zyh=inhos_rydj.zyh)  - (SELECT bagl_basy_zdxx.ryrq FROM bagl_basy_zdxx WHERE bagl_basy_zdxx.zyh=inhos_rydj.zyh)) AS OnhosTime,
                pu_ks.ksmc AS DepartMent,
                inhos_rydj.ryrq AS InhosTime
         FROM inhos_rydj
@@ -737,7 +737,7 @@
                 NVL(MAX(CASE WHEN SXBM = 'prm_ykc141' THEN VALUE END),(SELECT FN_GET_CZYMC(YBJK_JSXX.JBR) FROM YBJK_JSXX WHERE YBJK_JSXX.ID=YBJK_SXJG.ID)) AS OPERATOR_NAME,
                 TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka055' THEN VALUE END)) AS TOTAL_EXPENSES,
                 TO_NUMBER(MAX(CASE WHEN SXBM = 'psn_cash_pay' THEN VALUE END)) AS CASH_PAYMENT,
-                ((TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka248' THEN VALUE END)))+(TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka065' THEN VALUE END)))) AS MEDICAL_TOTAL_AMOUNT,
+                ((TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka248' THEN VALUE END)))+(TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka065' THEN VALUE END)))+(TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka062' THEN VALUE END))+(TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_ake181' THEN VALUE END))+(TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yke030' THEN VALUE END)))))) AS MEDICAL_TOTAL_AMOUNT,
                 TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka248' THEN VALUE END)) AS BASIC_MEDICAL_AMOUNT,
                 TO_NUMBER(MAX(CASE WHEN SXBM = 'prm_yka065' THEN VALUE END)) AS PERSONAL_AMOUNT,
                 NVL((TO_NUMBER(MAX(CASE WHEN SXBM = 'hosp_part_amt' THEN VALUE END))),0) AS HOS_AMOUNT,
@@ -756,6 +756,10 @@
     <!--Update逻辑-->
     <update id="freshCostEndTime" parameterType="java.util.Map">
         UPDATE INHOS_BRFY SET INHOS_BRFY.SFRQ = TO_DATE(#{endTime},'yyyy-mm-dd hh24:mi:ss') WHERE INHOS_BRFY.ZYH = #{serialNumber} AND INHOS_BRFY.SFRQ &gt;= TO_DATE(#{endTime},'yyyy-mm-dd hh24:mi:ss')
+    </update>
+
+    <update id="freshJrzyInfo" parameterType="String">
+        UPDATE JRZY_INFO SET JRZY_INFO.Sfzf=1 WHERE JRZY_INFO.Trade_Order_No IN (#{orderId})
     </update>
 
     <!--删除逻辑-->
