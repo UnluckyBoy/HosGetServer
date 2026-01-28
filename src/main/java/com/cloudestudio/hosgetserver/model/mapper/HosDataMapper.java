@@ -1,14 +1,10 @@
 package com.cloudestudio.hosgetserver.model.mapper;
 
 import com.cloudestudio.hosgetserver.model.*;
-import com.cloudestudio.hosgetserver.model.ReportBean.DayOutPatientBean;
-import com.cloudestudio.hosgetserver.model.ReportBean.OutSettlementReport;
-import com.cloudestudio.hosgetserver.model.ReportBean.SettlementBean;
-import com.cloudestudio.hosgetserver.model.ReportBean.WorkNums;
+import com.cloudestudio.hosgetserver.model.ReportBean.*;
+import com.cloudestudio.hosgetserver.model.department.BaseDepartMent;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
@@ -44,10 +40,16 @@ public interface HosDataMapper {
     List<DayOutPatientBean> queryDayOutPatient();// 当日门诊人次数
     List<WorkNums> QueryWorksNum(BedDayBody queryMap);//门诊工作量
     List<SettlementBean> QuerySettlement(BedDayBody queryMap);//结算分析明细
+    List<BaseDepartMent> queryBaseDepart();//查询科室信息
+    List<WorkInfoBean> queryWorkInfos();//查询工单
+    List<WorkInfoBean> queryNearWorks();//查询工单
+
 
 
     boolean createCReportCard(Map<String,Object> map);//报告卡填写写入
     boolean releaseYfClock();//解除药房锁
     boolean freshCostEndTime(Map<String,Object> map);//刷新收费日期
     boolean freshJrzyInfo(String orderId); // 更新退费JRZY_INFO状态
+    boolean createWorkInfo(Map<String,Object> map);//创建工单
+    boolean freshWorkStatus(Map<String,String> map);//更新工单状态
 }

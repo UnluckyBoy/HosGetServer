@@ -17,4 +17,5 @@ public interface HosReportService {
     WebResponse QueryWorksNum(BedDayBody queryMap);
     WebResponse QuerySettlement(BedDayBody queryMap);
     WebResponse freshJrzyInfo(String orderId);
+    WebResponse queryBaseDepart();
 }

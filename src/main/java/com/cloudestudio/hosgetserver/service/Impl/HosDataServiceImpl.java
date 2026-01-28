@@ -2,10 +2,8 @@ package com.cloudestudio.hosgetserver.service.Impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cloudestudio.hosgetserver.model.*;
-import com.cloudestudio.hosgetserver.model.ReportBean.DayOutPatientBean;
-import com.cloudestudio.hosgetserver.model.ReportBean.OutSettlementReport;
-import com.cloudestudio.hosgetserver.model.ReportBean.SettlementBean;
-import com.cloudestudio.hosgetserver.model.ReportBean.WorkNums;
+import com.cloudestudio.hosgetserver.model.ReportBean.*;
+import com.cloudestudio.hosgetserver.model.department.BaseDepartMent;
 import com.cloudestudio.hosgetserver.model.mapper.HosDataMapper;
 import com.cloudestudio.hosgetserver.model.mapper.UserMapper;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
@@ -105,6 +103,18 @@ public class HosDataServiceImpl implements HosDataService {
         return hosDataMapper.freshJrzyInfo(orderId);
     }
 
+    @DS("mysql")
+    @Override
+    public boolean createWorkInfo(Map<String, Object> map) {
+        return hosDataMapper.createWorkInfo(map);
+    }
+
+    @DS("mysql")
+    @Override
+    public boolean freshWorkStatus(Map<String,String> map) {
+        return hosDataMapper.freshWorkStatus(map);
+    }
+
     @DS("oracle")
     @Override
     public WebResponse releaseYfClock() {
@@ -171,6 +181,24 @@ public class HosDataServiceImpl implements HosDataService {
     @Override
     public List<SettlementBean> QuerySettlement(BedDayBody queryMap) {
         return hosDataMapper.QuerySettlement(queryMap);
+    }
+
+    @DS("mysql")
+    @Override
+    public List<BaseDepartMent> queryBaseDepart() {
+        return hosDataMapper.queryBaseDepart();
+    }
+
+    @DS("mysql")
+    @Override
+    public List<WorkInfoBean> queryWorkInfos() {
+        return hosDataMapper.queryWorkInfos();
+    }
+
+    @DS("mysql")
+    @Override
+    public List<WorkInfoBean> queryNearWorks() {
+        return hosDataMapper.queryNearWorks();
     }
 
     @DS("oracle2")

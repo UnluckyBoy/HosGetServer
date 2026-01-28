@@ -753,6 +753,56 @@
         SELECT TEMP_MOUNT.* FROM TEMP_MOUNT ORDER BY TEMP_MOUNT.OPERATION_TIME ASC
     </select>
 
+    <!--查询科室信息-->
+    <select id="queryBaseDepart" resultType="BaseDepartMent">
+        SELECT
+            base_department_table.departCode,
+            base_department_table.departName
+        FROM
+            base_department_table
+        WHERE
+            base_department_table.isUse=1
+    </select>
+    <!--查询工单-->
+    <select id="queryWorkInfos" resultType="WorkInfoBean">
+        SELECT
+            work_table.workID,
+            work_table.workTitle,
+            work_table.priority,
+            work_table.workType,
+            base_department_table.departName as department,
+            work_table.finishOperator,
+            work_table.workStatus,
+            work_table.creatDate,
+            work_table.finishDate
+        FROM
+            work_table
+            INNER JOIN base_department_table ON base_department_table.departCode = work_table.department
+        ORDER BY
+            work_table.creatDate DESC
+    </select>
+    <select id="queryNearWorks" resultType="WorkInfoBean">
+        <![CDATA[
+        SELECT
+            work_table.workID,
+            work_table.workTitle,
+            work_table.priority,
+            work_table.workType,
+            base_department_table.departName as department,
+            work_table.finishOperator,
+            work_table.workStatus,
+            work_table.creatDate,
+            work_table.finishDate
+        FROM
+            work_table
+            INNER JOIN base_department_table ON base_department_table.departCode = work_table.department
+        WHERE
+            DATEDIFF(NOW(), work_table.creatDate) <= 7
+        ORDER BY
+            work_table.creatDate DESC
+        ]]>
+    </select>
+
     <!--Update逻辑-->
     <update id="freshCostEndTime" parameterType="java.util.Map">
         UPDATE INHOS_BRFY SET INHOS_BRFY.SFRQ = TO_DATE(#{endTime},'yyyy-mm-dd hh24:mi:ss') WHERE INHOS_BRFY.ZYH = #{serialNumber} AND INHOS_BRFY.SFRQ &gt;= TO_DATE(#{endTime},'yyyy-mm-dd hh24:mi:ss')
@@ -760,6 +810,10 @@
 
     <update id="freshJrzyInfo" parameterType="String">
         UPDATE JRZY_INFO SET JRZY_INFO.Sfzf=1 WHERE JRZY_INFO.Trade_Order_No IN (#{orderId})
+    </update>
+    <!--更新工单-->
+    <update id="freshWorkStatus" parameterType="java.util.Map">
+        UPDATE work_table SET work_table.workStatus='已完成',work_table.finishDate=#{finishDate} WHERE work_table.workID=#{workId}
     </update>
 
     <!--删除逻辑-->
@@ -770,6 +824,7 @@
     </delete>
 
     <!--插入逻辑-->
+    <!--创建病理信息-->
     <insert id="createCReportCard" parameterType="java.util.Map">
         INSERT INTO INFECTIOUS_DISEASE (
             INFECTIOUS_DISEASE.CARD_ID,
@@ -839,5 +894,19 @@
              #{hepatitisBHBsAgResult},TO_DATE(#{hepatitisBTime},'YYYY-MM-DD Hh24:MI:SS'),#{hepatitisBAlt},#{hfmDiseaseResult},#{hfmDiseaseLevel},
              #{monkeyPoxResult},#{pertussisLevel},#{intimateContactSymptom},#{updateDiseaseName},#{rollbackCardReason},#{reportOrg},#{reportDoctor},
              #{reportDoctorTel},TO_DATE(#{reportCreateTime},'YYYY-MM-DD Hh24:MI:SS'),#{remark})
+    </insert>
+
+    <!--创建工单信息-->
+    <insert id="createWorkInfo" parameterType="java.util.Map">
+        INSERT INTO work_table (
+            work_table.workTitle,
+            work_table.workType,
+            work_table.priority,
+            work_table.department,
+            work_table.workContent,
+            work_table.creatDate,
+            work_table.creator)
+        VALUES
+            (#{workTitle},#{workType},#{priority},#{department},#{workContent},#{creatDate},#{creator})
     </insert>
 </mapper>

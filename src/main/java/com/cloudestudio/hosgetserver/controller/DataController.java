@@ -3,7 +3,9 @@ package com.cloudestudio.hosgetserver.controller;
 import com.cloudestudio.hosgetserver.model.*;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.model.paramBody.CommonParam;
+import com.cloudestudio.hosgetserver.model.paramBody.WorkParamBody;
 import com.cloudestudio.hosgetserver.service.*;
+import com.cloudestudio.hosgetserver.service.HosCommon.HosComService;
 import com.cloudestudio.hosgetserver.service.Report.HosReportService;
 import com.cloudestudio.hosgetserver.webTools.*;
 import com.google.gson.Gson;
@@ -53,6 +55,9 @@ public class DataController {
 
     @Autowired
     private HosReportService hosReportService;
+
+    @Autowired
+    private HosComService hosComService;
 
     @Autowired
     private PathologyService pathologyService;
@@ -694,6 +699,60 @@ public class DataController {
         response.getWriter().write(gsonConfig.toJson(hosReportService.freshJrzyInfo(body.getOrderId())));
     }
 
+    /**
+     * 获取科室
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("getBaseDepart")
+    public void getBaseDepart(HttpServletResponse response) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+
+        response.getWriter().write(gson.toJson(hosReportService.queryBaseDepart()));
+    }
+
+    /**
+     * 创建工单
+     * @param response
+     * @param body
+     * @throws IOException
+     */
+    @RequestMapping("createWorkInfo")
+    public void createWorkInfo(HttpServletResponse response,@RequestBody WorkParamBody body) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+
+        System.out.println(TimeUtil.GetTime(true)+" ---创建工单"+body.toString());
+        Map<String,Object> requestMap=new HashMap<>();
+        requestMap.put("workTitle",body.getWorkTitle());
+        requestMap.put("workType",body.getWorkType());
+        requestMap.put("workContent",body.getDescription());
+        requestMap.put("creator",body.getCreator());
+        requestMap.put("priority",body.getPriority());
+        requestMap.put("department",body.getDepartment());
+        requestMap.put("creatDate",body.getCreateDate());
+        response.getWriter().write(gson.toJson(hosComService.createWorkInfo(requestMap)));
+    }
+
+    /**
+     * 获取近七日工单信息
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("getWorkInfos")
+    public void getWorkInfos(HttpServletResponse response) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+
+        response.getWriter().write(gsonConfig.toJson(hosComService.queryNearWorks()));
+    }
+
+    @RequestMapping("freshWorkStatus")
+    public void freshWorkStatus(HttpServletResponse response,@RequestBody WorkParamBody body) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        Map<String,String> requestMap=new HashMap<>();
+        requestMap.put("workId",body.getWorkId());
+        requestMap.put("finishDate",body.getFinishDate());
+        response.getWriter().write(gsonConfig.toJson(hosComService.freshWorkStatus(requestMap)));
+    }
 
     @RequestMapping("/test")
     public void Test(HttpServletResponse response,

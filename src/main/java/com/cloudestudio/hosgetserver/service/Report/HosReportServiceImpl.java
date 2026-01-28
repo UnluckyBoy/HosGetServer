@@ -4,6 +4,7 @@ import com.cloudestudio.hosgetserver.model.ReportBean.DayOutPatientBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.OutSettlementReport;
 import com.cloudestudio.hosgetserver.model.ReportBean.SettlementBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkNums;
+import com.cloudestudio.hosgetserver.model.department.BaseDepartMent;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.service.HosDataService;
 import com.cloudestudio.hosgetserver.webTools.TimeUtil;
@@ -24,6 +25,11 @@ public class HosReportServiceImpl implements HosReportService {
     @Autowired
     HosDataService hosDataService;
 
+    /**
+     * 结算分析报表
+     * @param map
+     * @return
+     */
     @Override
     public WebResponse queryOutSettlementReport(Map<String, Object> map) {
         if(map.isEmpty()){
@@ -40,6 +46,10 @@ public class HosReportServiceImpl implements HosReportService {
         return WebResponse.success(resultList);
     }
 
+    /***
+     * 门诊量
+     * @return
+     */
     @Override
     public WebResponse queryDayOutPatient() {
         List<DayOutPatientBean> resultList=hosDataService.queryDayOutPatient();
@@ -52,6 +62,11 @@ public class HosReportServiceImpl implements HosReportService {
         }
     }
 
+    /***
+     * 门诊工作量
+     * @param queryMap
+     * @return
+     */
     @Override
     public WebResponse QueryWorksNum(BedDayBody queryMap) {
         System.out.println(TimeUtil.GetTime(true)+" ---门诊工作量--->>>参数:"+ queryMap);
@@ -65,6 +80,11 @@ public class HosReportServiceImpl implements HosReportService {
         }
     }
 
+    /**
+     * 门诊结算分析(新)
+     * @param queryMap
+     * @return
+     */
     @Override
     public WebResponse QuerySettlement(BedDayBody queryMap) {
         System.out.println(TimeUtil.GetTime(true)+" ---门诊结算分析--->>>参数:"+ queryMap);
@@ -78,6 +98,11 @@ public class HosReportServiceImpl implements HosReportService {
         }
     }
 
+    /***
+     * 小程序退费更新JRZY_INFO
+     * @param orderId
+     * @return
+     */
     @Override
     public WebResponse freshJrzyInfo(String orderId) {
         System.out.println(TimeUtil.GetTime(true)+" ---退费id--->>>参数:"+ orderId);
@@ -89,6 +114,21 @@ public class HosReportServiceImpl implements HosReportService {
             System.out.println(TimeUtil.GetTime(true)+" ---退费id---成功--->>>参数:"+ orderId);
             return WebResponse.success();
         }
+    }
+
+    /***
+     * 查询科室
+     * @return
+     */
+    @Override
+    public WebResponse queryBaseDepart() {
+        List<BaseDepartMent> result=hosDataService.queryBaseDepart();
+        if(result.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---科室查询异常");
+            return WebResponse.queryZeroResult(null);
+        }
+        System.out.println(TimeUtil.GetTime(true)+" ---科室查询成功");
+        return WebResponse.success(result);
     }
 
 
