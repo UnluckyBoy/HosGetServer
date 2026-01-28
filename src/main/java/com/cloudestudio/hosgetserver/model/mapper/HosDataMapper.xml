@@ -813,7 +813,7 @@
     </update>
     <!--更新工单-->
     <update id="freshWorkStatus" parameterType="java.util.Map">
-        UPDATE work_table SET work_table.workStatus='已完成',work_table.finishDate=#{finishDate} WHERE work_table.workID=#{workId}
+        UPDATE work_table SET work_table.workStatus=#{workStatus},work_table.finishDate=#{finishDate} WHERE work_table.workID=#{workId}
     </update>
 
     <!--删除逻辑-->

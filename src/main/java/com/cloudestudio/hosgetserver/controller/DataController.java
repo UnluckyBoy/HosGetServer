@@ -750,6 +750,7 @@ public class DataController {
         response.setContentType("application/json;charset=UTF-8");
         Map<String,String> requestMap=new HashMap<>();
         requestMap.put("workId",body.getWorkId());
+        requestMap.put("workStatus",body.getWorkStatus());
         requestMap.put("finishDate",body.getFinishDate());
         response.getWriter().write(gsonConfig.toJson(hosComService.freshWorkStatus(requestMap)));
     }

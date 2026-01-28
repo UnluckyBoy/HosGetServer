@@ -18,6 +18,7 @@ public class WorkParamBody implements Serializable {
     private String workTitle;
     private String workType;
     private String priority;
+    private String workStatus;
     private String creator;
     private String department;
     private String description;
