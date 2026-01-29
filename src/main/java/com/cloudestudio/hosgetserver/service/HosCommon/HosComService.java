@@ -15,4 +15,5 @@ public interface HosComService {
     WebResponse queryWorkInfos();
     WebResponse queryNearWorks();
     WebResponse freshWorkStatus(Map<String,String> map);
+    WebResponse queryWorkContent(int workId);
 }

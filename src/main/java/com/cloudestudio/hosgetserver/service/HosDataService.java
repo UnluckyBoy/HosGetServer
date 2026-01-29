@@ -38,7 +38,8 @@ public interface HosDataService {
     List<SettlementBean> QuerySettlement(BedDayBody queryMap);
     List<BaseDepartMent> queryBaseDepart();
     List<WorkInfoBean> queryWorkInfos();
-    List<WorkInfoBean> queryNearWorks();
+    List<WorkNearBean> queryNearWorks();
+    WorkInfoBean queryWorkContent(int workId);
 
     /** Oracle2库**/
     String queryAddrCode(String addr);

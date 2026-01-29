@@ -197,8 +197,14 @@ public class HosDataServiceImpl implements HosDataService {
 
     @DS("mysql")
     @Override
-    public List<WorkInfoBean> queryNearWorks() {
+    public List<WorkNearBean> queryNearWorks() {
         return hosDataMapper.queryNearWorks();
+    }
+
+    @DS("mysql")
+    @Override
+    public WorkInfoBean queryWorkContent(int workId) {
+        return hosDataMapper.queryWorkContent(workId);
     }
 
     @DS("oracle2")

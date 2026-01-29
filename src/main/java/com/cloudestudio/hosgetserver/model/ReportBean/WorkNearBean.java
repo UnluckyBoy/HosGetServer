@@ -5,13 +5,13 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * @Class WorkInfoBean
+ * @Class WorkNearBean
  * @Author Create By Matrix·张
- * @Date 2026/1/28 下午12:39
- * 工单实体类
+ * @Date 2026/1/29 下午2:48
+ * 近期工单
  */
 @Data
-public class WorkInfoBean implements Serializable {
+public class WorkNearBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String workID;
@@ -21,7 +21,9 @@ public class WorkInfoBean implements Serializable {
     private String department;
     private String initiator;
     private String creator;
+    private String creatorHead;
     private String finishOperator;
+    private String finishOperatorHead;
     private String workStatus;
     private String creatDate;
     private String finishDate;

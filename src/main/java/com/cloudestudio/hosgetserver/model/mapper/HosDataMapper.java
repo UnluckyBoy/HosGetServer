@@ -42,7 +42,8 @@ public interface HosDataMapper {
     List<SettlementBean> QuerySettlement(BedDayBody queryMap);//结算分析明细
     List<BaseDepartMent> queryBaseDepart();//查询科室信息
     List<WorkInfoBean> queryWorkInfos();//查询工单
-    List<WorkInfoBean> queryNearWorks();//查询工单
+    List<WorkNearBean> queryNearWorks();//查询工单
+    WorkInfoBean queryWorkContent(int workId);//查询工单详情
 
 
 

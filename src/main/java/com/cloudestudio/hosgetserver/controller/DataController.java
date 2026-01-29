@@ -745,14 +745,35 @@ public class DataController {
         response.getWriter().write(gsonConfig.toJson(hosComService.queryNearWorks()));
     }
 
+    /**
+     * 更新工单状态
+     * @param response
+     * @param body
+     * @throws IOException
+     */
     @RequestMapping("freshWorkStatus")
     public void freshWorkStatus(HttpServletResponse response,@RequestBody WorkParamBody body) throws IOException{
         response.setContentType("application/json;charset=UTF-8");
         Map<String,String> requestMap=new HashMap<>();
-        requestMap.put("workId",body.getWorkId());
+        requestMap.put("workId",body.getWorkID());
         requestMap.put("workStatus",body.getWorkStatus());
+        requestMap.put("workResult",body.getWorkResult());
+        requestMap.put("finishOperator",body.getFinishOperator());
         requestMap.put("finishDate",body.getFinishDate());
         response.getWriter().write(gsonConfig.toJson(hosComService.freshWorkStatus(requestMap)));
+    }
+
+    /***
+     * 获取工单详情
+     * @param response
+     * @param body
+     * @throws IOException
+     */
+    @RequestMapping("queryWorkContent")
+    public void queryWorkContent(HttpServletResponse response,@RequestBody WorkParamBody body) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        System.out.println(TimeUtil.GetTime(true)+" ---查询工单内容-->参数："+body);
+        response.getWriter().write(gson.toJson(hosComService.queryWorkContent(Integer.parseInt(body.getWorkID()))));
     }
 
     @RequestMapping("/test")

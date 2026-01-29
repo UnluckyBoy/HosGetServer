@@ -1,6 +1,7 @@
 package com.cloudestudio.hosgetserver.service.HosCommon;
 
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkInfoBean;
+import com.cloudestudio.hosgetserver.model.ReportBean.WorkNearBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkNums;
 import com.cloudestudio.hosgetserver.service.HosDataService;
 import com.cloudestudio.hosgetserver.webTools.TimeUtil;
@@ -65,7 +66,7 @@ public class HosComServiceImpl implements HosComService{
      */
     @Override
     public WebResponse queryNearWorks() {
-        List<WorkInfoBean> result=hosDataService.queryNearWorks();
+        List<WorkNearBean> result=hosDataService.queryNearWorks();
         if(!result.isEmpty()){
             System.out.println(TimeUtil.GetTime(true)+" ---查询工单---成功"+result);
             return WebResponse.success(result);
@@ -86,6 +87,20 @@ public class HosComServiceImpl implements HosComService{
             return WebResponse.success();
         }
         System.out.println(TimeUtil.GetTime(true)+" ---更新工单---失败--->参数："+map);
+        return WebResponse.failure();
+    }
+
+    @Override
+    public WebResponse queryWorkContent(int workId) {
+        if (workId<=0){
+            return WebResponse.paramError();
+        }
+        WorkInfoBean result=hosDataService.queryWorkContent(workId);
+        if(result!=null){
+            System.out.println(TimeUtil.GetTime(true)+" ---查询工单内容-成功--->参数："+workId);
+            return WebResponse.success(result);
+        }
+        System.out.println(TimeUtil.GetTime(true)+" ---查询工单内容-失败--->参数："+workId);
         return WebResponse.failure();
     }
 }

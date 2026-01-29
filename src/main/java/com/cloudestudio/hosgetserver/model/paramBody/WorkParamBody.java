@@ -14,14 +14,16 @@ import java.io.Serializable;
 public class WorkParamBody implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String workId;
+    private String workID;
     private String workTitle;
     private String workType;
     private String priority;
     private String workStatus;
     private String creator;
+    private String finishOperator;
     private String department;
     private String description;
     private String createDate;
     private String finishDate;
+    private String workResult;
 }
