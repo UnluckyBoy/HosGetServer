@@ -912,7 +912,7 @@
     </insert>
 
     <!--创建工单信息-->
-    <insert id="createWorkInfo" parameterType="java.util.Map">
+    <insert id="createWorkInfo" parameterType="WorkInfoBean">
         INSERT INTO work_table (
             work_table.workTitle,
             work_table.workType,

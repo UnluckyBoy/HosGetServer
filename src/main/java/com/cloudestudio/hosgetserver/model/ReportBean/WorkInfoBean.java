@@ -2,6 +2,7 @@ package com.cloudestudio.hosgetserver.model.ReportBean;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -12,6 +13,7 @@ import java.io.Serializable;
  */
 @Data
 public class WorkInfoBean implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String workID;
@@ -27,4 +29,5 @@ public class WorkInfoBean implements Serializable {
     private String finishDate;
     private String workContent;
     private String workResult;
+    private String workAssignee;
 }

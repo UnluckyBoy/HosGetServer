@@ -2,8 +2,8 @@ package com.cloudestudio.hosgetserver.service.HosCommon;
 
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkInfoBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkNearBean;
-import com.cloudestudio.hosgetserver.model.ReportBean.WorkNums;
 import com.cloudestudio.hosgetserver.service.HosDataService;
+import com.cloudestudio.hosgetserver.service.WebSocket.WebSocketMessageService;
 import com.cloudestudio.hosgetserver.webTools.TimeUtil;
 import com.cloudestudio.hosgetserver.webTools.WebResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @Class HosComServiceImpl
@@ -23,26 +24,43 @@ public class HosComServiceImpl implements HosComService{
     @Autowired
     HosDataService hosDataService;
 
+    @Autowired
+    WebSocketMessageService webSocketMessageService;
+
+
     /**
      * 创建工单
-     * @param map
+     * @param workInfoBean
      * @return
      */
     @Override
-    public WebResponse createWorkInfo(Map<String, Object> map) {
-        if(map.isEmpty()){
+    public WebResponse createWorkInfo(WorkInfoBean workInfoBean) {
+        if(workInfoBean==null){
             System.out.println(TimeUtil.GetTime(true)+" ---创建工单--->>>参数为空");
             return WebResponse.queryZeroResult(null);
         }
-        System.out.println(TimeUtil.GetTime(true)+" ---创建工单--->>>参数:"+ map);
-        boolean result=hosDataService.createWorkInfo(map);
+        System.out.println(TimeUtil.GetTime(true)+" ---创建工单--->>>参数:"+ workInfoBean);
+        boolean result=hosDataService.createWorkInfo(workInfoBean);
         if(result){
-            System.out.println(TimeUtil.GetTime(true)+" ---创建工单---成功--->>>参数:"+ map+"--->结果:"+map);
+            //创建工单——发送消息
+            sendWorkOrderNotificationAsync(workInfoBean);
+
+            System.out.println(TimeUtil.GetTime(true)+" ---创建工单---成功--->>>参数:"+ workInfoBean+"--->结果:"+result);
             return WebResponse.success();
         }else{
             System.out.println(TimeUtil.GetTime(true)+" ---创建工单---异常");
             return WebResponse.failure();
         }
+    }
+
+    private void sendWorkOrderNotificationAsync(WorkInfoBean workInfoBean) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                webSocketMessageService.broadcastWorkOrderCreated(workInfoBean);
+            } catch (Exception e) {
+                System.err.println(TimeUtil.GetTime(true)+"发送工单通知失败: " + e.getMessage());
+            }
+        });
     }
 
     /**

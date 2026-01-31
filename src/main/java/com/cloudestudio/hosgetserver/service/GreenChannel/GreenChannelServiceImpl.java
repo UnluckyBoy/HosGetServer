@@ -180,7 +180,7 @@ public class GreenChannelServiceImpl implements GreenChannelService {
     private PatientBean classHandle(GreenChannelCreateParamBody requestBody){
         PatientBean createBean=new PatientBean();
         createBean.setInfoKey(requestBody.getPersonType());
-        createBean.setPatientId(UUIDNumberUtil.randUUIDMediumNumber());
+        createBean.setPatientId(UUIDNumberUtil.randMiddleUUIDNumber());
         createBean.setIdCardTypeName(requestBody.getIdCardTypeName());
         createBean.setPatientName(requestBody.getPatientName());
         createBean.setIdCard(requestBody.getIdCard());

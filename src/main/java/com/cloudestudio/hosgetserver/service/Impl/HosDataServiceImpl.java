@@ -105,8 +105,8 @@ public class HosDataServiceImpl implements HosDataService {
 
     @DS("mysql")
     @Override
-    public boolean createWorkInfo(Map<String, Object> map) {
-        return hosDataMapper.createWorkInfo(map);
+    public boolean createWorkInfo(WorkInfoBean workInfoBean) {
+        return hosDataMapper.createWorkInfo(workInfoBean);
     }
 
     @DS("mysql")

@@ -51,6 +51,6 @@ public interface HosDataMapper {
     boolean releaseYfClock();//解除药房锁
     boolean freshCostEndTime(Map<String,Object> map);//刷新收费日期
     boolean freshJrzyInfo(String orderId); // 更新退费JRZY_INFO状态
-    boolean createWorkInfo(Map<String,Object> map);//创建工单
+    boolean createWorkInfo(WorkInfoBean workInfoBean);//创建工单
     boolean freshWorkStatus(Map<String,String> map);//更新工单状态
 }

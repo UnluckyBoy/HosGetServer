@@ -1,6 +1,7 @@
 package com.cloudestudio.hosgetserver.controller;
 
 import com.cloudestudio.hosgetserver.model.*;
+import com.cloudestudio.hosgetserver.model.ReportBean.WorkInfoBean;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.model.paramBody.CommonParam;
 import com.cloudestudio.hosgetserver.model.paramBody.WorkParamBody;
@@ -722,15 +723,24 @@ public class DataController {
         response.setContentType("application/json;charset=UTF-8");
 
         System.out.println(TimeUtil.GetTime(true)+" ---创建工单"+body.toString());
-        Map<String,Object> requestMap=new HashMap<>();
-        requestMap.put("workTitle",body.getWorkTitle());
-        requestMap.put("workType",body.getWorkType());
-        requestMap.put("workContent",body.getDescription());
-        requestMap.put("creator",body.getCreator());
-        requestMap.put("priority",body.getPriority());
-        requestMap.put("department",body.getDepartment());
-        requestMap.put("creatDate",body.getCreateDate());
-        response.getWriter().write(gson.toJson(hosComService.createWorkInfo(requestMap)));
+//        Map<String,Object> requestMap=new HashMap<>();
+//        requestMap.put("workTitle",body.getWorkTitle());
+//        requestMap.put("workType",body.getWorkType());
+//        requestMap.put("workContent",body.getDescription());
+//        requestMap.put("creator",body.getCreator());
+//        requestMap.put("priority",body.getPriority());
+//        requestMap.put("department",body.getDepartment());
+//        requestMap.put("creatDate",body.getCreateDate());
+        WorkInfoBean mObject= new WorkInfoBean();
+        mObject.setWorkTitle(body.getWorkTitle());
+        mObject.setWorkType(body.getWorkType());
+        mObject.setWorkContent(body.getDescription());
+        mObject.setCreator(body.getCreator());
+        mObject.setPriority(body.getPriority());
+        mObject.setDepartment(body.getDepartment());
+        mObject.setCreatDate(body.getCreateDate());
+        mObject.setCreatDate(body.getCreateDate());
+        response.getWriter().write(gson.toJson(hosComService.createWorkInfo(mObject)));
     }
 
     /**

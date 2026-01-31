@@ -1,5 +1,6 @@
 package com.cloudestudio.hosgetserver.service.HosCommon;
 
+import com.cloudestudio.hosgetserver.model.ReportBean.WorkInfoBean;
 import com.cloudestudio.hosgetserver.webTools.WebResponse;
 
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.Map;
  * 服务公共类
  */
 public interface HosComService {
-    WebResponse createWorkInfo(Map<String,Object> map);
+    WebResponse createWorkInfo(WorkInfoBean workInfoBean);
     WebResponse queryWorkInfos();
     WebResponse queryNearWorks();
     WebResponse freshWorkStatus(Map<String,String> map);
