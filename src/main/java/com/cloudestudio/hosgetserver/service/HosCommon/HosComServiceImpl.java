@@ -2,6 +2,7 @@ package com.cloudestudio.hosgetserver.service.HosCommon;
 
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkInfoBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkNearBean;
+import com.cloudestudio.hosgetserver.model.ReportBean.WorkTotalBean;
 import com.cloudestudio.hosgetserver.service.HosDataService;
 import com.cloudestudio.hosgetserver.service.WebSocket.WebSocketMessageService;
 import com.cloudestudio.hosgetserver.webTools.TimeUtil;
@@ -9,6 +10,8 @@ import com.cloudestudio.hosgetserver.webTools.WebResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -119,6 +122,57 @@ public class HosComServiceImpl implements HosComService{
             return WebResponse.success(result);
         }
         System.out.println(TimeUtil.GetTime(true)+" ---查询工单内容-失败--->参数："+workId);
+        return WebResponse.failure();
+    }
+
+    /**
+     * 查询工单所有数据
+     * @return
+     */
+    @Override
+    public WebResponse queryAllWorks() {
+        List<WorkInfoBean> result=hosDataService.queryAllWorks();
+        if(!result.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---查询工单内容-成功");
+            return WebResponse.success(result);
+        }
+        System.out.println(TimeUtil.GetTime(true)+" ---查询工单内容-失败");
+        return WebResponse.failure();
+    }
+
+    /**
+     * 统计当前年工单状态
+     * @return
+     */
+    @Override
+    public WebResponse queryWorkStatusTotal() {
+        List<WorkTotalBean> result=hosDataService.queryWorkStatusTotal();
+        if(!result.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---查询工单状态统计-成功"+result);
+            return WebResponse.success(result);
+        }
+        System.out.println(TimeUtil.GetTime(true)+" ---查询工单状态统计-失败");
+        return WebResponse.failure();
+    }
+
+    @Override
+    public WebResponse queryWorkTypeTotal() {
+        List<WorkTotalBean> result=hosDataService.queryWorkTypeTotal();
+        List<String> name=new ArrayList<>();
+        List<String> value=new ArrayList<>();
+        if(!result.isEmpty()){
+            for(WorkTotalBean workStatusTotal:result){
+                name.add(workStatusTotal.getWorkType());
+                value.add(workStatusTotal.getTotalNum());
+            }
+            Map<String,Object> resultList=new HashMap<>();
+            resultList.put("name",name);
+            resultList.put("value",value);
+            System.out.println(TimeUtil.GetTime(true)+" ---查询工单类型统计-处理-name:"+name+"---value:"+value);
+            System.out.println(TimeUtil.GetTime(true)+" ---查询工单类型统计-成功"+resultList);
+            return WebResponse.success(resultList);
+        }
+        System.out.println(TimeUtil.GetTime(true)+" ---查询工单类型统计-失败");
         return WebResponse.failure();
     }
 }

@@ -723,14 +723,6 @@ public class DataController {
         response.setContentType("application/json;charset=UTF-8");
 
         System.out.println(TimeUtil.GetTime(true)+" ---创建工单"+body.toString());
-//        Map<String,Object> requestMap=new HashMap<>();
-//        requestMap.put("workTitle",body.getWorkTitle());
-//        requestMap.put("workType",body.getWorkType());
-//        requestMap.put("workContent",body.getDescription());
-//        requestMap.put("creator",body.getCreator());
-//        requestMap.put("priority",body.getPriority());
-//        requestMap.put("department",body.getDepartment());
-//        requestMap.put("creatDate",body.getCreateDate());
         WorkInfoBean mObject= new WorkInfoBean();
         mObject.setWorkTitle(body.getWorkTitle());
         mObject.setWorkType(body.getWorkType());
@@ -738,8 +730,8 @@ public class DataController {
         mObject.setCreator(body.getCreator());
         mObject.setPriority(body.getPriority());
         mObject.setDepartment(body.getDepartment());
-        mObject.setCreatDate(body.getCreateDate());
-        mObject.setCreatDate(body.getCreateDate());
+        mObject.setCreateDate(body.getCreateDate());
+        mObject.setFinishDate(body.getFinishDate());
         response.getWriter().write(gson.toJson(hosComService.createWorkInfo(mObject)));
     }
 
@@ -786,10 +778,41 @@ public class DataController {
         response.getWriter().write(gson.toJson(hosComService.queryWorkContent(Integer.parseInt(body.getWorkID()))));
     }
 
+    /**
+     * 查询所有工单内容
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("queryAllWorks")
+    public void queryAllWorks(HttpServletResponse response) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        System.out.println(TimeUtil.GetTime(true)+" ---查询工单内容");
+        response.getWriter().write(gson.toJson(hosComService.queryAllWorks()));
+    }
+
+    /**
+     * 查询当前年工单状态统计
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("queryWorkStatusTotal")
+    public void queryWorkStatusTotal(HttpServletResponse response) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        System.out.println(TimeUtil.GetTime(true)+" ---查询工单状态统计");
+        response.getWriter().write(gson.toJson(hosComService.queryWorkStatusTotal()));
+    }
+
+    @RequestMapping("queryWorkTypeTotal")
+    public void queryWorkTypeTotal(HttpServletResponse response) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        System.out.println(TimeUtil.GetTime(true)+" ---查询工单状态统计");
+        response.getWriter().write(gson.toJson(hosComService.queryWorkTypeTotal()));
+    }
+
+
     @RequestMapping("/test")
     public void Test(HttpServletResponse response,
-                     @RequestParam("account") String account,
-                     @RequestParam("pass") String pass) throws IOException {
+                     @RequestParam("account") String account,@RequestParam("pass") String pass) throws IOException {
         String encode= MatrixEncodeUtil.encodeTwice(pass);
         response.setContentType("application/json;charset=UTF-8");
         Map<String,Object> requestMap=new HashMap<>();

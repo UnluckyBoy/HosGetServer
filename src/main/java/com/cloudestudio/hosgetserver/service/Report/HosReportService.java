@@ -1,8 +1,10 @@
 package com.cloudestudio.hosgetserver.service.Report;
 
+import com.cloudestudio.hosgetserver.model.ReportBean.WorkInfoBean;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.webTools.WebResponse;
 
+import java.util.List;
 import java.util.Map;
 
 /**

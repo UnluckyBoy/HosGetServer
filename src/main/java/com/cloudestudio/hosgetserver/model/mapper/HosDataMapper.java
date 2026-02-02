@@ -44,6 +44,9 @@ public interface HosDataMapper {
     List<WorkInfoBean> queryWorkInfos();//查询工单
     List<WorkNearBean> queryNearWorks();//查询工单
     WorkInfoBean queryWorkContent(int workId);//查询工单详情
+    List<WorkInfoBean> queryAllWorks();//查询工单所有信息
+    List<WorkTotalBean> queryWorkStatusTotal();//统计工单状态
+    List<WorkTotalBean> queryWorkTypeTotal();//统计工单状态
 
 
 

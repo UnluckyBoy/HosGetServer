@@ -6,8 +6,6 @@ import com.cloudestudio.hosgetserver.model.department.BaseDepartMent;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.webTools.WebResponse;
 
-import java.util.Date;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +38,9 @@ public interface HosDataService {
     List<WorkInfoBean> queryWorkInfos();
     List<WorkNearBean> queryNearWorks();
     WorkInfoBean queryWorkContent(int workId);
+    List<WorkInfoBean> queryAllWorks();
+    List<WorkTotalBean> queryWorkStatusTotal();
+    List<WorkTotalBean> queryWorkTypeTotal();
 
     /** Oracle2库**/
     String queryAddrCode(String addr);

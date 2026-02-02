@@ -5,7 +5,6 @@ import com.cloudestudio.hosgetserver.model.*;
 import com.cloudestudio.hosgetserver.model.ReportBean.*;
 import com.cloudestudio.hosgetserver.model.department.BaseDepartMent;
 import com.cloudestudio.hosgetserver.model.mapper.HosDataMapper;
-import com.cloudestudio.hosgetserver.model.mapper.UserMapper;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.service.HosDataService;
 import com.cloudestudio.hosgetserver.webTools.TimeUtil;
@@ -205,6 +204,24 @@ public class HosDataServiceImpl implements HosDataService {
     @Override
     public WorkInfoBean queryWorkContent(int workId) {
         return hosDataMapper.queryWorkContent(workId);
+    }
+
+    @DS("mysql")
+    @Override
+    public List<WorkInfoBean> queryAllWorks() {
+        return hosDataMapper.queryAllWorks();
+    }
+
+    @DS("mysql")
+    @Override
+    public List<WorkTotalBean> queryWorkStatusTotal() {
+        return hosDataMapper.queryWorkStatusTotal();
+    }
+
+    @DS("mysql")
+    @Override
+    public List<WorkTotalBean> queryWorkTypeTotal() {
+        return hosDataMapper.queryWorkTypeTotal();
     }
 
     @DS("oracle2")

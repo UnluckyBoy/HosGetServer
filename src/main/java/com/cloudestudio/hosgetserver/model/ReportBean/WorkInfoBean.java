@@ -25,7 +25,7 @@ public class WorkInfoBean implements Serializable {
     private String creator;
     private String finishOperator;
     private String workStatus;
-    private String creatDate;
+    private String createDate;
     private String finishDate;
     private String workContent;
     private String workResult;

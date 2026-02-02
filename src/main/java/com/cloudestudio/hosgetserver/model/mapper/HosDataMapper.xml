@@ -763,6 +763,32 @@
         WHERE
             base_department_table.isUse=1
     </select>
+
+    <!--查询工单所有信息-->
+    <select id="queryAllWorks" resultType="WorkInfoBean">
+        SELECT
+            work_table.workID,
+            work_table.workTitle,
+            work_table.workContent,
+            base_department_table.departName AS department,
+            work_table.initiator,
+            get_OperatorName (work_table.creator) AS creator,
+            get_OperatorName (work_table.finishOperator) AS finishOperator,
+            work_table.workStatus,
+            work_table.createDate,
+            work_table.finishDate,
+            work_table.priority,
+            work_table.workType,
+            work_table.workResult,
+            get_OperatorName (work_table.workAssignee) AS workAssignee
+        FROM
+            work_table
+            INNER JOIN base_department_table ON base_department_table.departCode = work_table.department
+        WHERE
+            YEAR(work_table.createDate) = YEAR(CURDATE())
+        ORDER BY
+            work_table.createDate DESC
+    </select>
     <!--查询工单：全部以及近七日-->
     <select id="queryWorkInfos" resultType="WorkInfoBean">
         SELECT
@@ -775,13 +801,13 @@
             get_OperatorName(work_table.creator) AS creator,
             get_OperatorName(work_table.finishOperator) AS finishOperator,
             work_table.workStatus,
-            work_table.creatDate,
+            work_table.createDate,
             work_table.finishDate
         FROM
             work_table
             INNER JOIN base_department_table ON base_department_table.departCode = work_table.department
         ORDER BY
-            work_table.creatDate DESC
+            work_table.createDate DESC
     </select>
     <select id="queryNearWorks" resultType="WorkNearBean">
         <![CDATA[
@@ -797,15 +823,15 @@
             get_OperatorName(work_table.finishOperator) AS finishOperator,
             (SELECT login_info_table.headerImageUrl FROM login_info_table WHERE login_info_table.uAccount=work_table.finishOperator) AS finishOperatorHead,
             work_table.workStatus,
-            work_table.creatDate,
+            work_table.createDate,
             work_table.finishDate
         FROM
             work_table
             INNER JOIN base_department_table ON base_department_table.departCode = work_table.department
         WHERE
-            DATEDIFF(NOW(), work_table.creatDate) <= 15
+            DATEDIFF(NOW(), work_table.createDate) <= 15
         ORDER BY
-            work_table.creatDate DESC
+            work_table.createDate DESC
         ]]>
     </select>
     <!--查询工单详情内容-->
@@ -816,6 +842,29 @@
             work_table
         WHERE
             work_table.workID =#{workId}
+    </select>
+    <!--工单状态统计-->
+    <select id="queryWorkStatusTotal" resultType="WorkTotalBean">
+        SELECT
+            COUNT(work_table.workID) AS totalNum,
+            work_table.workStatus
+        FROM
+            work_table
+        WHERE
+            YEAR(work_table.createDate) = YEAR(CURDATE())
+        GROUP BY
+            work_table.workStatus
+    </select>
+    <select id="queryWorkTypeTotal" resultType="WorkTotalBean">
+        SELECT
+            COUNT(work_table.workID) AS totalNum,
+            work_table.workType
+        FROM
+            work_table
+        WHERE
+            YEAR(work_table.createDate) = YEAR(CURDATE())
+        GROUP BY
+            work_table.workType
     </select>
 
     <!--Update逻辑-->

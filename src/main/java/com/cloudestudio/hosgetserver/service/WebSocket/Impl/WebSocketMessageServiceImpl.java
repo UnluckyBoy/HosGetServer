@@ -37,7 +37,7 @@ public class WebSocketMessageServiceImpl implements WebSocketMessageService {
             notification.setWorkOrderTitle(workInfo.getWorkTitle());
             notification.setWorkOrderContent(workInfo.getWorkContent());
             notification.setCreator(workInfo.getCreator());
-            notification.setCreateTime(workInfo.getCreatDate());
+            notification.setCreateTime(workInfo.getCreateDate());
             notification.setPriority(workInfo.getPriority());
             notification.setStatus(workInfo.getWorkStatus());
             notification.setTimestamp(System.currentTimeMillis());
