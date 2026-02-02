@@ -968,9 +968,9 @@
             work_table.priority,
             work_table.department,
             work_table.workContent,
-            work_table.creatDate,
+            work_table.createDate,
             work_table.creator)
         VALUES
-            (#{workTitle},#{workType},#{priority},#{department},#{workContent},#{creatDate},#{creator})
+            (#{workTitle},#{workType},#{priority},#{department},#{workContent},#{createDate},#{creator})
     </insert>
 </mapper>
