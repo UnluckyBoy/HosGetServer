@@ -17,6 +17,9 @@ public class WorkTotalBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String totalNum;
+    private String completedNum;
+    private String notCompletedNum;
     private String workStatus;
     private String workType;
+    private String createDate;
 }

@@ -1,8 +1,10 @@
 package com.cloudestudio.hosgetserver.service.HosCommon;
 
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkInfoBean;
+import com.cloudestudio.hosgetserver.model.ReportBean.WorkTotalBean;
 import com.cloudestudio.hosgetserver.webTools.WebResponse;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,4 +22,5 @@ public interface HosComService {
     WebResponse queryAllWorks();
     WebResponse queryWorkStatusTotal();
     WebResponse queryWorkTypeTotal();
+    WebResponse queryWorkComplete();
 }

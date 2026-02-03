@@ -20,10 +20,12 @@ public class WorkParamBody implements Serializable {
     private String priority;
     private String workStatus;
     private String creator;
+    private String initiator;
     private String finishOperator;
     private String department;
     private String description;
     private String createDate;
     private String finishDate;
     private String workResult;
+    private String workAssignee;
 }

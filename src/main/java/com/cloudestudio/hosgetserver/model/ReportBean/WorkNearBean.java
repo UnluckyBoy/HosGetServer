@@ -29,4 +29,5 @@ public class WorkNearBean implements Serializable {
     private String finishDate;
     private String workContent;
     private String workResult;
+    private String workAssignee;
 }

@@ -155,6 +155,10 @@ public class HosComServiceImpl implements HosComService{
         return WebResponse.failure();
     }
 
+    /**
+     * 类型统计
+     * @return
+     */
     @Override
     public WebResponse queryWorkTypeTotal() {
         List<WorkTotalBean> result=hosDataService.queryWorkTypeTotal();
@@ -173,6 +177,37 @@ public class HosComServiceImpl implements HosComService{
             return WebResponse.success(resultList);
         }
         System.out.println(TimeUtil.GetTime(true)+" ---查询工单类型统计-失败");
+        return WebResponse.failure();
+    }
+
+    /**
+     * 工单趋势统计
+     * @return
+     */
+    @Override
+    public WebResponse queryWorkComplete() {
+        List<WorkTotalBean> result=hosDataService.queryWorkComplete();
+        List<String> xCreateDate=new ArrayList<>();
+        List<String> mTotalNum=new ArrayList<>();
+        List<String> mCompleted=new ArrayList<>();
+        List<String> mNotCompleted=new ArrayList<>();
+        if(!result.isEmpty()){
+            for(WorkTotalBean workStatusTotal:result){
+                xCreateDate.add(workStatusTotal.getCreateDate());
+                mTotalNum.add(workStatusTotal.getTotalNum());
+                mCompleted.add(workStatusTotal.getCompletedNum());
+                mNotCompleted.add(workStatusTotal.getNotCompletedNum());
+            }
+            Map<String,Object> resultList=new HashMap<>();
+            resultList.put("xAxis",xCreateDate);
+            resultList.put("yAxisTotalNum",mTotalNum);
+            resultList.put("yAxisComplete",mCompleted);
+            resultList.put("yAxisNotComplete",mNotCompleted);
+
+            System.out.println(TimeUtil.GetTime(true)+" ---工单趋势统计-成功"+resultList);
+            return WebResponse.success(resultList);
+        }
+        System.out.println(TimeUtil.GetTime(true)+" ---工单趋势统计-失败");
         return WebResponse.failure();
     }
 }

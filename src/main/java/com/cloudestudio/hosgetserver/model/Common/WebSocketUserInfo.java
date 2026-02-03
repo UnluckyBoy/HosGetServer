@@ -20,6 +20,7 @@ public class WebSocketUserInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String sessionId;
+    private String mAccount;
     private String nickname;
     private String avatar;
     private String role;
@@ -28,6 +29,7 @@ public class WebSocketUserInfo implements Serializable {
     public WebSocketSimpleInfo toWebSocketSimpleInfo(ConcurrentHashMap<String, WebSocketSession> sessions) {
         WebSocketSimpleInfo info = new WebSocketSimpleInfo();
         info.setSessionId(sessionId);
+        info.setMAccount(mAccount);
         info.setNickname(nickname != null ? nickname : "用户" +
                 (sessionId.length() > 6 ? sessionId.substring(0, 6) : sessionId));
         info.setAvatar(avatar);

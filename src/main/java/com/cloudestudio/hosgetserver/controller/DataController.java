@@ -728,6 +728,8 @@ public class DataController {
         mObject.setWorkType(body.getWorkType());
         mObject.setWorkContent(body.getDescription());
         mObject.setCreator(body.getCreator());
+        mObject.setInitiator(body.getInitiator());
+        mObject.setWorkAssignee(body.getWorkAssignee());
         mObject.setPriority(body.getPriority());
         mObject.setDepartment(body.getDepartment());
         mObject.setCreateDate(body.getCreateDate());
@@ -761,6 +763,7 @@ public class DataController {
         requestMap.put("workStatus",body.getWorkStatus());
         requestMap.put("workResult",body.getWorkResult());
         requestMap.put("finishOperator",body.getFinishOperator());
+        requestMap.put("workAssignee",body.getWorkAssignee());
         requestMap.put("finishDate",body.getFinishDate());
         response.getWriter().write(gsonConfig.toJson(hosComService.freshWorkStatus(requestMap)));
     }
@@ -802,11 +805,28 @@ public class DataController {
         response.getWriter().write(gson.toJson(hosComService.queryWorkStatusTotal()));
     }
 
+    /**
+     * 工单状态统计
+     * @param response
+     * @throws IOException
+     */
     @RequestMapping("queryWorkTypeTotal")
     public void queryWorkTypeTotal(HttpServletResponse response) throws IOException{
         response.setContentType("application/json;charset=UTF-8");
         System.out.println(TimeUtil.GetTime(true)+" ---查询工单状态统计");
         response.getWriter().write(gson.toJson(hosComService.queryWorkTypeTotal()));
+    }
+
+    /***
+     * 工单完成量统计
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("queryWorkComplete")
+    public void queryWorkComplete(HttpServletResponse response) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        System.out.println(TimeUtil.GetTime(true)+" ---查询工单状态统计");
+        response.getWriter().write(gson.toJson(hosComService.queryWorkComplete()));
     }
 
 

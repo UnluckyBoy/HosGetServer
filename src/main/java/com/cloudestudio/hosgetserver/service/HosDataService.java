@@ -41,6 +41,7 @@ public interface HosDataService {
     List<WorkInfoBean> queryAllWorks();
     List<WorkTotalBean> queryWorkStatusTotal();
     List<WorkTotalBean> queryWorkTypeTotal();
+    List<WorkTotalBean> queryWorkComplete();
 
     /** Oracle2库**/
     String queryAddrCode(String addr);

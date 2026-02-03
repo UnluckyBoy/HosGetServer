@@ -800,6 +800,7 @@
             work_table.initiator,
             get_OperatorName(work_table.creator) AS creator,
             get_OperatorName(work_table.finishOperator) AS finishOperator,
+            get_OperatorName (work_table.workAssignee) AS workAssignee,
             work_table.workStatus,
             work_table.createDate,
             work_table.finishDate
@@ -821,6 +822,7 @@
             get_OperatorName(work_table.creator) AS creator,
             (SELECT login_info_table.headerImageUrl FROM login_info_table WHERE login_info_table.uAccount=work_table.creator) AS creatorHead,
             get_OperatorName(work_table.finishOperator) AS finishOperator,
+            get_OperatorName (work_table.workAssignee) AS workAssignee,
             (SELECT login_info_table.headerImageUrl FROM login_info_table WHERE login_info_table.uAccount=work_table.finishOperator) AS finishOperatorHead,
             work_table.workStatus,
             work_table.createDate,
@@ -866,6 +868,42 @@
         GROUP BY
             work_table.workType
     </select>
+    <!--完成量查询-->
+    <select id="queryWorkComplete" resultType="WorkTotalBean">
+        <![CDATA[
+        WITH RECURSIVE date_series AS (
+          SELECT
+            CURDATE() AS date_value UNION ALL
+          SELECT
+            DATE_SUB(date_value, INTERVAL 1 DAY)
+          FROM
+            date_series
+          WHERE
+            date_value > DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        ) SELECT
+          DATE_FORMAT(ds.date_value, '%m-%d') AS createDate, -- 转为 月-日 格式
+          COALESCE(COUNT(DISTINCT wt.workID), 0) AS totalNum,
+          COALESCE(
+            COUNT(
+              DISTINCT
+              CASE
+                WHEN DATE(wt.finishDate) = DATE(wt.createDate)
+                  AND wt.workStatus = '已完成' THEN
+                  wt.workID
+              END
+            ),
+            0
+          ) AS completedNum,
+          COALESCE(COUNT(DISTINCT CASE WHEN wt.workStatus <> '已完成' THEN wt.workID END), 0) AS notCompletedNum
+        FROM
+          date_series ds
+          LEFT JOIN work_table wt ON DATE(wt.createDate) = ds.date_value
+        GROUP BY
+          ds.date_value
+        ORDER BY
+          ds.date_value ASC
+        ]]>
+    </select>
 
     <!--Update逻辑-->
     <update id="freshCostEndTime" parameterType="java.util.Map">
@@ -877,7 +915,13 @@
     </update>
     <!--更新工单-->
     <update id="freshWorkStatus" parameterType="java.util.Map">
-        UPDATE work_table SET work_table.workStatus=#{workStatus},work_table.workResult=#{workResult},work_table.finishOperator=#{finishOperator},work_table.finishDate=#{finishDate} WHERE work_table.workID=#{workId}
+        UPDATE work_table SET
+          work_table.workStatus=#{workStatus},
+          work_table.workResult=#{workResult},
+          work_table.finishOperator=#{finishOperator},
+          work_table.workAssignee=#{workAssignee},
+          work_table.finishDate=#{finishDate}
+        WHERE work_table.workID=#{workId}
     </update>
 
     <!--删除逻辑-->
@@ -969,8 +1013,10 @@
             work_table.department,
             work_table.workContent,
             work_table.createDate,
-            work_table.creator)
+            work_table.creator,
+            work_table.initiator,
+            work_table.workAssignee)
         VALUES
-            (#{workTitle},#{workType},#{priority},#{department},#{workContent},#{createDate},#{creator})
+            (#{workTitle},#{workType},#{priority},#{department},#{workContent},#{createDate},#{creator},#{initiator},#{workAssignee})
     </insert>
 </mapper>

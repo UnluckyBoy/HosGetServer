@@ -91,9 +91,10 @@ public class MatrixWebSocketHandler extends TextWebSocketHandler {
                 case "user_info":
                     // 更新用户信息
                     String nickname = jsonNode.has("nickname") ? jsonNode.get("nickname").asText() : null;
+                    String account = jsonNode.has("account") ? jsonNode.get("account").asText() : null;
                     String avatar = jsonNode.has("avatar") ? jsonNode.get("avatar").asText() : null;
                     String role = jsonNode.has("role") ? jsonNode.get("role").asText() : null;
-                    sessionManager.updateUserInfo(sessionId, nickname,role, avatar);
+                    sessionManager.updateUserInfo(sessionId,nickname,account,role, avatar);
                     WebSocketResponse userInfoResponse = WebSocketResponse.success(
                             "system",
                             "用户信息更新成功"

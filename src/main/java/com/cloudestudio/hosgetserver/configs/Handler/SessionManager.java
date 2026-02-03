@@ -2,6 +2,7 @@ package com.cloudestudio.hosgetserver.configs.Handler;
 
 import com.cloudestudio.hosgetserver.model.Common.WebSocketSimpleInfo;
 import com.cloudestudio.hosgetserver.model.Common.WebSocketUserInfo;
+import com.cloudestudio.hosgetserver.webTools.TimeUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -47,10 +48,10 @@ public class SessionManager {
      * 移除会话（完全清理）
      */
     public void removeSession(String sessionId) {
-        // 1. 关闭连接
+        // 关闭连接
         closeSession(sessionId);
 
-        // 2. 从所有集合中移除
+        // 从所有集合中移除
         sessions.remove(sessionId);
         lastActiveTimes.remove(sessionId);
         userInfos.remove(sessionId);
@@ -82,11 +83,73 @@ public class SessionManager {
     /**
      * 更新用户信息
      */
-    public void updateUserInfo(String sessionId, String nickname,String  role, String avatar) {
+    public void updateUserInfo(String sessionId,String nickname,String account,String role,String avatar) {
+        // 先检查是否有相同昵称但不同会话的情况
+//        if (nickname != null) {
+//            // 查找是否有其他会话使用相同昵称
+//            for (Map.Entry<String, WebSocketUserInfo> entry : userInfos.entrySet()) {
+//                String existingSessionId = entry.getKey();
+//                WebSocketUserInfo existingUserInfo = entry.getValue();
+//                // 如果是相同会话，跳过
+//                if (existingSessionId.equals(sessionId)) {
+//                    continue;
+//                }
+//                // 昵称相同但sessionId不同
+//                if (existingUserInfo.getNickname() != null && existingUserInfo.getNickname().equals(nickname)) {
+//                    System.out.println("发现重复昵称: " + nickname +
+//                            "账户: " + account +
+//                            "，原会话: " + existingSessionId +
+//                            "，新会话: " + sessionId +
+//                            "，关闭原会话");
+//                    closeSession(existingSessionId);// 关闭前一个会话
+//                    sessions.remove(existingSessionId);// 移除前一个会话的信息
+//                    lastActiveTimes.remove(existingSessionId);
+//                    userInfos.remove(existingSessionId);
+//                    // 发送被挤下线的消息（可选）
+//                    // sendKickOffMessage(existingSessionId, nickname);
+//                    break;
+//                }
+//            }
+//        }
+        if (account != null && !account.trim().isEmpty()) {
+            // 查找是否有其他会话使用相同账户
+            for (Map.Entry<String, WebSocketUserInfo> entry : userInfos.entrySet()) {
+                String existingSessionId = entry.getKey();
+                WebSocketUserInfo existingUserInfo = entry.getValue();
+
+                // 如果是相同会话，跳过
+                if (existingSessionId.equals(sessionId)) {
+                    continue;
+                }
+
+                // 如果账户相同但sessionId不同
+                if (existingUserInfo.getMAccount() != null && existingUserInfo.getMAccount().equals(account)) {
+                    System.out.println(TimeUtil.GetTime(true) +"发现重复账户登录: " + account +
+                            "，原会话: " + existingSessionId +
+                            "，新会话: " + sessionId +
+                            "，关闭原会话");
+                    // 关闭前一个会话
+                    closeSession(existingSessionId);
+                    // 移除前一个会话的信息
+                    sessions.remove(existingSessionId);
+                    lastActiveTimes.remove(existingSessionId);
+                    userInfos.remove(existingSessionId);
+
+                    // 发送被挤下线的消息
+                    // sendKickOffMessage(existingSessionId, account);
+                    break;
+                }
+            }
+        }
+
+
         WebSocketUserInfo userInfo = userInfos.getOrDefault(sessionId, new WebSocketUserInfo());
         userInfo.setSessionId(sessionId);
         if (nickname != null) {
             userInfo.setNickname(nickname);
+        }
+        if (account != null) {
+            userInfo.setMAccount(account);  // 设置账户
         }
         if(role!=null){
             userInfo.setRole(role);
@@ -153,17 +216,6 @@ public class SessionManager {
 
         return onlineUsers;
     }
-
-    /**
-     * 检查会话是否存在
-     * @param sessionId
-     * @return
-     */
-    private boolean sessionExists(String sessionId) {
-        return sessions.containsKey(sessionId);
-    }
-
-
 
     /**
      * 清理所有无效会话
