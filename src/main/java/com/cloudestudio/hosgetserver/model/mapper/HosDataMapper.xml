@@ -904,6 +904,51 @@
           ds.date_value ASC
         ]]>
     </select>
+    <!--完成时段统计-->
+    <select id="queryWorkCompleteInterval" resultType="WorkTotalBean">
+        <![CDATA[
+            SELECT
+                interval_table.time_interval AS timeInterval,
+                IFNULL(actual_stats.count, 0) AS totalNum
+            FROM (
+                     SELECT '5H' AS time_interval
+                     UNION ALL SELECT '12H'
+                     UNION ALL SELECT '24H'
+                     UNION ALL SELECT '36H'
+                     UNION ALL SELECT '超36H'
+                 ) AS interval_table
+            LEFT JOIN (
+                SELECT
+                    CASE
+                        WHEN TIMESTAMPDIFF(HOUR, createDate, finishDate) <= 5 THEN '5H'
+                        WHEN TIMESTAMPDIFF(HOUR, createDate, finishDate) <= 12 THEN '12H'
+                        WHEN TIMESTAMPDIFF(HOUR, createDate, finishDate) <= 24 THEN '24H'
+                        WHEN TIMESTAMPDIFF(HOUR, createDate, finishDate) <= 36 THEN '36H'
+                        ELSE '超36H'
+                    END AS time_interval,
+                    COUNT(*) AS count
+                FROM work_table
+                WHERE createDate IS NOT NULL
+                  AND finishDate IS NOT NULL
+                GROUP BY
+                    CASE
+                        WHEN TIMESTAMPDIFF(HOUR, createDate, finishDate) <= 5 THEN '5H'
+                        WHEN TIMESTAMPDIFF(HOUR, createDate, finishDate) <= 12 THEN '12H'
+                        WHEN TIMESTAMPDIFF(HOUR, createDate, finishDate) <= 24 THEN '24H'
+                        WHEN TIMESTAMPDIFF(HOUR, createDate, finishDate) <= 36 THEN '36H'
+                        ELSE '超36H'
+                    END
+            ) AS actual_stats ON interval_table.time_interval = actual_stats.time_interval
+                    ORDER BY
+                        CASE interval_table.time_interval
+                        WHEN '5H' THEN 1
+                        WHEN '12H' THEN 2
+                        WHEN '24H' THEN 3
+                        WHEN '36H' THEN 4
+                        ELSE 5
+                        END
+        ]]>
+    </select>
 
     <!--Update逻辑-->
     <update id="freshCostEndTime" parameterType="java.util.Map">

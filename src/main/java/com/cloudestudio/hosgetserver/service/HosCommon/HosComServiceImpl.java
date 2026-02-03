@@ -210,4 +210,30 @@ public class HosComServiceImpl implements HosComService{
         System.out.println(TimeUtil.GetTime(true)+" ---工单趋势统计-失败");
         return WebResponse.failure();
     }
+
+    /**
+     * 统计时段完成量
+     * @return
+     */
+    @Override
+    public WebResponse queryWorkCompleteInterval() {
+        List<WorkTotalBean> result=hosDataService.queryWorkCompleteInterval();
+
+        List<String> mTimeInterval=new ArrayList<>();
+        List<String> mTotalNum=new ArrayList<>();
+        if(!result.isEmpty()){
+            for(WorkTotalBean workStatusTotal:result){
+                mTimeInterval.add(workStatusTotal.getTimeInterval());
+                mTotalNum.add(workStatusTotal.getTotalNum());
+            }
+            Map<String,Object> resultList=new HashMap<>();
+            resultList.put("mTimeInterval",mTimeInterval);
+            resultList.put("mTotalNum",mTotalNum);
+
+            System.out.println(TimeUtil.GetTime(true)+" ---统计时段完成量-成功:"+resultList);
+            return WebResponse.success(resultList);
+        }
+        System.out.println(TimeUtil.GetTime(true)+" ---统计时段完成量-失败");
+        return WebResponse.failure();
+    }
 }

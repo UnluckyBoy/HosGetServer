@@ -23,4 +23,5 @@ public interface HosComService {
     WebResponse queryWorkStatusTotal();
     WebResponse queryWorkTypeTotal();
     WebResponse queryWorkComplete();
+    WebResponse queryWorkCompleteInterval();
 }

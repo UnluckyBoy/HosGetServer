@@ -22,4 +22,5 @@ public class WorkTotalBean implements Serializable {
     private String workStatus;
     private String workType;
     private String createDate;
+    private String timeInterval;
 }

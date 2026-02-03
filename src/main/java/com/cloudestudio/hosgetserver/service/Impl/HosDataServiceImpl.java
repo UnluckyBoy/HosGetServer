@@ -230,6 +230,12 @@ public class HosDataServiceImpl implements HosDataService {
         return hosDataMapper.queryWorkComplete();
     }
 
+    @DS("mysql")
+    @Override
+    public List<WorkTotalBean> queryWorkCompleteInterval() {
+        return hosDataMapper.queryWorkCompleteInterval();
+    }
+
     @DS("oracle2")
     @Override
     public String queryAddrCode(String addr) {

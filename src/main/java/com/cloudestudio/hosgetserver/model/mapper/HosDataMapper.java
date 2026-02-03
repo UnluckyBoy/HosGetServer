@@ -48,6 +48,7 @@ public interface HosDataMapper {
     List<WorkTotalBean> queryWorkStatusTotal();//统计工单状态
     List<WorkTotalBean> queryWorkTypeTotal();//统计工单状态
     List<WorkTotalBean> queryWorkComplete();//统计工单完成状态
+    List<WorkTotalBean> queryWorkCompleteInterval();//统计工单完成时段
 
 
 

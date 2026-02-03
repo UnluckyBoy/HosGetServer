@@ -829,6 +829,18 @@ public class DataController {
         response.getWriter().write(gson.toJson(hosComService.queryWorkComplete()));
     }
 
+    /**
+     * 统计时段完成量
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("queryWorkCompleteInterval")
+    public void queryWorkCompleteInterval(HttpServletResponse response) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        System.out.println(TimeUtil.GetTime(true)+" ---查询工单状态统计");
+        response.getWriter().write(gson.toJson(hosComService.queryWorkCompleteInterval()));
+    }
+
 
     @RequestMapping("/test")
     public void Test(HttpServletResponse response,
