@@ -3,6 +3,7 @@ package com.cloudestudio.hosgetserver.service.HosCommon;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkInfoBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkNearBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkTotalBean;
+import com.cloudestudio.hosgetserver.model.UserInfoBean;
 import com.cloudestudio.hosgetserver.service.HosDataService;
 import com.cloudestudio.hosgetserver.service.WebSocket.WebSocketMessageService;
 import com.cloudestudio.hosgetserver.webTools.TimeUtil;
@@ -59,7 +60,8 @@ public class HosComServiceImpl implements HosComService{
     private void sendWorkOrderNotificationAsync(WorkInfoBean workInfoBean) {
         CompletableFuture.runAsync(() -> {
             try {
-                webSocketMessageService.broadcastWorkOrderCreated(workInfoBean);
+                // webSocketMessageService.broadcastWorkOrderCreated(workInfoBean);
+                webSocketMessageService.broadcastWorkOrderToAdmin(workInfoBean);
             } catch (Exception e) {
                 System.err.println(TimeUtil.GetTime(true)+"发送工单通知失败: " + e.getMessage());
             }
@@ -108,6 +110,21 @@ public class HosComServiceImpl implements HosComService{
             return WebResponse.success();
         }
         System.out.println(TimeUtil.GetTime(true)+" ---更新工单---失败--->参数："+map);
+        return WebResponse.failure();
+    }
+
+    @Override
+    public WebResponse updateWorkContent(Map<String, String> map) {
+        if(map.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---参数异常："+map);
+            return WebResponse.paramError();
+        }
+        boolean result=hosDataService.updateWorkContent(map);
+        if(result){
+            System.out.println(TimeUtil.GetTime(true)+" ---更新工单内容---成功--->参数："+map);
+            return WebResponse.success();
+        }
+        System.out.println(TimeUtil.GetTime(true)+" ---更新工单内容---失败--->参数："+map);
         return WebResponse.failure();
     }
 
@@ -234,6 +251,21 @@ public class HosComServiceImpl implements HosComService{
             return WebResponse.success(resultList);
         }
         System.out.println(TimeUtil.GetTime(true)+" ---统计时段完成量-失败");
+        return WebResponse.failure();
+    }
+
+    /**
+     * 获取管理员信息
+     * @return
+     */
+    @Override
+    public WebResponse queryAdmin() {
+        List<UserInfoBean> resultList=hosDataService.queryAdmin();
+        if(!resultList.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---获取信息-成功:"+resultList);
+            return WebResponse.success(resultList);
+        }
+        System.out.println(TimeUtil.GetTime(true)+" ---获取信息-失败");
         return WebResponse.failure();
     }
 }

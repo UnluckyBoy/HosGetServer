@@ -35,6 +35,7 @@ public interface HosDataService {
     List<WorkNums> QueryWorksNum(BedDayBody queryMap);
     List<SettlementBean> QuerySettlement(BedDayBody queryMap);
     List<BaseDepartMent> queryBaseDepart();
+    List<UserInfoBean> queryAdmin();
     List<WorkInfoBean> queryWorkInfos();
     List<WorkNearBean> queryNearWorks();
     WorkInfoBean queryWorkContent(int workId);
@@ -52,6 +53,7 @@ public interface HosDataService {
     boolean freshJrzyInfo(String orderId); // 更新退费JRZY_INFO状态
     boolean createWorkInfo(WorkInfoBean workInfoBean);
     boolean freshWorkStatus(Map<String,String> map);
+    boolean updateWorkContent(Map<String,String> map);
 
     WebResponse releaseYfClock();
     WebResponse freshCostEndTime(Map<String,Object> map);

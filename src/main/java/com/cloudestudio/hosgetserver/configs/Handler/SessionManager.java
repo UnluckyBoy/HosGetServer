@@ -3,12 +3,19 @@ package com.cloudestudio.hosgetserver.configs.Handler;
 import com.cloudestudio.hosgetserver.model.Common.WebSocketSimpleInfo;
 import com.cloudestudio.hosgetserver.model.Common.WebSocketUserInfo;
 import com.cloudestudio.hosgetserver.webTools.TimeUtil;
+import com.cloudestudio.hosgetserver.webTools.WebSocketResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -85,32 +92,6 @@ public class SessionManager {
      */
     public void updateUserInfo(String sessionId,String nickname,String account,String role,String avatar) {
         // 先检查是否有相同昵称但不同会话的情况
-//        if (nickname != null) {
-//            // 查找是否有其他会话使用相同昵称
-//            for (Map.Entry<String, WebSocketUserInfo> entry : userInfos.entrySet()) {
-//                String existingSessionId = entry.getKey();
-//                WebSocketUserInfo existingUserInfo = entry.getValue();
-//                // 如果是相同会话，跳过
-//                if (existingSessionId.equals(sessionId)) {
-//                    continue;
-//                }
-//                // 昵称相同但sessionId不同
-//                if (existingUserInfo.getNickname() != null && existingUserInfo.getNickname().equals(nickname)) {
-//                    System.out.println("发现重复昵称: " + nickname +
-//                            "账户: " + account +
-//                            "，原会话: " + existingSessionId +
-//                            "，新会话: " + sessionId +
-//                            "，关闭原会话");
-//                    closeSession(existingSessionId);// 关闭前一个会话
-//                    sessions.remove(existingSessionId);// 移除前一个会话的信息
-//                    lastActiveTimes.remove(existingSessionId);
-//                    userInfos.remove(existingSessionId);
-//                    // 发送被挤下线的消息（可选）
-//                    // sendKickOffMessage(existingSessionId, nickname);
-//                    break;
-//                }
-//            }
-//        }
         if (account != null && !account.trim().isEmpty()) {
             // 查找是否有其他会话使用相同账户
             for (Map.Entry<String, WebSocketUserInfo> entry : userInfos.entrySet()) {
@@ -184,7 +165,7 @@ public class SessionManager {
     /**
      * 获取所有会话ID
      */
-    public java.util.Set<String> getAllSessionIds() {
+    public Set<String> getAllSessionIds() {
         return sessions.keySet();
     }
 
@@ -198,7 +179,7 @@ public class SessionManager {
     /**
      * 获取在线用户列表（转换为 WebSocketSimpleInfo）
      */
-    public java.util.List<WebSocketSimpleInfo> getOnlineUsers() {
+    public List<WebSocketSimpleInfo> getOnlineUsers() {
         java.util.List<WebSocketSimpleInfo> onlineUsers = new java.util.ArrayList<>();
 
         userInfos.forEach((sessionId, userInfo) -> {
@@ -251,5 +232,134 @@ public class SessionManager {
 
     public LocalDateTime getLastActiveTime(String sessionId) {
         return lastActiveTimes.get(sessionId);
+    }
+
+    /**
+     * 给特定角色发送对象消息（JSON格式）
+     */
+    public void sendMsgToUsers(String role, WebSocketResponse payload) {
+        if (role == null || role.trim().isEmpty()) {
+            return;
+        }
+
+        // 将对象转换为JSON
+        String message;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            message = objectMapper.writeValueAsString(payload);
+        } catch (JsonProcessingException e) {
+            System.err.println("转换对象为JSON失败: " + e.getMessage());
+            return;
+        }
+
+        sendMessageToRole(role, message);
+    }
+    /**
+     * 给特定角色发送消息
+     */
+    public void sendMessageToRole(String mRole, String message) {
+        if (mRole == null || mRole.trim().isEmpty()) {
+            return;
+        }
+
+        userInfos.forEach((sessionId, userInfo) -> {
+            // 检查角色匹配且会话有效
+            if (mRole.equals(userInfo.getRole())) {
+                WebSocketSession session = sessions.get(sessionId);
+                if (session != null && session.isOpen()) {
+                    try {
+                        session.sendMessage(new TextMessage(message));
+                        System.out.println("已发送消息给角色 " + mRole+"->>>用户:"+userInfo.getMAccount()+"-->>session:" + sessionId);
+                    } catch (IOException e) {
+                        System.err.println("发送消息给角色 " + mRole + " 失败: " + sessionId + ", " + e.getMessage());
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * 获取特定角色的所有会话
+     */
+    public List<WebSocketSession> getSessionsByRole(String role) {
+        List<WebSocketSession> roleSessions = new ArrayList<>();
+
+        if (role == null || role.trim().isEmpty()) {
+            return roleSessions;
+        }
+
+        userInfos.forEach((sessionId, userInfo) -> {
+            if (role.equals(userInfo.getRole())) {
+                WebSocketSession session = sessions.get(sessionId);
+                if (session != null && session.isOpen()) {
+                    roleSessions.add(session);
+                }
+            }
+        });
+
+        return roleSessions;
+    }
+
+    /**
+     * 获取特定角色的用户信息
+     */
+    public List<WebSocketUserInfo> getUserInfosByRole(String role) {
+        List<WebSocketUserInfo> roleUsers = new ArrayList<>();
+
+        if (role == null || role.trim().isEmpty()) {
+            return roleUsers;
+        }
+
+        userInfos.forEach((sessionId, userInfo) -> {
+            if (role.equals(userInfo.getRole())) {
+                roleUsers.add(userInfo);
+            }
+        });
+
+        return roleUsers;
+    }
+
+    /**
+     * 检查是否有特定角色的在线用户
+     */
+    public boolean hasRoleOnline(String role) {
+        if (role == null || role.trim().isEmpty()) {
+            return false;
+        }
+
+        for (Map.Entry<String, WebSocketUserInfo> entry : userInfos.entrySet()) {
+            WebSocketUserInfo userInfo = entry.getValue();
+            WebSocketSession session = sessions.get(entry.getKey());
+
+            if (role.equals(userInfo.getRole()) &&
+                    session != null &&
+                    session.isOpen()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 获取特定角色的会话数量
+     */
+    public int getRoleSessionCount(String role) {
+        if (role == null || role.trim().isEmpty()) {
+            return 0;
+        }
+
+        int count = 0;
+        for (Map.Entry<String, WebSocketUserInfo> entry : userInfos.entrySet()) {
+            WebSocketUserInfo userInfo = entry.getValue();
+            WebSocketSession session = sessions.get(entry.getKey());
+
+            if (role.equals(userInfo.getRole()) &&
+                    session != null &&
+                    session.isOpen()) {
+                count++;
+            }
+        }
+        return count;
     }
 }

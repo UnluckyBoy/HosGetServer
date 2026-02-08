@@ -10,6 +10,8 @@ import com.cloudestudio.hosgetserver.webTools.WebSocketResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 /**
  * @Class WebSocketMessageServiceImpl
  * @Author Create By Matrix·张
@@ -48,12 +50,30 @@ public class WebSocketMessageServiceImpl implements WebSocketMessageService {
                     "新工单创建通知",
                     notification
             );
-
             // 广播消息
             webSocketHandler.broadcastMessage(response);
 
         } catch (Exception e) {
             System.out.println(TimeUtil.GetTime(true)+" ---发送工单创建通知失败:"+e);
         }
+    }
+
+    @Override
+    public void broadcastWorkOrderToAdmin(WorkInfoBean workInfo){
+        WorkOrderNotification notification = new WorkOrderNotification();
+        notification.setType("notification");
+        notification.setWorkOrderId(workInfo.getWorkID());
+        notification.setWorkOrderTitle(workInfo.getWorkTitle());
+        notification.setWorkOrderContent(workInfo.getWorkContent());
+        notification.setCreator(workInfo.getCreator());
+        notification.setCreateTime(workInfo.getCreateDate());
+        notification.setPriority(workInfo.getPriority());
+        notification.setStatus(workInfo.getWorkStatus());
+        notification.setTimestamp(System.currentTimeMillis());
+        // 创建 WebSocket 响应
+        WebSocketResponse response = WebSocketResponse.success("notification", "新工单创建通知",notification);
+        // 广播消息
+        //webSocketHandler.broadcastMessage(response);
+        sessionManager.sendMsgToUsers("admin",response);
     }
 }

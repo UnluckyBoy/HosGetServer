@@ -10,4 +10,5 @@ import com.cloudestudio.hosgetserver.model.ReportBean.WorkInfoBean;
  */
 public interface WebSocketMessageService {
     void broadcastWorkOrderCreated(WorkInfoBean workInfo);
+    void broadcastWorkOrderToAdmin(WorkInfoBean workInfo);
 }

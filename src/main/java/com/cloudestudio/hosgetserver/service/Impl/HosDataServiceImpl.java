@@ -114,6 +114,12 @@ public class HosDataServiceImpl implements HosDataService {
         return hosDataMapper.freshWorkStatus(map);
     }
 
+    @DS("mysql")
+    @Override
+    public boolean updateWorkContent(Map<String, String> map) {
+        return hosDataMapper.updateWorkContent(map);
+    }
+
     @DS("oracle")
     @Override
     public WebResponse releaseYfClock() {
@@ -186,6 +192,12 @@ public class HosDataServiceImpl implements HosDataService {
     @Override
     public List<BaseDepartMent> queryBaseDepart() {
         return hosDataMapper.queryBaseDepart();
+    }
+
+    @DS("mysql")
+    @Override
+    public List<UserInfoBean> queryAdmin() {
+        return hosDataMapper.queryAdmin();
     }
 
     @DS("mysql")

@@ -2,6 +2,7 @@ package com.cloudestudio.hosgetserver.model.paramBody;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -12,6 +13,7 @@ import java.io.Serializable;
  */
 @Data
 public class WorkParamBody implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String workID;
@@ -28,4 +30,5 @@ public class WorkParamBody implements Serializable {
     private String finishDate;
     private String workResult;
     private String workAssignee;
+    private String workContent;
 }

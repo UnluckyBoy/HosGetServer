@@ -174,9 +174,7 @@ public class MatrixWebSocketHandler extends TextWebSocketHandler {
         sendMessage(targetSession, privateResponse);
 
         // 发送确认给发送方
-        WebSocketResponse confirmResponse = WebSocketResponse.success(
-                "system",
-                "私聊消息发送成功"
+        WebSocketResponse confirmResponse = WebSocketResponse.success("system", "私聊消息发送成功"
         );
         sendMessage(session, confirmResponse);
     }
@@ -185,6 +183,22 @@ public class MatrixWebSocketHandler extends TextWebSocketHandler {
      * 广播消息给所有连接的客户端
      */
     public void broadcastMessage(WebSocketResponse response) {
+        String message = response.toJson();
+        sessionManager.getAllSessions().forEach((sessionId, session) -> {
+            try {
+                if (session.isOpen()) {
+                    System.out.println(TimeUtil.GetTime(true)+"发送消息到 " + sessionId + " 成功:" +message);
+                    session.sendMessage(new TextMessage(message));
+                }
+            } catch (IOException e) {
+                System.err.println(TimeUtil.GetTime(true)+"发送消息到 " + sessionId + " 失败: " + e.getMessage());
+                // 发送失败时清理会话
+                sessionManager.removeSession(sessionId);
+            }
+        });
+    }
+
+    public void sendMessageToUsers(WebSocketResponse response) {
         String message = response.toJson();
         sessionManager.getAllSessions().forEach((sessionId, session) -> {
             try {
@@ -226,12 +240,12 @@ public class MatrixWebSocketHandler extends TextWebSocketHandler {
     /**
      * 发送消息给指定用户
      */
-//    public static void sendToUser(String sessionId, String message) throws IOException {
+    public static void sendToUser(String sessionId, String message) throws IOException {
 //        WebSocketSession session = sessions.get(sessionId);
 //        if (session != null && session.isOpen()) {
 //            session.sendMessage(new TextMessage(message));
 //        }
-//    }
+    }
 
     /**
      * 心跳检测 - 每30秒检查一次
@@ -275,11 +289,7 @@ public class MatrixWebSocketHandler extends TextWebSocketHandler {
         data.setTotal(sessionManager.getSessionCount());
         data.setUsers(sessionManager.getOnlineUsers());
 
-        WebSocketResponse usersResponse = WebSocketResponse.success(
-                "users",
-                "在线用户列表",
-                data
-        );
+        WebSocketResponse usersResponse = WebSocketResponse.success("users", "在线用户列表", data);
         sendMessage(session, usersResponse);
         System.out.println(TimeUtil.GetTime(true)+"data:"+data+"返回usersResponse:"+usersResponse);
         sendMessage(session, usersResponse);

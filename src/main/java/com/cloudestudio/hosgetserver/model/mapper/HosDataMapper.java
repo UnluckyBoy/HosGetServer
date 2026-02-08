@@ -41,6 +41,7 @@ public interface HosDataMapper {
     List<WorkNums> QueryWorksNum(BedDayBody queryMap);//门诊工作量
     List<SettlementBean> QuerySettlement(BedDayBody queryMap);//结算分析明细
     List<BaseDepartMent> queryBaseDepart();//查询科室信息
+    List<UserInfoBean> queryAdmin();//查询管理员信息
     List<WorkInfoBean> queryWorkInfos();//查询工单
     List<WorkNearBean> queryNearWorks();//查询工单
     WorkInfoBean queryWorkContent(int workId);//查询工单详情
@@ -58,4 +59,5 @@ public interface HosDataMapper {
     boolean freshJrzyInfo(String orderId); // 更新退费JRZY_INFO状态
     boolean createWorkInfo(WorkInfoBean workInfoBean);//创建工单
     boolean freshWorkStatus(Map<String,String> map);//更新工单状态
+    boolean updateWorkContent(Map<String,String> map);//更新工单内容
 }

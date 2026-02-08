@@ -480,7 +480,7 @@
         ORDER BY M_JSJL.JSRQ ASC
     </select>
 
-    <!---->
+    <!--出院时长-->
     <select id="queryDayOutPatient" resultType="DayOutPatientBean">
         SELECT
             COUNT(GH_BRGH.GHXH) AS dayNum,
@@ -763,6 +763,17 @@
         WHERE
             base_department_table.isUse=1
     </select>
+    <!--获取管理员-->
+    <select id="queryAdmin" resultType="UserInfoBean">
+        SELECT
+            login_info_table.uAccount,
+            login_info_table.uName
+        FROM
+            login_info_table
+                INNER JOIN user_authority_table ON user_authority_table.uAccount = login_info_table.uAccount
+        WHERE
+            user_authority_table.authority_code = '10001'
+    </select>
 
     <!--查询工单所有信息-->
     <select id="queryAllWorks" resultType="WorkInfoBean">
@@ -825,6 +836,7 @@
             get_OperatorName (work_table.workAssignee) AS workAssignee,
             (SELECT login_info_table.headerImageUrl FROM login_info_table WHERE login_info_table.uAccount=work_table.finishOperator) AS finishOperatorHead,
             work_table.workStatus,
+            work_table.workContent,
             work_table.createDate,
             work_table.finishDate
         FROM
@@ -966,6 +978,11 @@
           work_table.finishOperator=#{finishOperator},
           work_table.workAssignee=#{workAssignee},
           work_table.finishDate=#{finishDate}
+        WHERE work_table.workID=#{workId}
+    </update>
+    <update id="updateWorkContent" parameterType="java.util.Map">
+        UPDATE work_table SET
+          work_table.workContent=#{workContent}
         WHERE work_table.workID=#{workId}
     </update>
 

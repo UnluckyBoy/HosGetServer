@@ -768,6 +768,21 @@ public class DataController {
         response.getWriter().write(gsonConfig.toJson(hosComService.freshWorkStatus(requestMap)));
     }
 
+    /**
+     * 个更新工单内容
+     * @param response
+     * @param body
+     * @throws IOException
+     */
+    @RequestMapping("updateWorkContent")
+    public void updateWorkContent(HttpServletResponse response,@RequestBody WorkParamBody body) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        Map<String,String> requestMap=new HashMap<>();
+        requestMap.put("workId",body.getWorkID());
+        requestMap.put("workContent",body.getWorkContent());
+        response.getWriter().write(gsonConfig.toJson(hosComService.updateWorkContent(requestMap)));
+    }
+
     /***
      * 获取工单详情
      * @param response
@@ -839,6 +854,18 @@ public class DataController {
         response.setContentType("application/json;charset=UTF-8");
         System.out.println(TimeUtil.GetTime(true)+" ---查询工单状态统计");
         response.getWriter().write(gson.toJson(hosComService.queryWorkCompleteInterval()));
+    }
+
+    /**
+     * 获取管理员信息
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping("queryAdmin")
+    public void queryAdmin(HttpServletResponse response) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+        // System.out.println(TimeUtil.GetTime(true)+" ---查询管理员");
+        response.getWriter().write(gson.toJson(hosComService.queryAdmin()));
     }
 
 

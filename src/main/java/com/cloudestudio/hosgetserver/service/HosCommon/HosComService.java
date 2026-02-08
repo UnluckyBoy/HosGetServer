@@ -18,10 +18,12 @@ public interface HosComService {
     WebResponse queryWorkInfos();
     WebResponse queryNearWorks();
     WebResponse freshWorkStatus(Map<String,String> map);
+    WebResponse updateWorkContent(Map<String,String> map);
     WebResponse queryWorkContent(int workId);
     WebResponse queryAllWorks();
     WebResponse queryWorkStatusTotal();
     WebResponse queryWorkTypeTotal();
     WebResponse queryWorkComplete();
     WebResponse queryWorkCompleteInterval();
+    WebResponse queryAdmin();
 }
