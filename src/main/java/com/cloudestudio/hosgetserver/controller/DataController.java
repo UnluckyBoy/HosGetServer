@@ -700,6 +700,13 @@ public class DataController {
         response.getWriter().write(gsonConfig.toJson(hosReportService.freshJrzyInfo(body.getOrderId())));
     }
 
+    @RequestMapping("getPrescriptionReview")
+    public void getPrescriptionReview(HttpServletResponse response,@RequestParam String num) throws IOException{
+        response.setContentType("application/json;charset=UTF-8");
+
+        response.getWriter().write(gsonConfig.toJson(hosReportService.queryInfoByCf(num)));
+    }
+
     /**
      * 获取科室
      * @param response

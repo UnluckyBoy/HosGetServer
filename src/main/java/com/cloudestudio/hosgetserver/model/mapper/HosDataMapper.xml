@@ -753,6 +753,36 @@
         SELECT TEMP_MOUNT.* FROM TEMP_MOUNT ORDER BY TEMP_MOUNT.OPERATION_TIME ASC
     </select>
 
+    <!--处方号查询相关信息-->
+    <select id="queryInfoByCf" parameterType="String" resultType="PrescriptionReviewBean">
+        SELECT
+            FY.RYGHXH AS patientNumber,
+            CF.BRXM AS patientName,
+            CF.CFH AS cfNumber,
+            FN_GET_KSMC(CF.KSBM) AS departName,
+            FN_GET_CZYMC(CF.YSBM) AS doctorName,
+            GH.JZRQ AS inHosDate,
+            CF.CFRQ AS cfDate,
+            MAX(CASE WHEN ZD.ZDXH = '1' THEN ZD.ZDMC ELSE NULL END) AS primaryDiagnosis,
+            LISTAGG(CASE WHEN ZD.ZDXH != '1' THEN ZD.ZDMC ELSE NULL END, ';') WITHIN GROUP (ORDER BY ZD.ZDXH) AS secondaryDiagnosis,
+            PF.RYYPMC medicine,
+            PF.RYYPGG medicineSpecification,
+            (PF.FYJL || FN_GET_YPJLDW(PF.JLDW)) AS medicineDosage,
+            PF.ZL AS allDosage
+        FROM YF_YPCF CF
+                 INNER JOIN YF_YPPF PF ON PF.CFH = CF.CFH
+                 INNER JOIN M_BRFY FY ON FY.YZHM = CF.CFH
+                 INNER JOIN MZYS_BRZD ZD ON ZD.GHXH = CF.GHXH
+                 INNER JOIN GH_BRGH GH ON GH.GHXH=CF.GHXH
+        WHERE CF.CFH IN (#{cfNumber})
+          AND PF.YPBZ = '1'
+        GROUP BY FY.RYGHXH,CF.CFH,CF.BRXM,CF.KSBM,PF.RYYPMC,PF.RYYPGG,PF.ZL,PF.FYJL,PF.JLDW,GH.JZRQ,CF.CFRQ,CF.CFRQ,CF.YSBM
+    </select>
+
+    <!--财务月报汇总-->
+<!--    <select id="queryMonReport" parameterType="" resultType="">-->
+<!--    </select>-->
+
     <!--查询科室信息-->
     <select id="queryBaseDepart" resultType="BaseDepartMent">
         SELECT
@@ -843,7 +873,8 @@
             work_table
             INNER JOIN base_department_table ON base_department_table.departCode = work_table.department
         WHERE
-            DATEDIFF(NOW(), work_table.createDate) <= 15
+            -- DATEDIFF(NOW(), work_table.createDate) <= 15
+            workStatus not in ('已完成')
         ORDER BY
             work_table.createDate DESC
         ]]>
@@ -960,6 +991,20 @@
                         ELSE 5
                         END
         ]]>
+    </select>
+
+    <!--追溯码查漏-->
+    <select id="medicineCodeQuery" resultType="MedicineQueryBean">
+        SELECT
+            T.YBDJID AS YBJSID,
+            T.JSJLID,
+            T.VALUE AS MSG,
+            T.CFH,
+            T.RYYPBM,
+            FN_GET_YPMC(T.RYYPBM) AS MEDICINE,
+            FN_GET_YFMC(C.YFBM) AS PHARMACY
+        FROM YBJK_SBM_FAIL T
+        INNER JOIN YF_YPCF C ON C.CFH=T.CFH
     </select>
 
     <!--Update逻辑-->

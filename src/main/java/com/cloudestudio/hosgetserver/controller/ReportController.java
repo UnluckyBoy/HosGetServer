@@ -72,4 +72,10 @@ public class ReportController {
         body.setEndTime(body.getEndTime()+" 23:59:59");
         response.getWriter().write(gsonConfig.toJson(hosReportService.QuerySettlement(body)));
     }
+
+    @RequestMapping("/medicineCodeQuery")
+    public void getMedicineCodeQuery(HttpServletResponse response) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(gsonConfig.toJson(hosReportService.medicineCodeQuery()));
+    }
 }

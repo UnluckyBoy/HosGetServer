@@ -1,9 +1,6 @@
 package com.cloudestudio.hosgetserver.service.Report;
 
-import com.cloudestudio.hosgetserver.model.ReportBean.DayOutPatientBean;
-import com.cloudestudio.hosgetserver.model.ReportBean.OutSettlementReport;
-import com.cloudestudio.hosgetserver.model.ReportBean.SettlementBean;
-import com.cloudestudio.hosgetserver.model.ReportBean.WorkNums;
+import com.cloudestudio.hosgetserver.model.ReportBean.*;
 import com.cloudestudio.hosgetserver.model.department.BaseDepartMent;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.service.HosDataService;
@@ -129,6 +126,28 @@ public class HosReportServiceImpl implements HosReportService {
         }
         System.out.println(TimeUtil.GetTime(true)+" ---科室查询成功");
         return WebResponse.success(result);
+    }
+
+    @Override
+    public WebResponse queryInfoByCf(String cfNumber) {
+        List<PrescriptionReviewBean> resultList=hosDataService.queryInfoByCf(cfNumber);
+        if(resultList.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---查询异常");
+            return WebResponse.failure();
+        }
+        System.out.println(TimeUtil.GetTime(true)+" ---查询成功->>>"+resultList);
+        return WebResponse.success(resultList);
+    }
+
+    /**
+     * 追溯码查漏
+     * @return
+     */
+    @Override
+    public WebResponse medicineCodeQuery() {
+        List<MedicineQueryBean> resultList=hosDataService.medicineCodeQuery();
+        System.out.println(TimeUtil.GetTime(true)+" ---查询返回:"+ resultList);
+        return WebResponse.success(resultList);
     }
 
 

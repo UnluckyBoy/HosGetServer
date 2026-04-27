@@ -40,6 +40,11 @@ public interface HosDataMapper {
     List<DayOutPatientBean> queryDayOutPatient();// 当日门诊人次数
     List<WorkNums> QueryWorksNum(BedDayBody queryMap);//门诊工作量
     List<SettlementBean> QuerySettlement(BedDayBody queryMap);//结算分析明细
+    List<PrescriptionReviewBean> queryInfoByCf(String cfNumber);//结算分析明细
+    List<MedicineQueryBean> medicineCodeQuery();//追溯码遗漏查询
+
+
+    /**Mysql**/
     List<BaseDepartMent> queryBaseDepart();//查询科室信息
     List<UserInfoBean> queryAdmin();//查询管理员信息
     List<WorkInfoBean> queryWorkInfos();//查询工单

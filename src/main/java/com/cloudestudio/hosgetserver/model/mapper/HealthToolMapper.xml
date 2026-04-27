@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudestudio.hosgetserver.model.mapper.HealthToolMapper">
+    <!--查询逻辑-->
+    <select id="exportBasePatientInfo" resultType="com.cloudestudio.hosgetserver.model.HealthTool.PatientBasicInfo">
+        <![CDATA[
+        SELECT *
+        FROM (
+                 SELECT
+                     TEMP_VIEW.*,
+                     ROW_NUMBER() OVER (PARTITION BY TEMP_VIEW.PatientID ORDER BY TEMP_VIEW.SystemTime ASC) AS rn
+                 FROM (
+                          /**全民健康信息平台：患者基本信息(门诊、体检...)-CDR_PatientBasicInfo**/
+                          SELECT
+                              BRGH.Brid AS PatientID,
+                              '520000001258' AS AuthorOrganization,
+                              '榕江县中医院' AS AuthorOrganizationName,
+                              '' AS HealthRecordId,
+                              NVL(BRGH.Rysfzh, ZCXX.Sfzh) AS IdCard,
+                              NVL(ZCXX.Zjlx, '01') AS IdCardCode,
+                              '' AS HealthCardId,
+                              '' AS MedicalInsuranceCategoryCode,
+                              '' AS HealthInsuranceCardId,
+                              BRGH.GHXH AS SelfPaidCardId,
+                              NVL(BRGH.RYBRXM, ZCXX.BRXM) AS Name,
+                              NVL(BRGH.RYBRXB, ZCXX.BRXB) AS Sex,
+                              MATRIX_GET_BIRTHDAY(NVL(BRGH.RYSFZH, ZCXX.SFZH)) AS BirthDate,
+                              NVL2(BRGH.RYHYZKBM, ZCXX.HYZKBM, '10') AS MaritalStatus,
+                              NVL(ZCXX.Gjbm, '156') AS Nationality,
+                              NVL(BRGH.RYMZBM, ZCXX.MZBM) AS EthnicGroup,
+                              DECODE(NVL(BRGH.RYZYBM, ZCXX.ZYBM),
+                                     'X', '37', 'Y', '90', '0-5', '21', '1/2', '13', '2/4', '90',
+                                     '2/9', '13', '4', '90', '4/3', '90', 'xs', '31', 'tx', '80',
+                                     '27', '27', '5', '90', '4/5', '90', 'zz', '17', '1/9', '13',
+                                     '2/2', '90', '3/1', '90', 'et', '90', '90') AS OccupationCategoryCode,
+                              ZCXX.Sj AS PatientPhone,
+                              NVL(BRGH.RYGZDW, ZCXX.GZDW) AS WorkUnit,
+                              '' AS WorkAddrPhone,
+                              BRGH.GHRQ AS SystemTime,
+                              FN_GET_CZYMC(BRGH.JZYS) AS Author,
+                              '0' AS PrivacySign,
+                              BRGH.GHXH AS SourcePatientId,
+                              (CASE WHEN (BRGH.BZMS = '体检登记') THEN 'HV' ELSE 'OV' END) AS SourcePatientIdType,
+                              '09' AS AddrTypeCode,
+                              MATRIX_GET_ADDRESS('09') AS AddrTypeName,
+                              ((SELECT T.XMMC FROM PU_SJZD T WHERE T.XMLB = '省级编码' AND T.XMBM IN (NVL(BRGH.RYXZZ_SHENG, ZCXX.XZZ_SHENG))) ||
+                               (SELECT T.XMMC FROM PU_SJZD T WHERE T.XMLB = '市级编码' AND T.XMBM IN (NVL(BRGH.Ryxzz_Shi, ZCXX.Xzz_Shi))) ||
+                               (SELECT T.XMMC FROM PU_SJZD T WHERE T.XMLB = '县级编码' AND T.XMBM IN (NVL(BRGH.Ryxzz_Xian, ZCXX.Xzz_Xian))) ||
+                               (CASE WHEN INSTR(NVL(BRGH.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz), '/') > 0
+                                         THEN SUBSTR(NVL(BRGH.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz), INSTR(NVL(BRGH.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz), '/', -1) + 1)
+                                     ELSE NVL(BRGH.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz)
+                                   END)) AS Address,
+                              (SELECT T.XMMC FROM PU_SJZD T WHERE T.XMLB = '省级编码' AND T.XMBM IN (NVL(BRGH.RYXZZ_SHENG, ZCXX.XZZ_SHENG))) AS Province,
+                              (SELECT T.XMMC FROM PU_SJZD T WHERE T.XMLB = '市级编码' AND T.XMBM IN (NVL(BRGH.Ryxzz_Shi, ZCXX.Xzz_Shi))) AS City,
+                              (SELECT T.XMMC FROM PU_SJZD T WHERE T.XMLB = '县级编码' AND T.XMBM IN (NVL(BRGH.Ryxzz_Xian, ZCXX.Xzz_Xian))) AS County,
+                              '' AS Town,
+                              (CASE WHEN INSTR(NVL(BRGH.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz), '/') > 0
+                                        THEN SUBSTR(NVL(BRGH.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz), INSTR(NVL(BRGH.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz), '/', -1) + 1)
+                                    ELSE NVL(BRGH.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz)
+                                  END) AS Village,
+                              '' AS HouseNumber,
+                              ZCXX.YZBM AS PostalCode,
+                              NVL(BRGH.Rylxrgxbm, ZCXX.Lxrgxbm) AS RelationShipWithPatient,
+                              NVL(BRGH.Rylxr, ZCXX.Lxr) AS ContactPerson,
+                              NVL(BRGH.Rylxrdh, ZCXX.Lxrdh) AS ContactPersonTel,
+                              '' AS ContactIdCard,
+                              '' AS ContactIdCardCode,
+                              SYSDATE AS TimeStamp,
+      1 AS OperationType,
+      NVL2((SELECT MAX(JSXX.ID) FROM YBJK_JSXX JSXX WHERE JSXX.ZYH = BRWZ.GHXH AND JSXX.ZFBZ = '0'), '1', '9') AS CardType,
+      (SELECT SXJG.VALUE FROM YBJK_SXJG SXJG WHERE SXJG.SXBM = 'prm_yab139' AND SXJG.ID IN (SELECT MAX(JSXX.ID) FROM YBJK_JSXX JSXX WHERE JSXX.ZYH = BRWZ.GHXH AND JSXX.ZFBZ = '0')) AS IssuingRegion,
+      0 AS ModifyFlag,
+      '10169' AS JRCSDM
+                          FROM MZYS_BRWZ BRWZ
+                              INNER JOIN GH_BRGH BRGH ON BRWZ.Ghxh = BRGH.Ghxh
+                              INNER JOIN PATIENT_ZCXX ZCXX ON ZCXX.Brid = BRGH.Brid
+                          WHERE TRUNC(BRGH.GHRQ) = TRUNC(SYSDATE)
+                            AND BRGH.Sfjz = '1'
+                            AND BRGH.Thbz = '0'
+                          UNION ALL
+                          /**全民健康信息平台：患者基本信息(住院)-CDR_PatientBasicInfo**/
+                          SELECT
+                              RYDJ.Brid AS PatientID,
+                              '520000001258' AS AuthorOrganization,
+                              '榕江县中医院' AS AuthorOrganizationName,
+                              '' AS HealthRecordId,
+                              NVL(RYDJ.Rysfzh, ZCXX.Sfzh) AS IdCard,
+                              NVL(ZCXX.Zjlx, '01') AS IdCardCode,
+                              '' AS HealthCardId,
+                              '' AS MedicalInsuranceCategoryCode,
+                              '' AS HealthInsuranceCardId,
+                              RYDJ.Zyh AS SelfPaidCardId,
+                              NVL(RYDJ.Rybrxm, ZCXX.BRXM) AS Name,
+                              NVL(RYDJ.RYBRXB, ZCXX.BRXB) AS Sex,
+                              MATRIX_GET_BIRTHDAY(NVL(RYDJ.RYSFZH, ZCXX.SFZH)) AS BirthDate,
+                              NVL2(RYDJ.RYHYZKBM, ZCXX.HYZKBM, '10') AS MaritalStatus,
+                              NVL(ZCXX.Gjbm, '156') AS Nationality,
+                              NVL(RYDJ.RYMZBM, ZCXX.MZBM) AS EthnicGroup,
+                              DECODE(NVL(RYDJ.RYZYBM, ZCXX.ZYBM),
+                              'X', '37', 'Y', '90', '0-5', '21', '1/2', '13', '2/4', '90',
+                              '2/9', '13', '4', '90', '4/3', '90', 'xs', '31', 'tx', '80',
+                              '27', '27', '5', '90', '4/5', '90', 'zz', '17', '1/9', '13',
+                              '2/2', '90', '3/1', '90', 'et', '90', '90') AS OccupationCategoryCode,
+                              ZCXX.Sj AS PatientPhone,
+                              NVL(RYDJ.RYGZDW, ZCXX.GZDW) AS WorkUnit,
+                              '' AS WorkAddrPhone,
+                              RYDJ.Ryrq AS SystemTime,
+                              FN_GET_CZYMC(RYDJ.Zyys) AS Author,
+                              '0' AS PrivacySign,
+                              RYDJ.Zyh AS SourcePatientId,
+                              'IV' AS SourcePatientIdType,
+                              '09' AS AddrTypeCode,
+                              MATRIX_GET_ADDRESS('09') AS AddrTypeName,
+                              ((SELECT T.XMMC FROM PU_SJZD T WHERE T.XMLB = '省级编码' AND T.XMBM IN (NVL(RYDJ.RYXZZ_SHENG, ZCXX.XZZ_SHENG))) ||
+                              (SELECT T.XMMC FROM PU_SJZD T WHERE T.XMLB = '市级编码' AND T.XMBM IN (NVL(RYDJ.Ryxzz_Shi, ZCXX.Xzz_Shi))) ||
+                              (SELECT T.XMMC FROM PU_SJZD T WHERE T.XMLB = '县级编码' AND T.XMBM IN (NVL(RYDJ.Ryxzz_Xian, ZCXX.Xzz_Xian))) ||
+                              (CASE WHEN INSTR(NVL(RYDJ.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz), '/') > 0
+                              THEN SUBSTR(NVL(RYDJ.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz), INSTR(NVL(RYDJ.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz), '/', -1) + 1)
+                              ELSE NVL(RYDJ.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz)
+                              END)) AS Address,
+                              (SELECT T.XMMC FROM PU_SJZD T WHERE T.XMLB = '省级编码' AND T.XMBM IN (NVL(RYDJ.RYXZZ_SHENG, ZCXX.XZZ_SHENG))) AS Province,
+                              (SELECT T.XMMC FROM PU_SJZD T WHERE T.XMLB = '市级编码' AND T.XMBM IN (NVL(RYDJ.Ryxzz_Shi, ZCXX.Xzz_Shi))) AS City,
+                              (SELECT T.XMMC FROM PU_SJZD T WHERE T.XMLB = '县级编码' AND T.XMBM IN (NVL(RYDJ.Ryxzz_Xian, ZCXX.Xzz_Xian))) AS County,
+                              '' AS Town,
+                              (CASE WHEN INSTR(NVL(RYDJ.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz), '/') > 0
+                              THEN SUBSTR(NVL(RYDJ.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz), INSTR(NVL(RYDJ.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz), '/', -1) + 1)
+                              ELSE NVL(RYDJ.Ryxzz_Xxdz, ZCXX.Xzz_Xxdz)
+                              END) AS Village,
+                              '' AS HouseNumber,
+                              ZCXX.YZBM AS PostalCode,
+                              NVL(RYDJ.Rylxrgxbm, ZCXX.Lxrgxbm) AS RelationShipWithPatient,
+                              NVL(RYDJ.Rylxr, ZCXX.Lxr) AS ContactPerson,
+                              NVL(RYDJ.Rylxrdh, ZCXX.Lxrdh) AS ContactPersonTel,
+                              '' AS ContactIdCard,
+                              '' AS ContactIdCardCode,
+                              SYSDATE AS TimeStamp,
+                              1 AS OperationType,
+                              NVL2((SELECT MAX(DJXX.Id) FROM YBJK_DJXX DJXX WHERE DJXX.Zyh = RYDJ.Zyh AND DJXX.Zfbz = '0'), '1', '9') AS CardType,
+                              (SELECT SXJG.VALUE FROM YBJK_SXJG SXJG WHERE SXJG.SXBM = 'prm_yab139' AND SXJG.ID IN (SELECT MAX(DJXX.Id) FROM YBJK_DJXX DJXX WHERE DJXX.Zyh = RYDJ.Zyh AND DJXX.Zfbz = '0')) AS IssuingRegion,
+                              0 AS ModifyFlag,
+                              '10169' AS JRCSDM
+                          FROM INHOS_RYDJ RYDJ
+                              INNER JOIN PATIENT_ZCXX ZCXX ON ZCXX.Brid = RYDJ.Brid
+                          WHERE TRUNC(RYDJ.RYRQ) = TRUNC(SYSDATE)
+                            AND RYDJ.Ifzf = '0'
+                      ) TEMP_VIEW
+                 WHERE TEMP_VIEW.ADDRESS IS NOT NULL AND TEMP_VIEW.IDCARD IS NOT NULL AND TEMP_VIEW.ISSUINGREGION IS NOT NULL AND TEMP_VIEW.PatientPhone IS NOT NULL
+             ) RANKED
+        WHERE rn = 1
+        ]]>
+    </select>
+
+
+    <!--Insert逻辑-->
+    <insert id="upBasePatientInfo" parameterType="com.cloudestudio.hosgetserver.model.HealthTool.PatientBasicInfo">
+        INSERT INTO CDR_PATIENTBASICINFO (
+            PatientID,AuthorOrganization,AuthorOrganizationName,HealthRecordId,IdCard,IdCardCode,HealthCardId,MedicalInsuranceCategoryCode,
+            HealthInsuranceCardId,SelfPaidCardId,Name,Sex,BirthDate,MaritalStatus,Nationality,EthnicGroup,OccupationCategoryCode,PatientPhone,
+            WorkUnit,WorkAddrPhone,SystemTime,Author,PrivacySign,SourcePatientId,SourcePatientIdType,AddrTypeCode,AddrTypeName,Address,Province,
+            City,County,Town,Village,HouseNumber,PostalCode,RelationShipWithPatient,ContactPerson,ContactPersonTel,ContactIdCard,ContactIdCardCode,
+            TimeStamp,OperationType,CardType,IssuingRegion,ModifyFlag,JRCSDM)
+        VALUES (
+         #{PatientID},#{AuthorOrganization},#{AuthorOrganizationName},#{HealthRecordId},#{IdCard},#{IdCardCode},#{HealthCardId},
+         #{MedicalInsuranceCategoryCode},#{HealthInsuranceCardId},#{SelfPaidCardId},#{Name},#{Sex},#{BirthDATE},#{MaritalStatus},
+         #{Nationality},#{EthnicGroup},#{OccupationCategoryCode},#{PatientPhone},#{WorkUnit},#{WorkAddrPhone},#{SystemTime},
+         #{Author},#{PrivacySign},#{SourcePatientId},#{SourcePatientIdType},#{AddrTypeCode},#{AddrTypeName},#{Address},#{Province},
+         #{City},#{County},#{Town},#{Village},#{HouseNumber},#{PostalCode},#{RelationShipWithPatient},#{ContactPerson},#{ContactPersonTel},
+         #{ContactIdCard},#{ContactIdCardCode},#{TimeStamp},#{OperationType},#{CardType},#{IssuingRegion},#{ModifyFlag},#{JRCSDM}
+     )
+    </insert>
+    <!--批量插入-->
+    <insert id="batchUpBasePatientInfo" parameterType="list">
+        INSERT ALL
+        <foreach collection="list" item="item" separator=" ">
+            INTO CDR_PATIENTBASICINFO (
+            PatientID,AuthorOrganization,AuthorOrganizationName,HealthRecordId,IdCard,IdCardCode,HealthCardId,MedicalInsuranceCategoryCode,
+            HealthInsuranceCardId,SelfPaidCardId,Name,Sex,BirthDate,MaritalStatus,Nationality,EthnicGroup,OccupationCategoryCode,PatientPhone,
+            WorkUnit,WorkAddrPhone,SystemTime,Author,PrivacySign,SourcePatientId,SourcePatientIdType,AddrTypeCode,AddrTypeName,Address,Province,
+            City,County,Town,Village,HouseNumber,PostalCode,RelationShipWithPatient,ContactPerson,ContactPersonTel,ContactIdCard,ContactIdCardCode,
+            TimeStamp,OperationType,CardType,IssuingRegion,ModifyFlag,JRCSDM)
+            VALUES (
+                #{item.PatientID,jdbcType=VARCHAR},#{item.AuthorOrganization,jdbcType=VARCHAR},#{item.AuthorOrganizationName,jdbcType=VARCHAR},
+                #{item.HealthRecordId,jdbcType=VARCHAR},#{item.IdCard,jdbcType=VARCHAR},#{item.IdCardCode,jdbcType=VARCHAR},
+                #{item.HealthCardId,jdbcType=VARCHAR},#{item.MedicalInsuranceCategoryCode,jdbcType=VARCHAR},#{item.HealthInsuranceCardId,jdbcType=VARCHAR},
+                #{item.SelfPaidCardId,jdbcType=VARCHAR},#{item.Name,jdbcType=VARCHAR},#{item.Sex,jdbcType=VARCHAR},TO_DATE(#{item.BirthDate,jdbcType=DATE},'YYYY-MM-DD HH24:MI:SS'),
+                #{item.MaritalStatus,jdbcType=VARCHAR},#{item.Nationality,jdbcType=VARCHAR},#{item.EthnicGroup,jdbcType=VARCHAR},
+                #{item.OccupationCategoryCode,jdbcType=VARCHAR},#{item.PatientPhone,jdbcType=VARCHAR},#{item.WorkUnit,jdbcType=VARCHAR},
+                #{item.WorkAddrPhone,jdbcType=VARCHAR},TO_DATE(#{item.SystemTime,jdbcType=DATE},'YYYY-MM-DD HH24:MI:SS'),#{item.Author,jdbcType=VARCHAR},
+                #{item.PrivacySign,jdbcType=CHAR},#{item.SourcePatientId,jdbcType=VARCHAR},#{item.SourcePatientIdType,jdbcType=VARCHAR},
+                #{item.AddrTypeCode,jdbcType=VARCHAR},#{item.AddrTypeName,jdbcType=VARCHAR},#{item.Address,jdbcType=VARCHAR},
+                #{item.Province,jdbcType=VARCHAR},#{item.City,jdbcType=VARCHAR},#{item.County,jdbcType=VARCHAR},#{item.Town,jdbcType=VARCHAR},
+                #{item.Village,jdbcType=VARCHAR},#{item.HouseNumber,jdbcType=VARCHAR},#{item.PostalCode,jdbcType=VARCHAR},
+                #{item.RelationShipWithPatient,jdbcType=VARCHAR},#{item.ContactPerson,jdbcType=VARCHAR},#{item.ContactPersonTel,jdbcType=VARCHAR},
+                #{item.ContactIdCard,jdbcType=VARCHAR},#{item.ContactIdCardCode,jdbcType=VARCHAR},TO_DATE(#{item.TimeStamp,jdbcType=DATE},'YYYY-MM-DD HH24:MI:SS'),
+                #{item.OperationType,jdbcType=DECIMAL},#{item.CardType,jdbcType=VARCHAR},#{item.IssuingRegion,jdbcType=VARCHAR},
+                #{item.ModifyFlag,jdbcType=DECIMAL},#{item.JRCSDM,jdbcType=VARCHAR}
+            )
+        </foreach>
+<!--        SELECT 1 FROM DUAL-->
+<!--        BEGIN-->
+<!--        <foreach collection="list" item="item" separator=" ">-->
+<!--            BEGIN-->
+<!--            INSERT INTO CDR_PATIENTBASICINFO (-->
+<!--                PatientID,AuthorOrganization,AuthorOrganizationName,HealthRecordId,IdCard,IdCardCode,HealthCardId,MedicalInsuranceCategoryCode,-->
+<!--                HealthInsuranceCardId,SelfPaidCardId,Name,Sex,BirthDate,MaritalStatus,Nationality,EthnicGroup,OccupationCategoryCode,PatientPhone,-->
+<!--                WorkUnit,WorkAddrPhone,SystemTime,Author,PrivacySign,SourcePatientId,SourcePatientIdType,AddrTypeCode,AddrTypeName,Address,Province,-->
+<!--                City,County,Town,Village,HouseNumber,PostalCode,RelationShipWithPatient,ContactPerson,ContactPersonTel,ContactIdCard,ContactIdCardCode,-->
+<!--                TimeStamp,OperationType,CardType,IssuingRegion,ModifyFlag,JRCSDM-->
+<!--            )-->
+<!--            VALUES (-->
+<!--                #{item.PatientID,jdbcType=VARCHAR},#{item.AuthorOrganization,jdbcType=VARCHAR},#{item.AuthorOrganizationName,jdbcType=VARCHAR},-->
+<!--                #{item.HealthRecordId,jdbcType=VARCHAR},#{item.IdCard,jdbcType=VARCHAR},#{item.IdCardCode,jdbcType=VARCHAR},-->
+<!--                #{item.HealthCardId,jdbcType=VARCHAR},#{item.MedicalInsuranceCategoryCode,jdbcType=VARCHAR},#{item.HealthInsuranceCardId,jdbcType=VARCHAR},-->
+<!--                #{item.SelfPaidCardId,jdbcType=VARCHAR},#{item.Name,jdbcType=VARCHAR},#{item.Sex,jdbcType=VARCHAR},TO_DATE(#{item.BirthDate,jdbcType=DATE},'YYYY-MM-DD HH24:MI:SS'),-->
+<!--                #{item.MaritalStatus,jdbcType=VARCHAR},#{item.Nationality,jdbcType=VARCHAR},#{item.EthnicGroup,jdbcType=VARCHAR},-->
+<!--                #{item.OccupationCategoryCode,jdbcType=VARCHAR},#{item.PatientPhone,jdbcType=VARCHAR},#{item.WorkUnit,jdbcType=VARCHAR},-->
+<!--                #{item.WorkAddrPhone,jdbcType=VARCHAR},TO_DATE(#{item.SystemTime,jdbcType=DATE},'YYYY-MM-DD HH24:MI:SS'),#{item.Author,jdbcType=VARCHAR},-->
+<!--                #{item.PrivacySign,jdbcType=CHAR},#{item.SourcePatientId,jdbcType=VARCHAR},#{item.SourcePatientIdType,jdbcType=VARCHAR},-->
+<!--                #{item.AddrTypeCode,jdbcType=VARCHAR},#{item.AddrTypeName,jdbcType=VARCHAR},#{item.Address,jdbcType=VARCHAR},-->
+<!--                #{item.Province,jdbcType=VARCHAR},#{item.City,jdbcType=VARCHAR},#{item.County,jdbcType=VARCHAR},#{item.Town,jdbcType=VARCHAR},-->
+<!--                #{item.Village,jdbcType=VARCHAR},#{item.HouseNumber,jdbcType=VARCHAR},#{item.PostalCode,jdbcType=VARCHAR},-->
+<!--                #{item.RelationShipWithPatient,jdbcType=VARCHAR},#{item.ContactPerson,jdbcType=VARCHAR},#{item.ContactPersonTel,jdbcType=VARCHAR},-->
+<!--                #{item.ContactIdCard,jdbcType=VARCHAR},#{item.ContactIdCardCode,jdbcType=VARCHAR},TO_DATE(#{item.TimeStamp,jdbcType=DATE},'YYYY-MM-DD HH24:MI:SS'),-->
+<!--                #{item.OperationType,jdbcType=DECIMAL},#{item.CardType,jdbcType=VARCHAR},#{item.IssuingRegion,jdbcType=VARCHAR},-->
+<!--                #{item.ModifyFlag,jdbcType=DECIMAL},#{item.JRCSDM,jdbcType=VARCHAR}-->
+<!--            );-->
+<!--            EXCEPTION-->
+<!--            WHEN DUP_VAL_ON_INDEX THEN NULL;-->
+<!--            END;-->
+<!--        </foreach>-->
+<!--        END;-->
+    </insert>
+    <insert id="batchUpOrInsertInfo" parameterType="list">
+        MERGE INTO CDR_PATIENTBASICINFO t
+        USING (
+        <foreach collection="list" item="item" separator="UNION ALL">
+            SELECT
+            #{item.PatientID, jdbcType=VARCHAR} AS PatientID,
+            #{item.AuthorOrganization, jdbcType=VARCHAR} AS AuthorOrganization,
+            #{item.AuthorOrganizationName, jdbcType=VARCHAR} AS AuthorOrganizationName,
+            #{item.HealthRecordId, jdbcType=VARCHAR} AS HealthRecordId,
+            #{item.IdCard, jdbcType=VARCHAR} AS IdCard,
+            #{item.IdCardCode, jdbcType=VARCHAR} AS IdCardCode,
+            #{item.HealthCardId, jdbcType=VARCHAR} AS HealthCardId,
+            #{item.MedicalInsuranceCategoryCode, jdbcType=VARCHAR} AS MedicalInsuranceCategoryCode,
+            #{item.HealthInsuranceCardId, jdbcType=VARCHAR} AS HealthInsuranceCardId,
+            #{item.SelfPaidCardId, jdbcType=VARCHAR} AS SelfPaidCardId,
+            #{item.Name, jdbcType=VARCHAR} AS Name,
+            #{item.Sex, jdbcType=VARCHAR} AS Sex,
+            TO_DATE(#{item.BirthDate, jdbcType=DATE}, 'YYYY-MM-DD HH24:MI:SS') AS BirthDate,
+            #{item.MaritalStatus, jdbcType=VARCHAR} AS MaritalStatus,
+            #{item.Nationality, jdbcType=VARCHAR} AS Nationality,
+            #{item.EthnicGroup, jdbcType=VARCHAR} AS EthnicGroup,
+            #{item.OccupationCategoryCode, jdbcType=VARCHAR} AS OccupationCategoryCode,
+            #{item.PatientPhone, jdbcType=VARCHAR} AS PatientPhone,
+            #{item.WorkUnit, jdbcType=VARCHAR} AS WorkUnit,
+            #{item.WorkAddrPhone, jdbcType=VARCHAR} AS WorkAddrPhone,
+            TO_DATE(#{item.SystemTime, jdbcType=DATE}, 'YYYY-MM-DD HH24:MI:SS') AS SystemTime,
+            #{item.Author, jdbcType=VARCHAR} AS Author,
+            #{item.PrivacySign, jdbcType=CHAR} AS PrivacySign,
+            #{item.SourcePatientId, jdbcType=VARCHAR} AS SourcePatientId,
+            #{item.SourcePatientIdType, jdbcType=VARCHAR} AS SourcePatientIdType,
+            #{item.AddrTypeCode, jdbcType=VARCHAR} AS AddrTypeCode,
+            #{item.AddrTypeName, jdbcType=VARCHAR} AS AddrTypeName,
+            #{item.Address, jdbcType=VARCHAR} AS Address,
+            #{item.Province, jdbcType=VARCHAR} AS Province,
+            #{item.City, jdbcType=VARCHAR} AS City,
+            #{item.County, jdbcType=VARCHAR} AS County,
+            #{item.Town, jdbcType=VARCHAR} AS Town,
+            #{item.Village, jdbcType=VARCHAR} AS Village,
+            #{item.HouseNumber, jdbcType=VARCHAR} AS HouseNumber,
+            #{item.PostalCode, jdbcType=VARCHAR} AS PostalCode,
+            #{item.RelationShipWithPatient, jdbcType=VARCHAR} AS RelationShipWithPatient,
+            #{item.ContactPerson, jdbcType=VARCHAR} AS ContactPerson,
+            #{item.ContactPersonTel, jdbcType=VARCHAR} AS ContactPersonTel,
+            #{item.ContactIdCard, jdbcType=VARCHAR} AS ContactIdCard,
+            #{item.ContactIdCardCode, jdbcType=VARCHAR} AS ContactIdCardCode,
+            TO_DATE(#{item.TimeStamp, jdbcType=DATE}, 'YYYY-MM-DD HH24:MI:SS') AS TimeStamp,
+            #{item.OperationType, jdbcType=DECIMAL} AS OperationType,
+            #{item.CardType, jdbcType=VARCHAR} AS CardType,
+            #{item.IssuingRegion, jdbcType=VARCHAR} AS IssuingRegion,
+            #{item.ModifyFlag, jdbcType=DECIMAL} AS ModifyFlag,
+            #{item.JRCSDM, jdbcType=VARCHAR} AS JRCSDM
+            FROM DUAL
+        </foreach>
+        ) s
+        ON (t.PatientID = s.PatientID)
+        WHEN NOT MATCHED THEN INSERT (
+            PatientID, AuthorOrganization, AuthorOrganizationName, HealthRecordId,
+            IdCard, IdCardCode, HealthCardId, MedicalInsuranceCategoryCode,
+            HealthInsuranceCardId, SelfPaidCardId, Name, Sex, BirthDate,
+            MaritalStatus, Nationality, EthnicGroup, OccupationCategoryCode,
+            PatientPhone, WorkUnit, WorkAddrPhone, SystemTime, Author, PrivacySign,
+            SourcePatientId, SourcePatientIdType, AddrTypeCode, AddrTypeName,
+            Address, Province, City, County, Town, Village, HouseNumber,
+            PostalCode, RelationShipWithPatient, ContactPerson, ContactPersonTel,
+            ContactIdCard, ContactIdCardCode, TimeStamp, OperationType, CardType,
+            IssuingRegion, ModifyFlag, JRCSDM
+        )
+        VALUES (
+            s.PatientID, s.AuthorOrganization, s.AuthorOrganizationName, s.HealthRecordId,
+            s.IdCard, s.IdCardCode, s.HealthCardId, s.MedicalInsuranceCategoryCode,
+            s.HealthInsuranceCardId, s.SelfPaidCardId, s.Name, s.Sex, s.BirthDate,
+            s.MaritalStatus, s.Nationality, s.EthnicGroup, s.OccupationCategoryCode,
+            s.PatientPhone, s.WorkUnit, s.WorkAddrPhone, s.SystemTime, s.Author, s.PrivacySign,
+            s.SourcePatientId, s.SourcePatientIdType, s.AddrTypeCode, s.AddrTypeName,
+            s.Address, s.Province, s.City, s.County, s.Town, s.Village, s.HouseNumber,
+            s.PostalCode, s.RelationShipWithPatient, s.ContactPerson, s.ContactPersonTel,
+            s.ContactIdCard, s.ContactIdCardCode, s.TimeStamp, s.OperationType, s.CardType,
+            s.IssuingRegion, s.ModifyFlag, s.JRCSDM
+        )
+    </insert>
+</mapper>

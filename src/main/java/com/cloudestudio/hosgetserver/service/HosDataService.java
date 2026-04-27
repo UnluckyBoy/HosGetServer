@@ -34,6 +34,10 @@ public interface HosDataService {
     List<DayOutPatientBean> queryDayOutPatient();
     List<WorkNums> QueryWorksNum(BedDayBody queryMap);
     List<SettlementBean> QuerySettlement(BedDayBody queryMap);
+    List<PrescriptionReviewBean> queryInfoByCf(String cfNumber);
+    List<MedicineQueryBean> medicineCodeQuery();
+
+
     List<BaseDepartMent> queryBaseDepart();
     List<UserInfoBean> queryAdmin();
     List<WorkInfoBean> queryWorkInfos();

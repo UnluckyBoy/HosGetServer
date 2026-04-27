@@ -20,4 +20,6 @@ public interface HosReportService {
     WebResponse QuerySettlement(BedDayBody queryMap);
     WebResponse freshJrzyInfo(String orderId);
     WebResponse queryBaseDepart();
+    WebResponse queryInfoByCf(String cfNumber);
+    WebResponse medicineCodeQuery();
 }

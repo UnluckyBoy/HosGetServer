@@ -248,9 +248,9 @@ public class MatrixWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * 心跳检测 - 每30秒检查一次
+     * 心跳检测 - 每30秒检查一次->5min检测,避免占用资源
      */
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 300000)
     public void heartbeatCheck() {
         LocalDateTime now = LocalDateTime.now();
         sessionManager.getAllSessions().forEach((sessionId, session) -> {
@@ -271,9 +271,9 @@ public class MatrixWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * 定期清理无效会话（每分钟执行一次）
+     * 定期清理无效会话(5分钟执行一次)
      */
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 300000)
     public void cleanupInvalidSessions() {
         System.out.println("开始清理无效会话...");
         sessionManager.cleanupInvalidSessions();

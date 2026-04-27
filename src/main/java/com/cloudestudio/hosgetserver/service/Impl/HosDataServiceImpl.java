@@ -188,6 +188,18 @@ public class HosDataServiceImpl implements HosDataService {
         return hosDataMapper.QuerySettlement(queryMap);
     }
 
+    @DS("oracle")
+    @Override
+    public List<PrescriptionReviewBean> queryInfoByCf(String cfNumber) {
+        return hosDataMapper.queryInfoByCf(cfNumber);
+    }
+
+    @DS("oracle")
+    @Override
+    public List<MedicineQueryBean> medicineCodeQuery() {
+        return hosDataMapper.medicineCodeQuery();
+    }
+
     @DS("mysql")
     @Override
     public List<BaseDepartMent> queryBaseDepart() {

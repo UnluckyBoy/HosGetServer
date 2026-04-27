@@ -4,9 +4,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @SpringBootApplication
+@EnableScheduling   // 启用定时任务
 public class HosGetServerApplication {
 	private static final Logger logger = LogManager.getLogger(HosGetServerApplication.class);
 	// 静态初始化块，用于在应用启动时记录日志
