@@ -26,6 +26,9 @@ public class GreenChannelServiceImpl implements GreenChannelService {
     @Autowired
     GreenChannelMapper greenChannelMapper;
 
+    @Autowired
+    greenChannelHandleService greenChannelHandleService;
+
     /**
      * 查询患者信息
      * @param idCard
@@ -37,9 +40,26 @@ public class GreenChannelServiceImpl implements GreenChannelService {
             System.out.println(TimeUtil.GetTime(true)+" ---查询患者基本信息失败!--->>>参数:"+ null);
             return WebResponse.paramError();
         }else{
-            PatientBean queryBean=greenChannelMapper.queryPatient(idCard);
+//            PatientBean queryBean=greenChannelMapper.queryPatient(idCard);
+//            if(queryBean==null){
+//                //System.out.println(TimeUtil.GetTime(true)+" ---查询患者-失败!--->>>参数:"+ null);
+//                //return WebResponse.serverError("患者不存在");
+//                /**mysql没有,查询His**/
+//            }else{
+//                System.out.println(TimeUtil.GetTime(true)+" ---查询患者-成功!--->>>参数:"+ queryBean);
+//                return WebResponse.success(queryBean);
+//            }
+            PatientBean queryBean=greenChannelHandleService.queryPatient(idCard);
             if(queryBean==null){
-                System.out.println(TimeUtil.GetTime(true)+" ---查询患者-失败!--->>>参数:"+ null);
+                //System.out.println(TimeUtil.GetTime(true)+" ---查询患者-失败!--->>>参数:"+ null);
+                //return WebResponse.serverError("患者不存在");
+                /**mysql没有,查询His**/
+                PatientBean queryBeanHis=greenChannelHandleService.queryPatientByHis(idCard);
+                if(queryBeanHis!=null){
+                    System.out.println(TimeUtil.GetTime(true)+" ---查询患者-HIS-成功!--->>>参数:"+ queryBeanHis);
+                    return WebResponse.success(queryBeanHis);
+                }
+                System.out.println(TimeUtil.GetTime(true)+" ---查询患者-HIS-失败!--->>>参数:"+ null);
                 return WebResponse.serverError("患者不存在");
             }else{
                 System.out.println(TimeUtil.GetTime(true)+" ---查询患者-成功!--->>>参数:"+ queryBean);

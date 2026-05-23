@@ -20,6 +20,7 @@ import java.util.List;
 @Repository
 public interface GreenChannelMapper {
     PatientBean queryPatient(String idCard);
+    PatientBean queryPatientByHis(String idCard);
     List<GreenChannelCaseHis> queryAllHis();//查询所有分诊病案
     List<GreenChannelCaseHis> queryHisParam(String startTime,String endTime);//条件查询分诊病案
     boolean cGCPatientInfo(PatientBean patientBean);//患者信息创建

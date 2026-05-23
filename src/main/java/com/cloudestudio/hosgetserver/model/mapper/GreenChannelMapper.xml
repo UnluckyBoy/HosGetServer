@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cloudestudio.hosgetserver.model.mapper.GreenChannelMapper">
     <!--查询逻辑-->
-    <!--查询患者-->
+    <!--查询患者-Mysql-->
     <select id="queryPatient" parameterType="String" resultType="com.cloudestudio.hosgetserver.model.greenChannel.PatientBean">
         SELECT
             patientbaseinfo_table.patientId,
@@ -25,6 +25,29 @@
             patientbaseinfo_table
         WHERE
             patientbaseinfo_table.idCard = #{idCard}
+    </select>
+    <!--查询患者-Oracle_His-->
+    <select id="queryPatientByHis" parameterType="String" resultType="com.cloudestudio.hosgetserver.model.greenChannel.PatientBean">
+        SELECT * FROM (
+          SELECT
+              P.BRID AS PATIENTID,
+              '身份证' AS IDCARDTYPENAME,
+              P.SFZH AS IDCARD,
+              P.BRXM AS PATIENTNAME,
+              MATRIX_GET_BIRTHDAY(P.SFZH) AS BIRTHDATE,
+              MATIRX_GET_AGE_BY_IDCARD(P.SFZH) AS PATIENTAGE,
+              '岁' AS ageUnit,
+              p.sj AS tel,
+              p.lxr AS contacts,
+              MATRIX_GET_LXRGX(P.LXRGXBM) AS contactsRelation,
+              '中国' AS nationalityName,
+              fn_get_mzmc(p.mzbm) AS nationName,
+              FN_GET_GEND(P.BRXB) AS genderName,
+              '' AS patientAddress
+          FROM PATIENT_ZCXX P
+          WHERE P.SFZH = #{idCard}
+          ORDER BY P.Timestamp DESC
+      ) WHERE ROWNUM = 1
     </select>
 
     <!--查询病案号序号-->

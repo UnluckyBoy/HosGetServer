@@ -12,6 +12,7 @@ import com.cloudestudio.hosgetserver.webTools.WebResponse;
  */
 public interface GreenChannelService {
     WebResponse queryPatientInfo(String idCard);
+    //WebResponse queryPatientByHis(String idCard);
     WebResponse createPatientInfo(GreenChannelCreateParamBody requestBody);
     WebResponse queryAllHis();
     WebResponse queryHisParam(BedDayBody requestBody);

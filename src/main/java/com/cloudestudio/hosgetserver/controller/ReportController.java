@@ -73,6 +73,11 @@ public class ReportController {
         response.getWriter().write(gsonConfig.toJson(hosReportService.QuerySettlement(body)));
     }
 
+    /**
+     * 追溯码漏扫数据
+     * @param response
+     * @throws IOException
+     */
     @RequestMapping("/medicineCodeQuery")
     public void getMedicineCodeQuery(HttpServletResponse response) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
