@@ -1,12 +1,14 @@
 package com.cloudestudio.hosgetserver.service.Impl;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.cloudestudio.hosgetserver.model.Common.UPBean;
 import com.cloudestudio.hosgetserver.model.UserInfoBean;
 import com.cloudestudio.hosgetserver.model.mapper.UserMapper;
 import com.cloudestudio.hosgetserver.service.UserLoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,5 +26,11 @@ public class UserLoginImpl implements UserLoginService {
     @Override
     public UserInfoBean loginQuery(Map<String, Object> map) {
         return userMapper.loginQuery(map);
+    }
+
+    @DS("mysql")
+    @Override
+    public List<UPBean> queryUPermission() {
+        return userMapper.queryUPermission();
     }
 }

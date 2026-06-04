@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudestudio.hosgetserver.model.mapper.ManagerMapper">
+    <!--查询逻辑-->
+    <!--查询所有权限-->
+    <select id="queryAllPermission" resultType="com.cloudestudio.hosgetserver.model.Common.MatrixPermission">
+        SELECT
+            authority_type,
+            authority_type_name,
+            GROUP_CONCAT(authority_name) AS authority_name,
+            GROUP_CONCAT(authority_code) AS authority_code
+        FROM
+            authority_table
+        GROUP BY authority_type, authority_type_name
+        ORDER BY authority_type ASC
+    </select>
+
+</mapper>

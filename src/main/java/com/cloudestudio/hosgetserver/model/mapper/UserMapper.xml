@@ -29,4 +29,17 @@
             login_info_table.headerImageUrl,
             department_table.department_name
     </select>
+    <!--查询患者信息及权限-->
+    <select id="queryUPermission" resultType="com.cloudestudio.hosgetserver.model.Common.UPBean">
+        SELECT
+            l.uAccount,
+            l.uName,
+            d.department_name,
+            GROUP_CONCAT(uAuth.authority_code) AS permissions
+        FROM
+            login_info_table l
+                INNER JOIN department_table d ON d.uAccount=l.uAccount
+                INNER JOIN user_authority_table uAuth ON uAuth.uAccount=l.uAccount
+        GROUP BY l.uAccount, l.uName, d.department_name
+    </select>
 </mapper>

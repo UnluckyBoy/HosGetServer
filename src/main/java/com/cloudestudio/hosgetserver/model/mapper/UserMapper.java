@@ -1,10 +1,12 @@
 package com.cloudestudio.hosgetserver.model.mapper;
 
+import com.cloudestudio.hosgetserver.model.Common.UPBean;
 import com.cloudestudio.hosgetserver.model.UserInfoBean;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,4 +21,5 @@ import java.util.Map;
 @Repository
 public interface UserMapper {
     UserInfoBean loginQuery(Map<String, Object> map);
+    List<UPBean> queryUPermission();//获取信息及权限
 }

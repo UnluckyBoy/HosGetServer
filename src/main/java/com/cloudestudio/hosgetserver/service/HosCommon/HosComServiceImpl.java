@@ -1,10 +1,12 @@
 package com.cloudestudio.hosgetserver.service.HosCommon;
 
+import com.cloudestudio.hosgetserver.model.Common.UPBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkInfoBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkNearBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkTotalBean;
 import com.cloudestudio.hosgetserver.model.UserInfoBean;
 import com.cloudestudio.hosgetserver.service.HosDataService;
+import com.cloudestudio.hosgetserver.service.UserLoginService;
 import com.cloudestudio.hosgetserver.service.WebSocket.WebSocketMessageService;
 import com.cloudestudio.hosgetserver.webTools.TimeUtil;
 import com.cloudestudio.hosgetserver.webTools.WebResponse;
@@ -57,6 +59,10 @@ public class HosComServiceImpl implements HosComService{
         }
     }
 
+    /**
+     * 发送工单消息
+     * @param workInfoBean
+     */
     private void sendWorkOrderNotificationAsync(WorkInfoBean workInfoBean) {
         CompletableFuture.runAsync(() -> {
             try {
@@ -98,6 +104,11 @@ public class HosComServiceImpl implements HosComService{
         return WebResponse.failure();
     }
 
+    /***
+     * 刷新工单状态
+     * @param map
+     * @return
+     */
     @Override
     public WebResponse freshWorkStatus(Map<String,String> map) {
         if(map.isEmpty()){
@@ -113,6 +124,11 @@ public class HosComServiceImpl implements HosComService{
         return WebResponse.failure();
     }
 
+    /**
+     * 更新工单信息
+     * @param map
+     * @return
+     */
     @Override
     public WebResponse updateWorkContent(Map<String, String> map) {
         if(map.isEmpty()){
@@ -128,6 +144,11 @@ public class HosComServiceImpl implements HosComService{
         return WebResponse.failure();
     }
 
+    /**
+     * 擦汗寻工单信息
+     * @param workId
+     * @return
+     */
     @Override
     public WebResponse queryWorkContent(int workId) {
         if (workId<=0){

@@ -1,7 +1,9 @@
 package com.cloudestudio.hosgetserver.service;
 
+import com.cloudestudio.hosgetserver.model.Common.UPBean;
 import com.cloudestudio.hosgetserver.model.UserInfoBean;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,4 +14,6 @@ import java.util.Map;
  */
 public interface UserLoginService {
     UserInfoBean loginQuery(Map<String, Object> map);
+
+    List<UPBean> queryUPermission();
 }
