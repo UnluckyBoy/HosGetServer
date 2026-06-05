@@ -3,7 +3,6 @@
     <Properties>
         <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%t] %-40.40c{1.} : %m%n</Property>
         <Property name="LOG_DIR">logs</Property>
-        <Property name="LOG_FILE_NAME">server-%d{yyyy-MM-dd}</Property>
     </Properties>
 
     <Appenders>
@@ -12,18 +11,18 @@
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
 
-        <!-- 文件输出 -->
-        <RollingFile name="File" fileName="${LOG_DIR}/${LOG_FILE_NAME}.log"
-                     filePattern="${LOG_DIR}/${LOG_FILE_NAME}-%d{yyyy-MM-dd}-%i.log">
+        <!-- 文件输出 - 当前文件名也带日期 -->
+        <RollingFile name="File"
+                     fileName="${LOG_DIR}/server-${date:yyyy-MM-dd}.log"
+                     filePattern="${LOG_DIR}/server-%d{yyyy-MM-dd}-%i.log">
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies>
-                <!-- 每天滚动一次 -->
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
-                <!-- 文件大小超过10MB时滚动 -->
                 <SizeBasedTriggeringPolicy size="512MB"/>
             </Policies>
-            <!-- 最多保留30个日志文件 -->
-            <DefaultRolloverStrategy max="30"/>
+            <DefaultRolloverStrategy max="30">
+                <DirectWriteRolloverStrategy/>
+            </DefaultRolloverStrategy>
         </RollingFile>
     </Appenders>
 
@@ -33,7 +32,6 @@
             <AppenderRef ref="File"/>
         </Root>
 
-        <!-- 可以针对特定包设置不同的日志级别 -->
         <Logger name="com.cloudestudio.hosgetserver" level="debug" additivity="false">
             <AppenderRef ref="File"/>
         </Logger>

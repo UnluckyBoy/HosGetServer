@@ -17,4 +17,18 @@
         ORDER BY authority_type ASC
     </select>
 
+    <!-- 插入 -->
+    <insert id="batchUpPerMission" parameterType="java.util.List">
+        INSERT INTO user_authority_table (user_authority_table.uAccount, user_authority_table.authority_code)
+        VALUES
+        <foreach collection="permissions" item="permission" separator=",">
+            (#{account}, #{permission})
+        </foreach>
+    </insert>
+
+    <!-- 删除 -->
+    <!--删除账号所有权限-->
+    <delete id="delPermissionsByAccount">
+        DELETE FROM user_authority_table WHERE user_authority_table.uAccount = #{account}
+    </delete>
 </mapper>

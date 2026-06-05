@@ -1,6 +1,9 @@
 package com.cloudestudio.hosgetserver.service.HosCommon;
 
+import com.cloudestudio.hosgetserver.model.paramBody.SavePermissionBean;
 import com.cloudestudio.hosgetserver.webTools.WebResponse;
+
+import java.util.List;
 
 /**
  * @Class UserCommonService
@@ -11,4 +14,5 @@ import com.cloudestudio.hosgetserver.webTools.WebResponse;
 public interface ManagerService {
     WebResponse queryUPermission();
     WebResponse queryAllPermission();
+    WebResponse batchUpPerMission(String account, List<String> permissions);
 }

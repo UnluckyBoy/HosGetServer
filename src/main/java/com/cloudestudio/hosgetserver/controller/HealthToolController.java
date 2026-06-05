@@ -29,8 +29,8 @@ public class HealthToolController {
     @Autowired
     HealthToolHandleService healthToolHandleService;
 
-    @Autowired
-    private MatrixHealthToolScheduledBatchService matrixHealthToolScheduledBatchService;
+//    @Autowired
+//    private MatrixHealthToolScheduledBatchService matrixHealthToolScheduledBatchService;
 
     @RequestMapping("/exportBasePatientInfo")
     public void getExportBasePatientInfo(HttpServletResponse response) throws IOException {
@@ -47,15 +47,15 @@ public class HealthToolController {
     }
 
     // 新增接口：获取定时任务状态（Spring 自动转为 JSON）
-    @RequestMapping("/healthToolTask")
-    public void getTaskStatus(HttpServletResponse response) throws IOException {
-        System.out.println(TimeUtil.GetTime(true)+"开始抓取全民健康信息平台数据-患者基本信息");
-        response.setContentType("application/json;charset=UTF-8");
-        MatrixTaskStatus temp=matrixHealthToolScheduledBatchService.getCurrentStatus();
-        if(temp.isMSuccess()){
-            response.getWriter().write(gson.toJson(WebResponse.success(matrixHealthToolScheduledBatchService.getCurrentStatus())));
-        }else{
-            response.getWriter().write(gson.toJson(WebResponse.failure()));
-        }
-    }
+//    @RequestMapping("/healthToolTask")
+//    public void getTaskStatus(HttpServletResponse response) throws IOException {
+//        System.out.println(TimeUtil.GetTime(true)+"开始抓取全民健康信息平台数据-患者基本信息");
+//        response.setContentType("application/json;charset=UTF-8");
+//        MatrixTaskStatus temp=matrixHealthToolScheduledBatchService.getCurrentStatus();
+//        if(temp.isMSuccess()){
+//            response.getWriter().write(gson.toJson(WebResponse.success(matrixHealthToolScheduledBatchService.getCurrentStatus())));
+//        }else{
+//            response.getWriter().write(gson.toJson(WebResponse.failure()));
+//        }
+//    }
 }
