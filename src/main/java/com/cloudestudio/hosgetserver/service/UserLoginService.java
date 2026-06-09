@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public interface UserLoginService {
     UserInfoBean loginQuery(Map<String, Object> map);
+    UserInfoBean queryUInfo(String account);
 
     List<UPBean> queryUPermission();
 }

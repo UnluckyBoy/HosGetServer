@@ -30,6 +30,12 @@ public class UserLoginImpl implements UserLoginService {
 
     @DS("mysql")
     @Override
+    public UserInfoBean queryUInfo(String account) {
+        return userMapper.queryUInfo(account);
+    }
+
+    @DS("mysql")
+    @Override
     public List<UPBean> queryUPermission() {
         return userMapper.queryUPermission();
     }

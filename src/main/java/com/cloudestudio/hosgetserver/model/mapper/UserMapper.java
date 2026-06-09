@@ -21,5 +21,6 @@ import java.util.Map;
 @Repository
 public interface UserMapper {
     UserInfoBean loginQuery(Map<String, Object> map);
+    UserInfoBean queryUInfo(String account);
     List<UPBean> queryUPermission();//获取信息及权限
 }

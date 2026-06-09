@@ -4,6 +4,7 @@ import com.cloudestudio.hosgetserver.model.*;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkInfoBean;
 import com.cloudestudio.hosgetserver.model.paramBody.BedDayBody;
 import com.cloudestudio.hosgetserver.model.paramBody.CommonParam;
+import com.cloudestudio.hosgetserver.model.paramBody.UInfoRequestBody;
 import com.cloudestudio.hosgetserver.model.paramBody.WorkParamBody;
 import com.cloudestudio.hosgetserver.service.*;
 import com.cloudestudio.hosgetserver.service.HosCommon.HosComService;
@@ -11,21 +12,11 @@ import com.cloudestudio.hosgetserver.service.Report.HosReportService;
 import com.cloudestudio.hosgetserver.webTools.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.zxing.WriterException;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URI;
@@ -35,8 +26,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -119,6 +108,18 @@ public class DataController {
         } else {
             System.out.println(passTemp); // 如果未找到 '+'，则输出原始字符串
             response.getWriter().write(gson.toJson(WebServerResponse.failure("后台异常：密码解码ERROR!"+passTemp)));
+        }
+    }
+
+    @RequestMapping("/queryUInfo")
+    public void queryUInfo(HttpServletResponse response, @RequestBody UInfoRequestBody requestBody) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        UserInfoBean userInfoBean=userLoginService.queryUInfo(requestBody.getAccount());
+        if (userInfoBean==null) {
+            response.getWriter().write(gson.toJson(WebServerResponse.failure("queryUInfo请求失败")));
+        }else{
+            System.out.println(TimeUtil.GetTime(true)+" ---queryUInfo查询成功:"+userInfoBean);
+            response.getWriter().write(gson.toJson(WebServerResponse.success("queryUInfo请求成功",userInfoBean)));
         }
     }
 
