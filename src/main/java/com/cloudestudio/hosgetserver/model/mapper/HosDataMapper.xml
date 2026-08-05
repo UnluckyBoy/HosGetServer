@@ -1005,6 +1005,7 @@
             FN_GET_YFMC(C.YFBM) AS PHARMACY
         FROM YBJK_SBM_FAIL T
         INNER JOIN YF_YPCF C ON C.CFH=T.CFH
+        order by T.CFH DESC
     </select>
 
     <!--Update逻辑-->
@@ -1020,6 +1021,15 @@
         UPDATE work_table SET
           work_table.workStatus=#{workStatus},
           work_table.workResult=#{workResult},
+          work_table.finishOperator=#{finishOperator},
+          work_table.workAssignee=#{workAssignee},
+          work_table.finishDate=#{finishDate}
+        WHERE work_table.workID=#{workId}
+    </update>
+    <!--只更新状态-->
+    <update id="freshWorkStat" parameterType="java.util.Map">
+        UPDATE work_table SET
+          work_table.workStatus=#{workStatus},
           work_table.finishOperator=#{finishOperator},
           work_table.workAssignee=#{workAssignee},
           work_table.finishDate=#{finishDate}

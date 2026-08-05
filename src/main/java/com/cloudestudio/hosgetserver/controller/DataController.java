@@ -773,11 +773,15 @@ public class DataController {
         requestMap.put("finishOperator",body.getFinishOperator());
         requestMap.put("workAssignee",body.getWorkAssignee());
         requestMap.put("finishDate",body.getFinishDate());
-        response.getWriter().write(gsonConfig.toJson(hosComService.freshWorkStatus(requestMap)));
+        if(body.getWorkStatus().equals("已完成")){
+            response.getWriter().write(gsonConfig.toJson(hosComService.freshWorkStat(requestMap)));
+        }else {
+            response.getWriter().write(gsonConfig.toJson(hosComService.freshWorkStatus(requestMap)));
+        }
     }
 
     /**
-     * 个更新工单内容
+     * 更新工单内容
      * @param response
      * @param body
      * @throws IOException

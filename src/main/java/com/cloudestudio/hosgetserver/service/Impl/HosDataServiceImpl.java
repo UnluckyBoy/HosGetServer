@@ -116,6 +116,12 @@ public class HosDataServiceImpl implements HosDataService {
 
     @DS("mysql")
     @Override
+    public boolean freshWorkStat(Map<String, String> map) {
+        return hosDataMapper.freshWorkStat(map);
+    }
+
+    @DS("mysql")
+    @Override
     public boolean updateWorkContent(Map<String, String> map) {
         return hosDataMapper.updateWorkContent(map);
     }

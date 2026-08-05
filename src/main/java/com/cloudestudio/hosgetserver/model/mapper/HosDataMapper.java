@@ -63,6 +63,7 @@ public interface HosDataMapper {
     boolean freshCostEndTime(Map<String,Object> map);//刷新收费日期
     boolean freshJrzyInfo(String orderId); // 更新退费JRZY_INFO状态
     boolean createWorkInfo(WorkInfoBean workInfoBean);//创建工单
-    boolean freshWorkStatus(Map<String,String> map);//更新工单状态
+    boolean freshWorkStatus(Map<String,String> map);//更新工单状态、内容
+    boolean freshWorkStat(Map<String,String> map);//只更新工单状态
     boolean updateWorkContent(Map<String,String> map);//更新工单内容
 }

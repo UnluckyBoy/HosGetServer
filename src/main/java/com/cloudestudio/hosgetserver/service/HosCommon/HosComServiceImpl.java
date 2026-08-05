@@ -5,6 +5,7 @@ import com.cloudestudio.hosgetserver.model.ReportBean.WorkInfoBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkNearBean;
 import com.cloudestudio.hosgetserver.model.ReportBean.WorkTotalBean;
 import com.cloudestudio.hosgetserver.model.UserInfoBean;
+import com.cloudestudio.hosgetserver.model.paramBody.WorkParamBody;
 import com.cloudestudio.hosgetserver.service.HosDataService;
 import com.cloudestudio.hosgetserver.service.UserLoginService;
 import com.cloudestudio.hosgetserver.service.WebSocket.WebSocketMessageService;
@@ -105,7 +106,7 @@ public class HosComServiceImpl implements HosComService{
     }
 
     /***
-     * 刷新工单状态
+     * 刷新工单状态、内容
      * @param map
      * @return
      */
@@ -116,6 +117,26 @@ public class HosComServiceImpl implements HosComService{
             return WebResponse.paramError();
         }
         boolean result=hosDataService.freshWorkStatus(map);
+        if(result){
+            System.out.println(TimeUtil.GetTime(true)+" ---更新工单---成功--->参数："+map);
+            return WebResponse.success();
+        }
+        System.out.println(TimeUtil.GetTime(true)+" ---更新工单---失败--->参数："+map);
+        return WebResponse.failure();
+    }
+
+    /**
+     * 刷新工单状态
+     * @param map
+     * @return
+     */
+    @Override
+    public WebResponse freshWorkStat(Map<String, String> map) {
+        if(map.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---参数异常："+map);
+            return WebResponse.paramError();
+        }
+        boolean result=hosDataService.freshWorkStat(map);
         if(result){
             System.out.println(TimeUtil.GetTime(true)+" ---更新工单---成功--->参数："+map);
             return WebResponse.success();
