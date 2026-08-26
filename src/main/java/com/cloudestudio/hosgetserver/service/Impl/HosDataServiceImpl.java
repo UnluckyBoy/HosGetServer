@@ -206,6 +206,12 @@ public class HosDataServiceImpl implements HosDataService {
         return hosDataMapper.medicineCodeQuery();
     }
 
+    @DS("oracle")
+    @Override
+    public List<OperationEntity> queryMonOperation(BedDayBody body) {
+        return hosDataMapper.queryMonOperation(body);
+    }
+
     @DS("mysql")
     @Override
     public List<BaseDepartMent> queryBaseDepart() {

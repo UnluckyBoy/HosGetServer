@@ -22,4 +22,5 @@ public interface HosReportService {
     WebResponse queryBaseDepart();
     WebResponse queryInfoByCf(String cfNumber);
     WebResponse medicineCodeQuery();
+    WebResponse queryMonOperation(BedDayBody body);
 }

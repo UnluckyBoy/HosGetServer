@@ -9,6 +9,7 @@ import com.cloudestudio.hosgetserver.webTools.WebResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -148,6 +149,31 @@ public class HosReportServiceImpl implements HosReportService {
         List<MedicineQueryBean> resultList=hosDataService.medicineCodeQuery();
         System.out.println(TimeUtil.GetTime(true)+" ---查询返回:"+ resultList);
         return WebResponse.success(resultList);
+    }
+
+    /**
+     * 财务运营分析-月报
+     * @param body
+     * @return
+     */
+    @Override
+    public WebResponse queryMonOperation(BedDayBody body) {
+        if(body==null){
+            System.out.println(TimeUtil.GetTime(true)+" ---queryMonOperation查询参数异常");
+            return WebResponse.paramError();
+        }
+        List<OperationEntity> queryResultList=hosDataService.queryMonOperation(body);
+        if(queryResultList.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---queryMonOperation查询异常");
+            return WebResponse.failure();
+        }
+//        MonOperationResult monResult=new MonOperationResult();
+//        monResult.setDepartName("All");
+//        monResult.setOperationEntity(queryResultList);
+//        List<MonOperationResult> resultList = new ArrayList<>();
+//        resultList.add(monResult);
+        System.out.println(TimeUtil.GetTime(true)+" ---queryMonOperation查询成功");
+        return WebResponse.success(queryResultList);
     }
 
 

@@ -1008,6 +1008,930 @@
         order by T.CFH DESC
     </select>
 
+    <!--运营数据(月报)-->
+    <select id="queryMonOperation" parameterType="com.cloudestudio.hosgetserver.model.paramBody.BedDayBody" resultType="com.cloudestudio.hosgetserver.model.ReportBean.OperationEntity">
+        WITH DATERANGE AS (
+            SELECT
+                TO_DATE(#{startTime}, 'yyyy-mm-dd hh24:mi:ss') AS START_DATE,
+                TO_DATE(#{endTime}, 'yyyy-mm-dd hh24:mi:ss') AS END_DATE
+            FROM DUAL
+        ),
+             DATEINFO AS (
+                 SELECT
+                     START_DATE,
+                     END_DATE,
+                     (END_DATE - START_DATE) + 1 AS DAYS,
+                     START_DATE - (END_DATE - START_DATE + 1) AS PREV_START_DATE,
+                     START_DATE - 1 AS PREV_END_DATE,
+                     -- 去年同期
+                     ADD_MONTHS(START_DATE, -12) AS LAST_YEAR_START_DATE,
+                     ADD_MONTHS(END_DATE, -12) AS LAST_YEAR_END_DATE
+                 FROM DATERANGE
+             ),
+-- ==================== 汇总数据（总院） ====================
+-- 门诊费用：当前
+             MZ_ALL AS (
+                 SELECT
+                     NVL(SUM(FYJE), 0) AS TOTAL_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM = '011' THEN FYJE ELSE 0 END), 0) AS ZYLL_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FYJE ELSE 0 END), 0) AS JCJY_AMOUNT
+                 FROM M_BRFY
+                 WHERE SFRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+             ),
+-- 门诊费用_上期
+             MZ_PREV_ALL AS (
+                 SELECT
+                     NVL(SUM(FYJE), 0) AS TOTAL_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM = '011' THEN FYJE ELSE 0 END), 0) AS ZYLL_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FYJE ELSE 0 END), 0) AS JCJY_AMOUNT
+                 FROM M_BRFY
+                 WHERE SFRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+             ),
+-- 门诊费用_去年同期
+             MZ_LASTYEAR_ALL AS (
+                 SELECT
+                     NVL(SUM(FYJE), 0) AS TOTAL_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM = '011' THEN FYJE ELSE 0 END), 0) AS ZYLL_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FYJE ELSE 0 END), 0) AS JCJY_AMOUNT
+                 FROM M_BRFY
+                 WHERE SFRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+             ),
+-- 住院费用：当前
+             ZY_ALL AS (
+                 SELECT
+                     NVL(SUM(FYJE), 0) AS TOTAL_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM = '011' THEN FYJE ELSE 0 END), 0) AS ZYLL_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FYJE ELSE 0 END), 0) AS JCJY_AMOUNT
+                 FROM INHOS_BRFY
+                 WHERE YXBZ = '1'
+                   AND SFRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+             ),
+-- 住院费用_上期
+             ZY_PREV_ALL AS (
+                 SELECT
+                     NVL(SUM(FYJE), 0) AS TOTAL_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM = '011' THEN FYJE ELSE 0 END), 0) AS ZYLL_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FYJE ELSE 0 END), 0) AS JCJY_AMOUNT
+                 FROM INHOS_BRFY
+                 WHERE YXBZ = '1'
+                   AND SFRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+             ),
+-- 住院费用_去年同期
+             ZY_LASTYEAR_ALL AS (
+                 SELECT
+                     NVL(SUM(FYJE), 0) AS TOTAL_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM = '011' THEN FYJE ELSE 0 END), 0) AS ZYLL_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FYJE ELSE 0 END), 0) AS JCJY_AMOUNT
+                 FROM INHOS_BRFY
+                 WHERE YXBZ = '1'
+                   AND SFRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+             ),
+-- 门诊人次
+             MZ_RCS_ALL AS (
+                 SELECT
+                     COUNT(CASE WHEN GHRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE) THEN 1 END) AS CURRENT_RCS,
+                     COUNT(CASE WHEN GHRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO) THEN 1 END) AS PREV_RCS,
+                     COUNT(CASE WHEN GHRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO) THEN 1 END) AS LASTYEAR_RCS
+                 FROM GH_BRGH
+                 WHERE SFJZ = '1' AND THBZ = '0'
+                   AND (GHRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                     OR GHRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                     OR GHRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO))
+             ),
+-- 住院人次 + 床日数
+             ZY_RCS_BED_ALL AS (
+                 SELECT
+                     COUNT(CASE WHEN BQCYBZ = '1' AND BQCYRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE) THEN 1 END) AS CURRENT_CYRCS,
+                     COUNT(CASE WHEN BQCYBZ = '1' AND BQCYRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO) THEN 1 END) AS PREV_CYRCS,
+                     COUNT(CASE WHEN BQCYBZ = '1' AND BQCYRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO) THEN 1 END) AS LASTYEAR_CYRCS,
+                     SUM(CASE
+                             WHEN BQCYBZ = '1' AND BQCYRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                                 THEN TRUNC(BQCYRQ) - TRUNC(RYRQ)
+                             WHEN RYRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                                 AND IFZF = '0'
+                                 AND (BQCYBZ = '0' OR BQCYRQ > (SELECT END_DATE FROM DATERANGE))
+                                 THEN TRUNC((SELECT END_DATE FROM DATERANGE)) - TRUNC(RYRQ)
+                             ELSE 0
+                         END) AS CURRENT_BED,
+                     SUM(CASE
+                             WHEN BQCYBZ = '1' AND BQCYRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                                 THEN TRUNC(BQCYRQ) - TRUNC(RYRQ)
+                             WHEN RYRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                                 AND IFZF = '0'
+                                 AND (BQCYBZ = '0' OR BQCYRQ > (SELECT PREV_END_DATE FROM DATEINFO))
+                                 THEN TRUNC((SELECT PREV_END_DATE FROM DATEINFO)) - TRUNC(RYRQ)
+                             ELSE 0
+                         END) AS PREV_BED,
+                     SUM(CASE
+                             WHEN BQCYBZ = '1' AND BQCYRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                                 THEN TRUNC(BQCYRQ) - TRUNC(RYRQ)
+                             WHEN RYRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                                 AND IFZF = '0'
+                                 AND (BQCYBZ = '0' OR BQCYRQ > (SELECT LAST_YEAR_END_DATE FROM DATEINFO))
+                                 THEN TRUNC((SELECT LAST_YEAR_END_DATE FROM DATEINFO)) - TRUNC(RYRQ)
+                             ELSE 0
+                         END) AS LASTYEAR_BED
+                 FROM INHOS_RYDJ
+                 WHERE IFZF = '0'
+                   AND (
+                     (BQCYBZ = '1' AND BQCYRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE))
+                         OR (RYRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE))
+                         OR (BQCYBZ = '1' AND BQCYRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO))
+                         OR (RYRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO))
+                         OR (BQCYBZ = '1' AND BQCYRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO))
+                         OR (RYRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO))
+                     )
+             ),
+-- 手术申请
+             SS_ALL AS (
+                 SELECT
+                     COUNT(CASE WHEN ZXBZ = '1' AND ZXSJ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE) THEN 1 END) AS CURRENT_SS,
+                     COUNT(CASE WHEN ZXBZ = '1' AND ZXSJ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO) THEN 1 END) AS PREV_SS,
+                     COUNT(CASE WHEN ZXBZ = '1' AND ZXSJ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO) THEN 1 END) AS LASTYEAR_SS
+                 FROM INHOSD_SSSQ
+                 WHERE ZXBZ = '1'
+                   AND (ZXSJ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                     OR ZXSJ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                     OR ZXSJ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO))
+             ),
+-- 汇总基础数据（总院）
+             BASE_DATA AS (
+                 SELECT
+                     '总院' AS KSBM,
+                     -- 门诊费用
+                     (SELECT TOTAL_AMOUNT FROM MZ_ALL) AS MZ_CUR_TOTAL,
+                     (SELECT TOTAL_AMOUNT FROM MZ_PREV_ALL) AS MZ_PREV_TOTAL,
+                     (SELECT TOTAL_AMOUNT FROM MZ_LASTYEAR_ALL) AS MZ_LASTYEAR_TOTAL,
+                     (SELECT TOTAL_AMOUNT FROM MZ_ALL) - (SELECT EXCLUDE_AMOUNT FROM MZ_ALL) AS MZ_CUR_YWXSR,
+                     (SELECT TOTAL_AMOUNT FROM MZ_PREV_ALL) - (SELECT EXCLUDE_AMOUNT FROM MZ_PREV_ALL) AS MZ_PREV_YWXSR,
+                     (SELECT TOTAL_AMOUNT FROM MZ_LASTYEAR_ALL) - (SELECT EXCLUDE_AMOUNT FROM MZ_LASTYEAR_ALL) AS MZ_LASTYEAR_YWXSR,
+                     (SELECT ZYLL_AMOUNT FROM MZ_ALL) AS MZ_CUR_ZYLL,
+                     (SELECT ZYLL_AMOUNT FROM MZ_PREV_ALL) AS MZ_PREV_ZYLL,
+                     (SELECT ZYLL_AMOUNT FROM MZ_LASTYEAR_ALL) AS MZ_LASTYEAR_ZYLL,
+                     (SELECT JCJY_AMOUNT FROM MZ_ALL) AS MZ_CUR_JCJY,
+                     (SELECT JCJY_AMOUNT FROM MZ_PREV_ALL) AS MZ_PREV_JCJY,
+                     (SELECT JCJY_AMOUNT FROM MZ_LASTYEAR_ALL) AS MZ_LASTYEAR_JCJY,
+                     -- 住院费用
+                     (SELECT TOTAL_AMOUNT FROM ZY_ALL) AS ZY_CUR_TOTAL,
+                     (SELECT TOTAL_AMOUNT FROM ZY_PREV_ALL) AS ZY_PREV_TOTAL,
+                     (SELECT TOTAL_AMOUNT FROM ZY_LASTYEAR_ALL) AS ZY_LASTYEAR_TOTAL,
+                     (SELECT TOTAL_AMOUNT FROM ZY_ALL) - (SELECT EXCLUDE_AMOUNT FROM ZY_ALL) AS ZY_CUR_YWXSR,
+                     (SELECT TOTAL_AMOUNT FROM ZY_PREV_ALL) - (SELECT EXCLUDE_AMOUNT FROM ZY_PREV_ALL) AS ZY_PREV_YWXSR,
+                     (SELECT TOTAL_AMOUNT FROM ZY_LASTYEAR_ALL) - (SELECT EXCLUDE_AMOUNT FROM ZY_LASTYEAR_ALL) AS ZY_LASTYEAR_YWXSR,
+                     (SELECT ZYLL_AMOUNT FROM ZY_ALL) AS ZY_CUR_ZYLL,
+                     (SELECT ZYLL_AMOUNT FROM ZY_PREV_ALL) AS ZY_PREV_ZYLL,
+                     (SELECT ZYLL_AMOUNT FROM ZY_LASTYEAR_ALL) AS ZY_LASTYEAR_ZYLL,
+                     (SELECT JCJY_AMOUNT FROM ZY_ALL) AS ZY_CUR_JCJY,
+                     (SELECT JCJY_AMOUNT FROM ZY_PREV_ALL) AS ZY_PREV_JCJY,
+                     (SELECT JCJY_AMOUNT FROM ZY_LASTYEAR_ALL) AS ZY_LASTYEAR_JCJY,
+                     -- 人次
+                     (SELECT CURRENT_RCS FROM MZ_RCS_ALL) AS MZ_CUR_RCS,
+                     (SELECT PREV_RCS FROM MZ_RCS_ALL) AS MZ_PREV_RCS,
+                     (SELECT LASTYEAR_RCS FROM MZ_RCS_ALL) AS MZ_LASTYEAR_RCS,
+                     (SELECT CURRENT_CYRCS FROM ZY_RCS_BED_ALL) AS ZY_CUR_RCS,
+                     (SELECT PREV_CYRCS FROM ZY_RCS_BED_ALL) AS ZY_PREV_RCS,
+                     (SELECT LASTYEAR_CYRCS FROM ZY_RCS_BED_ALL) AS ZY_LASTYEAR_RCS,
+                     -- 床日数
+                     (SELECT CURRENT_BED FROM ZY_RCS_BED_ALL) AS CUR_BED,
+                     (SELECT PREV_BED FROM ZY_RCS_BED_ALL) AS PREV_BED,
+                     (SELECT LASTYEAR_BED FROM ZY_RCS_BED_ALL) AS LASTYEAR_BED,
+                     -- 手术
+                     (SELECT CURRENT_SS FROM SS_ALL) AS CUR_SS,
+                     (SELECT PREV_SS FROM SS_ALL) AS PREV_SS,
+                     (SELECT LASTYEAR_SS FROM SS_ALL) AS LASTYEAR_SS,
+                     -- 天数
+                     (SELECT DAYS FROM DATEINFO) AS DAYS
+                 FROM DUAL
+             ),
+-- ==================== 按科室汇总数据 ====================
+-- 科室维度
+             MZ_KS AS (
+                 SELECT DISTINCT TRIM(MZKS) AS KSBM FROM M_BRFY WHERE MZKS IS NOT NULL
+                 UNION
+                 SELECT DISTINCT TRIM(KSBM) AS KSBM FROM INHOS_BRFY WHERE KSBM IS NOT NULL
+                 UNION
+                 SELECT DISTINCT TRIM(ZYKS) AS KSBM FROM INHOS_RYDJ WHERE ZYKS IS NOT NULL
+                 UNION
+                 SELECT DISTINCT TRIM(KSBM) AS KSBM FROM INHOSD_SSSQ WHERE KSBM IS NOT NULL
+             ),
+-- 当前周期：门诊费用（按科室）
+             MZ_CURRENT AS (
+                 SELECT TRIM(M.MZKS) AS KSBM, NVL(SUM(M.FYJE), 0) AS AMOUNT
+                 FROM M_BRFY M
+                 WHERE M.SFRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                 GROUP BY TRIM(M.MZKS)
+             ),
+-- 当前周期：住院费用（按科室）
+             ZY_CURRENT AS (
+                 SELECT TRIM(FY.KSBM) AS KSBM, NVL(SUM(FY.FYJE), 0) AS AMOUNT
+                 FROM INHOS_BRFY FY
+                 WHERE FY.SFRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                   AND FY.YXBZ = '1'
+                 GROUP BY TRIM(FY.KSBM)
+             ),
+-- 当前周期-门诊医务性收入（按科室）
+             MZ_CURRENT_YWXSR AS (
+                 SELECT TRIM(M.MZKS) AS KSBM,
+                        NVL(SUM(M.FYJE), 0) -
+                        NVL(SUM(CASE WHEN M.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM M_BRFY M
+                 WHERE M.SFRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                 GROUP BY TRIM(M.MZKS)
+             ),
+-- 当前周期-住院医务性收入（按科室）
+             ZY_CURRENT_YWXSR AS (
+                 SELECT TRIM(FY.KSBM) AS KSBM,
+                        NVL(SUM(FY.FYJE), 0) - NVL(SUM(CASE WHEN FY.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM INHOS_BRFY FY
+                 WHERE FY.SFRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                   AND FY.YXBZ = '1'
+                 GROUP BY TRIM(FY.KSBM)
+             ),
+-- 当前周期-门诊中医理疗费用（按科室）
+             MZ_CURRENT_ZYLL AS (
+                 SELECT TRIM(M.MZKS) AS KSBM,
+                        NVL(SUM(CASE WHEN M.Xlbm IN ('011') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM M_BRFY M
+                 WHERE M.SFRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                 GROUP BY TRIM(M.MZKS)
+             ),
+-- 当前周期-住院中医理疗费用（按科室）
+             ZY_CURRENT_ZYLL AS (
+                 SELECT TRIM(FY.KSBM) AS KSBM,
+                        NVL(SUM(CASE WHEN FY.Xlbm IN ('011') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM INHOS_BRFY FY
+                 WHERE FY.SFRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                   AND FY.YXBZ = '1'
+                 GROUP BY TRIM(FY.KSBM)
+             ),
+-- 当前周期-门诊检查检验费用（按科室）
+             MZ_CURRENT_JCJY AS (
+                 SELECT TRIM(M.MZKS) AS KSBM,
+                        NVL(SUM(CASE WHEN M.Xlbm IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM M_BRFY M
+                 WHERE M.SFRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                 GROUP BY TRIM(M.MZKS)
+             ),
+-- 当前周期-住院检查检验费用（按科室）
+             ZY_CURRENT_JCJY AS (
+                 SELECT TRIM(FY.KSBM) AS KSBM,
+                        NVL(SUM(CASE WHEN FY.Xlbm IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM INHOS_BRFY FY
+                 WHERE FY.SFRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                   AND FY.YXBZ = '1'
+                 GROUP BY TRIM(FY.KSBM)
+             ),
+-- 当前周期-门诊人次数（按科室）
+             MZ_CURRENT_RCS AS (
+                 SELECT TRIM(GH.GHKS) AS KSBM, COUNT(GH.GHXH) AS AMOUNT
+                 FROM GH_BRGH GH
+                 WHERE GH.GHRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                   AND GH.Sfjz='1' AND GH.Thbz='0'
+                 GROUP BY TRIM(GH.GHKS)
+             ),
+-- 当前周期-住院人次数（按科室，出院患者）
+             ZY_CURRENT_RCS AS (
+                 SELECT TRIM(RY.ZYKS) AS KSBM, COUNT(RY.ZYH) AS AMOUNT
+                 FROM INHOS_RYDJ RY
+                 WHERE RY.BQCYBZ='1' AND RY.BQCYRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                 GROUP BY TRIM(RY.ZYKS)
+             ),
+-- 当前周期-床位使用率（按科室）
+             ZY_CURRENT_BED AS (
+                 SELECT TRIM(RY.ZYKS) AS KSBM,
+                        SUM(
+                                CASE
+                                    WHEN RY.BQCYBZ = '1' AND RY.BQCYRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                                        THEN TRUNC(RY.BQCYRQ) - TRUNC(RY.RYRQ)
+                                    WHEN RY.RYRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE) AND RY.IFZF = '0' AND (RY.BQCYBZ = '0' OR RY.BQCYRQ > (SELECT END_DATE FROM DATERANGE))
+                                        THEN TRUNC((SELECT END_DATE FROM DATERANGE)) - TRUNC(RY.RYRQ)
+                                    ELSE 0
+                                    END
+                        ) AS AMOUNT
+                 FROM INHOS_RYDJ RY
+                 WHERE RY.IFZF = '0'
+                   AND (
+                     (RY.BQCYBZ = '1' AND RY.BQCYRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE))
+                         OR (RY.RYRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE))
+                     )
+                 GROUP BY TRIM(RY.ZYKS)
+             ),
+-- 当前周期-手术申请（按科室）
+             SS_CURRENT AS (
+                 SELECT TRIM(SSSQ.KSBM) AS KSBM, COUNT(SSSQ.Sssqdh) AS AMOUNT
+                 FROM INHOSD_SSSQ SSSQ
+                 WHERE SSSQ.Zxbz='1' AND SSSQ.Zxsj BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
+                 GROUP BY TRIM(SSSQ.KSBM)
+             ),
+-- 上周期数据（按科室）
+             MZ_PREVIOUS AS (
+                 SELECT TRIM(M.MZKS) AS KSBM, NVL(SUM(M.FYJE), 0) AS AMOUNT
+                 FROM M_BRFY M
+                 WHERE M.SFRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                 GROUP BY TRIM(M.MZKS)
+             ),
+             ZY_PREVIOUS AS (
+                 SELECT TRIM(FY.KSBM) AS KSBM, NVL(SUM(FY.FYJE), 0) AS AMOUNT
+                 FROM INHOS_BRFY FY
+                 WHERE FY.SFRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                   AND FY.YXBZ = '1'
+                 GROUP BY TRIM(FY.KSBM)
+             ),
+             MZ_PREVIOUS_YWXSR AS (
+                 SELECT TRIM(M.MZKS) AS KSBM,
+                        NVL(SUM(M.FYJE), 0) -
+                        NVL(SUM(CASE WHEN M.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM M_BRFY M
+                 WHERE M.SFRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                 GROUP BY TRIM(M.MZKS)
+             ),
+             ZY_PREVIOUS_YWXSR AS (
+                 SELECT TRIM(FY.KSBM) AS KSBM,
+                        NVL(SUM(FY.FYJE), 0) - NVL(SUM(CASE WHEN FY.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM INHOS_BRFY FY
+                 WHERE FY.SFRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                   AND FY.YXBZ = '1'
+                 GROUP BY TRIM(FY.KSBM)
+             ),
+             MZ_PREVIOUS_ZYLL AS (
+                 SELECT TRIM(M.MZKS) AS KSBM,
+                        NVL(SUM(CASE WHEN M.Xlbm IN ('011') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM M_BRFY M
+                 WHERE M.SFRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                 GROUP BY TRIM(M.MZKS)
+             ),
+             ZY_PREVIOUS_ZYLL AS (
+                 SELECT TRIM(FY.KSBM) AS KSBM,
+                        NVL(SUM(CASE WHEN FY.Xlbm IN ('011') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM INHOS_BRFY FY
+                 WHERE FY.SFRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                   AND FY.YXBZ = '1'
+                 GROUP BY TRIM(FY.KSBM)
+             ),
+             MZ_PREVIOUS_JCJY AS (
+                 SELECT TRIM(M.MZKS) AS KSBM,
+                        NVL(SUM(CASE WHEN M.Xlbm IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM M_BRFY M
+                 WHERE M.SFRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                 GROUP BY TRIM(M.MZKS)
+             ),
+             ZY_PREVIOUS_JCJY AS (
+                 SELECT TRIM(FY.KSBM) AS KSBM,
+                        NVL(SUM(CASE WHEN FY.Xlbm IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM INHOS_BRFY FY
+                 WHERE FY.SFRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                   AND FY.YXBZ = '1'
+                 GROUP BY TRIM(FY.KSBM)
+             ),
+             MZ_PREVIOUS_RCS AS (
+                 SELECT TRIM(GH.GHKS) AS KSBM, COUNT(GH.GHXH) AS AMOUNT
+                 FROM GH_BRGH GH
+                 WHERE GH.GHRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                   AND GH.Sfjz='1' AND GH.Thbz='0'
+                 GROUP BY TRIM(GH.GHKS)
+             ),
+             ZY_PREVIOUS_RCS AS (
+                 SELECT TRIM(RY.ZYKS) AS KSBM, COUNT(RY.ZYH) AS AMOUNT
+                 FROM INHOS_RYDJ RY
+                 WHERE RY.BQCYBZ='1' AND RY.BQCYRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                 GROUP BY TRIM(RY.ZYKS)
+             ),
+             ZY_PREVIOUS_BED AS (
+                 SELECT TRIM(RY.ZYKS) AS KSBM,
+                        SUM(
+                                CASE
+                                    WHEN RY.BQCYBZ = '1' AND RY.BQCYRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                                        THEN TRUNC(RY.BQCYRQ) - TRUNC(RY.RYRQ)
+                                    WHEN RY.RYRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO) AND RY.IFZF = '0' AND (RY.BQCYBZ = '0' OR RY.BQCYRQ > (SELECT PREV_END_DATE FROM DATEINFO))
+                                        THEN TRUNC((SELECT PREV_END_DATE FROM DATEINFO)) - TRUNC(RY.RYRQ)
+                                    ELSE 0
+                                    END
+                        ) AS AMOUNT
+                 FROM INHOS_RYDJ RY
+                 WHERE RY.IFZF = '0'
+                   AND (
+                     (RY.BQCYBZ = '1' AND RY.BQCYRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO))
+                         OR (RY.RYRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO))
+                     )
+                 GROUP BY TRIM(RY.ZYKS)
+             ),
+             SS_PREVIOUS AS (
+                 SELECT TRIM(SSSQ.KSBM) AS KSBM, COUNT(SSSQ.Sssqdh) AS AMOUNT
+                 FROM INHOSD_SSSQ SSSQ
+                 WHERE SSSQ.Zxbz='1' AND SSSQ.Zxsj BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
+                 GROUP BY TRIM(SSSQ.KSBM)
+             ),
+-- 去年同期数据（按科室）
+-- 门诊费用_去年同期
+             MZ_LASTYEAR AS (
+                 SELECT TRIM(M.MZKS) AS KSBM, NVL(SUM(M.FYJE), 0) AS AMOUNT
+                 FROM M_BRFY M
+                 WHERE M.SFRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                 GROUP BY TRIM(M.MZKS)
+             ),
+-- 住院费用_去年同期
+             ZY_LASTYEAR AS (
+                 SELECT TRIM(FY.KSBM) AS KSBM, NVL(SUM(FY.FYJE), 0) AS AMOUNT
+                 FROM INHOS_BRFY FY
+                 WHERE FY.SFRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                   AND FY.YXBZ = '1'
+                 GROUP BY TRIM(FY.KSBM)
+             ),
+-- 门诊医务性收入_去年同期
+             MZ_LASTYEAR_YWXSR AS (
+                 SELECT TRIM(M.MZKS) AS KSBM,
+                        NVL(SUM(M.FYJE), 0) -
+                        NVL(SUM(CASE WHEN M.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM M_BRFY M
+                 WHERE M.SFRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                 GROUP BY TRIM(M.MZKS)
+             ),
+-- 住院医务性收入_去年同期
+             ZY_LASTYEAR_YWXSR AS (
+                 SELECT TRIM(FY.KSBM) AS KSBM,
+                        NVL(SUM(FY.FYJE), 0) - NVL(SUM(CASE WHEN FY.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM INHOS_BRFY FY
+                 WHERE FY.SFRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                   AND FY.YXBZ = '1'
+                 GROUP BY TRIM(FY.KSBM)
+             ),
+-- 门诊中医理疗_去年同期
+             MZ_LASTYEAR_ZYLL AS (
+                 SELECT TRIM(M.MZKS) AS KSBM,
+                        NVL(SUM(CASE WHEN M.Xlbm IN ('011') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM M_BRFY M
+                 WHERE M.SFRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                 GROUP BY TRIM(M.MZKS)
+             ),
+-- 住院中医理疗_去年同期
+             ZY_LASTYEAR_ZYLL AS (
+                 SELECT TRIM(FY.KSBM) AS KSBM,
+                        NVL(SUM(CASE WHEN FY.Xlbm IN ('011') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM INHOS_BRFY FY
+                 WHERE FY.SFRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                   AND FY.YXBZ = '1'
+                 GROUP BY TRIM(FY.KSBM)
+             ),
+-- 门诊检查检验_去年同期
+             MZ_LASTYEAR_JCJY AS (
+                 SELECT TRIM(M.MZKS) AS KSBM,
+                        NVL(SUM(CASE WHEN M.Xlbm IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM M_BRFY M
+                 WHERE M.SFRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                 GROUP BY TRIM(M.MZKS)
+             ),
+-- 住院检查检验_去年同期
+             ZY_LASTYEAR_JCJY AS (
+                 SELECT TRIM(FY.KSBM) AS KSBM,
+                        NVL(SUM(CASE WHEN FY.Xlbm IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
+                 FROM INHOS_BRFY FY
+                 WHERE FY.SFRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                   AND FY.YXBZ = '1'
+                 GROUP BY TRIM(FY.KSBM)
+             ),
+-- 门诊人次_去年同期
+             MZ_LASTYEAR_RCS AS (
+                 SELECT TRIM(GH.GHKS) AS KSBM, COUNT(GH.GHXH) AS AMOUNT
+                 FROM GH_BRGH GH
+                 WHERE GH.GHRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                   AND GH.Sfjz='1' AND GH.Thbz='0'
+                 GROUP BY TRIM(GH.GHKS)
+             ),
+-- 住院人次_去年同期
+             ZY_LASTYEAR_RCS AS (
+                 SELECT TRIM(RY.ZYKS) AS KSBM, COUNT(RY.ZYH) AS AMOUNT
+                 FROM INHOS_RYDJ RY
+                 WHERE RY.BQCYBZ='1' AND RY.BQCYRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                 GROUP BY TRIM(RY.ZYKS)
+             ),
+-- 床位使用率_去年同期
+             ZY_LASTYEAR_BED AS (
+                 SELECT TRIM(RY.ZYKS) AS KSBM,
+                        SUM(
+                                CASE
+                                    WHEN RY.BQCYBZ = '1' AND RY.BQCYRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                                        THEN TRUNC(RY.BQCYRQ) - TRUNC(RY.RYRQ)
+                                    WHEN RY.RYRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO) AND RY.IFZF = '0' AND (RY.BQCYBZ = '0' OR RY.BQCYRQ > (SELECT LAST_YEAR_END_DATE FROM DATEINFO))
+                                        THEN TRUNC((SELECT LAST_YEAR_END_DATE FROM DATEINFO)) - TRUNC(RY.RYRQ)
+                                    ELSE 0
+                                    END
+                        ) AS AMOUNT
+                 FROM INHOS_RYDJ RY
+                 WHERE RY.IFZF = '0'
+                   AND (
+                     (RY.BQCYBZ = '1' AND RY.BQCYRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO))
+                         OR (RY.RYRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO))
+                     )
+                 GROUP BY TRIM(RY.ZYKS)
+             ),
+-- 手术申请_去年同期
+             SS_LASTYEAR AS (
+                 SELECT TRIM(SSSQ.KSBM) AS KSBM, COUNT(SSSQ.Sssqdh) AS AMOUNT
+                 FROM INHOSD_SSSQ SSSQ
+                 WHERE SSSQ.Zxbz='1' AND SSSQ.Zxsj BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
+                 GROUP BY TRIM(SSSQ.KSBM)
+             ),
+-- 按科室汇总
+             KS_AGG AS (
+                 SELECT
+                     NVL(KS.KSBM, '未归类') AS KSBM,
+                     NVL(C_MZ.AMOUNT, 0) AS MZ_CURRENT_AMOUNT,
+                     NVL(C_ZY.AMOUNT, 0) AS ZY_CURRENT_AMOUNT,
+                     NVL(C_MZ_YWXSR.AMOUNT, 0) AS MZ_CURRENT_YWXSR,
+                     NVL(C_ZY_YWXSR.AMOUNT, 0) AS ZY_CURRENT_YWXSR,
+                     NVL(C_MZ_ZYLL.AMOUNT, 0) AS MZ_CURRENT_ZYLL,
+                     NVL(C_ZY_ZYLL.AMOUNT, 0) AS ZY_CURRENT_ZYLL,
+                     NVL(C_MZ_JCJY.AMOUNT, 0) AS MZ_CURRENT_JCJY,
+                     NVL(C_ZY_JCJY.AMOUNT, 0) AS ZY_CURRENT_JCJY,
+                     NVL(C_MZ_RCS.AMOUNT, 0) AS MZ_CURRENT_RCS,
+                     NVL(C_ZY_RCS.AMOUNT, 0) AS ZY_CURRENT_RCS,
+                     NVL(C_BED.AMOUNT, 0) AS ZY_CURRENT_BED,
+                     NVL(C_SS.AMOUNT, 0) AS SS_CURRENT_AMOUNT,
+                     NVL(P_MZ.AMOUNT, 0) AS MZ_PREVIOUS_AMOUNT,
+                     NVL(P_ZY.AMOUNT, 0) AS ZY_PREVIOUS_AMOUNT,
+                     NVL(P_MZ_YWXSR.AMOUNT, 0) AS MZ_PREVIOUS_YWXSR,
+                     NVL(P_ZY_YWXSR.AMOUNT, 0) AS ZY_PREVIOUS_YWXSR,
+                     NVL(P_MZ_ZYLL.AMOUNT, 0) AS MZ_PREVIOUS_ZYLL,
+                     NVL(P_ZY_ZYLL.AMOUNT, 0) AS ZY_PREVIOUS_ZYLL,
+                     NVL(P_MZ_JCJY.AMOUNT, 0) AS MZ_PREVIOUS_JCJY,
+                     NVL(P_ZY_JCJY.AMOUNT, 0) AS ZY_PREVIOUS_JCJY,
+                     NVL(P_MZ_RCS.AMOUNT, 0) AS MZ_PREVIOUS_RCS,
+                     NVL(P_ZY_RCS.AMOUNT, 0) AS ZY_PREVIOUS_RCS,
+                     NVL(P_BED.AMOUNT, 0) AS ZY_PREVIOUS_BED,
+                     NVL(P_SS.AMOUNT, 0) AS SS_PREVIOUS_AMOUNT,
+                     -- 去年同期
+                     NVL(LY_MZ.AMOUNT, 0) AS MZ_LASTYEAR_AMOUNT,
+                     NVL(LY_ZY.AMOUNT, 0) AS ZY_LASTYEAR_AMOUNT,
+                     NVL(LY_MZ_YWXSR.AMOUNT, 0) AS MZ_LASTYEAR_YWXSR,
+                     NVL(LY_ZY_YWXSR.AMOUNT, 0) AS ZY_LASTYEAR_YWXSR,
+                     NVL(LY_MZ_ZYLL.AMOUNT, 0) AS MZ_LASTYEAR_ZYLL,
+                     NVL(LY_ZY_ZYLL.AMOUNT, 0) AS ZY_LASTYEAR_ZYLL,
+                     NVL(LY_MZ_JCJY.AMOUNT, 0) AS MZ_LASTYEAR_JCJY,
+                     NVL(LY_ZY_JCJY.AMOUNT, 0) AS ZY_LASTYEAR_JCJY,
+                     NVL(LY_MZ_RCS.AMOUNT, 0) AS MZ_LASTYEAR_RCS,
+                     NVL(LY_ZY_RCS.AMOUNT, 0) AS ZY_LASTYEAR_RCS,
+                     NVL(LY_BED.AMOUNT, 0) AS ZY_LASTYEAR_BED,
+                     NVL(LY_SS.AMOUNT, 0) AS SS_LASTYEAR_AMOUNT
+                 FROM MZ_KS KS
+                          LEFT JOIN MZ_CURRENT C_MZ ON KS.KSBM = C_MZ.KSBM
+                          LEFT JOIN ZY_CURRENT C_ZY ON KS.KSBM = C_ZY.KSBM
+                          LEFT JOIN MZ_CURRENT_YWXSR C_MZ_YWXSR ON KS.KSBM = C_MZ_YWXSR.KSBM
+                          LEFT JOIN ZY_CURRENT_YWXSR C_ZY_YWXSR ON KS.KSBM = C_ZY_YWXSR.KSBM
+                          LEFT JOIN MZ_CURRENT_ZYLL C_MZ_ZYLL ON KS.KSBM = C_MZ_ZYLL.KSBM
+                          LEFT JOIN ZY_CURRENT_ZYLL C_ZY_ZYLL ON KS.KSBM = C_ZY_ZYLL.KSBM
+                          LEFT JOIN MZ_CURRENT_JCJY C_MZ_JCJY ON KS.KSBM = C_MZ_JCJY.KSBM
+                          LEFT JOIN ZY_CURRENT_JCJY C_ZY_JCJY ON KS.KSBM = C_ZY_JCJY.KSBM
+                          LEFT JOIN MZ_CURRENT_RCS C_MZ_RCS ON KS.KSBM = C_MZ_RCS.KSBM
+                          LEFT JOIN ZY_CURRENT_RCS C_ZY_RCS ON KS.KSBM = C_ZY_RCS.KSBM
+                          LEFT JOIN ZY_CURRENT_BED C_BED ON KS.KSBM = C_BED.KSBM
+                          LEFT JOIN SS_CURRENT C_SS ON KS.KSBM = C_SS.KSBM
+                          LEFT JOIN MZ_PREVIOUS P_MZ ON KS.KSBM = P_MZ.KSBM
+                          LEFT JOIN ZY_PREVIOUS P_ZY ON KS.KSBM = P_ZY.KSBM
+                          LEFT JOIN MZ_PREVIOUS_YWXSR P_MZ_YWXSR ON KS.KSBM = P_MZ_YWXSR.KSBM
+                          LEFT JOIN ZY_PREVIOUS_YWXSR P_ZY_YWXSR ON KS.KSBM = P_ZY_YWXSR.KSBM
+                          LEFT JOIN MZ_PREVIOUS_ZYLL P_MZ_ZYLL ON KS.KSBM = P_MZ_ZYLL.KSBM
+                          LEFT JOIN ZY_PREVIOUS_ZYLL P_ZY_ZYLL ON KS.KSBM = P_ZY_ZYLL.KSBM
+                          LEFT JOIN MZ_PREVIOUS_JCJY P_MZ_JCJY ON KS.KSBM = P_MZ_JCJY.KSBM
+                          LEFT JOIN ZY_PREVIOUS_JCJY P_ZY_JCJY ON KS.KSBM = P_ZY_JCJY.KSBM
+                          LEFT JOIN MZ_PREVIOUS_RCS P_MZ_RCS ON KS.KSBM = P_MZ_RCS.KSBM
+                          LEFT JOIN ZY_PREVIOUS_RCS P_ZY_RCS ON KS.KSBM = P_ZY_RCS.KSBM
+                          LEFT JOIN ZY_PREVIOUS_BED P_BED ON KS.KSBM = P_BED.KSBM
+                          LEFT JOIN SS_PREVIOUS P_SS ON KS.KSBM = P_SS.KSBM
+                          LEFT JOIN MZ_LASTYEAR LY_MZ ON KS.KSBM = LY_MZ.KSBM
+                          LEFT JOIN ZY_LASTYEAR LY_ZY ON KS.KSBM = LY_ZY.KSBM
+                          LEFT JOIN MZ_LASTYEAR_YWXSR LY_MZ_YWXSR ON KS.KSBM = LY_MZ_YWXSR.KSBM
+                          LEFT JOIN ZY_LASTYEAR_YWXSR LY_ZY_YWXSR ON KS.KSBM = LY_ZY_YWXSR.KSBM
+                          LEFT JOIN MZ_LASTYEAR_ZYLL LY_MZ_ZYLL ON KS.KSBM = LY_MZ_ZYLL.KSBM
+                          LEFT JOIN ZY_LASTYEAR_ZYLL LY_ZY_ZYLL ON KS.KSBM = LY_ZY_ZYLL.KSBM
+                          LEFT JOIN MZ_LASTYEAR_JCJY LY_MZ_JCJY ON KS.KSBM = LY_MZ_JCJY.KSBM
+                          LEFT JOIN ZY_LASTYEAR_JCJY LY_ZY_JCJY ON KS.KSBM = LY_ZY_JCJY.KSBM
+                          LEFT JOIN MZ_LASTYEAR_RCS LY_MZ_RCS ON KS.KSBM = LY_MZ_RCS.KSBM
+                          LEFT JOIN ZY_LASTYEAR_RCS LY_ZY_RCS ON KS.KSBM = LY_ZY_RCS.KSBM
+                          LEFT JOIN ZY_LASTYEAR_BED LY_BED ON KS.KSBM = LY_BED.KSBM
+                          LEFT JOIN SS_LASTYEAR LY_SS ON KS.KSBM = LY_SS.KSBM
+             ),
+-- 计算各科室指标
+             KS_RESULTDATA AS (
+                 SELECT
+                     KSBM,
+                     -- 当前/上期/去年同期 总费用
+                     (MZ_CURRENT_AMOUNT + ZY_CURRENT_AMOUNT) AS CURRENTALLAMOUNT,
+                     (MZ_PREVIOUS_AMOUNT + ZY_PREVIOUS_AMOUNT) AS PREVIOUSALLAMOUNT,
+                     (MZ_LASTYEAR_AMOUNT + ZY_LASTYEAR_AMOUNT) AS LASTYEARALLAMOUNT,
+                     -- 环比
+                     (CASE WHEN (MZ_PREVIOUS_AMOUNT + ZY_PREVIOUS_AMOUNT) = 0 THEN NULL
+                           ELSE NVL(TO_CHAR(ROUND(((MZ_CURRENT_AMOUNT + ZY_CURRENT_AMOUNT) - (MZ_PREVIOUS_AMOUNT + ZY_PREVIOUS_AMOUNT)) / (MZ_PREVIOUS_AMOUNT + ZY_PREVIOUS_AMOUNT) * 100, 2), 'FM9999999990.00'),'0.00') || '%'
+                         END) AS ALLQUARTERRATE,
+                     -- 同比
+                     (CASE WHEN (MZ_LASTYEAR_AMOUNT + ZY_LASTYEAR_AMOUNT) = 0 THEN NULL
+                           ELSE NVL(TO_CHAR(ROUND(((MZ_CURRENT_AMOUNT + ZY_CURRENT_AMOUNT) - (MZ_LASTYEAR_AMOUNT + ZY_LASTYEAR_AMOUNT)) / (MZ_LASTYEAR_AMOUNT + ZY_LASTYEAR_AMOUNT) * 100, 2), 'FM9999999990.00'),'0.00') || '%'
+                         END) AS ALLYOYRATE,
+                     -- 当前医务性收入占比
+                     (NVL(TO_CHAR(ROUND((MZ_CURRENT_YWXSR + ZY_CURRENT_YWXSR) / NULLIF(MZ_CURRENT_AMOUNT + ZY_CURRENT_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS CURRENTYWXSRPERSENT,
+                     (NVL(TO_CHAR(ROUND((MZ_PREVIOUS_YWXSR + ZY_PREVIOUS_YWXSR) / NULLIF(MZ_PREVIOUS_AMOUNT + ZY_PREVIOUS_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS PREVIOUSYWXSRPERSENT,
+                     (NVL(TO_CHAR(ROUND((MZ_LASTYEAR_YWXSR + ZY_LASTYEAR_YWXSR) / NULLIF(MZ_LASTYEAR_AMOUNT + ZY_LASTYEAR_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS LASTYEARYWXSRPERSENT,
+                     (NVL(TO_CHAR(ROUND(
+                                          ((ROUND((MZ_CURRENT_YWXSR + ZY_CURRENT_YWXSR) / NULLIF(MZ_CURRENT_AMOUNT + ZY_CURRENT_AMOUNT, 0) * 100, 2))
+                                              - (ROUND((MZ_PREVIOUS_YWXSR + ZY_PREVIOUS_YWXSR) / NULLIF(MZ_PREVIOUS_AMOUNT + ZY_PREVIOUS_AMOUNT, 0) * 100, 2)))
+                                              / NULLIF(ROUND((MZ_PREVIOUS_YWXSR + ZY_PREVIOUS_YWXSR) / NULLIF(MZ_PREVIOUS_AMOUNT + ZY_PREVIOUS_AMOUNT, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS YWXSRQUARTERRATE,
+                     -- 医务性收入占比同比
+                     (NVL(TO_CHAR(ROUND(
+                                          ((ROUND((MZ_CURRENT_YWXSR + ZY_CURRENT_YWXSR) / NULLIF(MZ_CURRENT_AMOUNT + ZY_CURRENT_AMOUNT, 0) * 100, 2))
+                                              - (ROUND((MZ_LASTYEAR_YWXSR + ZY_LASTYEAR_YWXSR) / NULLIF(MZ_LASTYEAR_AMOUNT + ZY_LASTYEAR_AMOUNT, 0) * 100, 2)))
+                                              / NULLIF(ROUND((MZ_LASTYEAR_YWXSR + ZY_LASTYEAR_YWXSR) / NULLIF(MZ_LASTYEAR_AMOUNT + ZY_LASTYEAR_AMOUNT, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS YWXSRYOYRATE,
+                     -- 中医理疗
+                     (NVL(TO_CHAR(ROUND((MZ_CURRENT_ZYLL + ZY_CURRENT_ZYLL) / NULLIF(MZ_CURRENT_AMOUNT + ZY_CURRENT_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS CURRENTZYLLPERSENT,
+                     (NVL(TO_CHAR(ROUND((MZ_PREVIOUS_ZYLL + ZY_PREVIOUS_ZYLL) / NULLIF(MZ_PREVIOUS_AMOUNT + ZY_PREVIOUS_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS PREVIOUSZYLLPERSENT,
+                     (NVL(TO_CHAR(ROUND((MZ_LASTYEAR_ZYLL + ZY_LASTYEAR_ZYLL) / NULLIF(MZ_LASTYEAR_AMOUNT + ZY_LASTYEAR_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS LASTYEARZYLLPERSENT,
+                     (NVL(TO_CHAR(ROUND(
+                                          ((ROUND((MZ_CURRENT_ZYLL + ZY_CURRENT_ZYLL) / NULLIF(MZ_CURRENT_AMOUNT + ZY_CURRENT_AMOUNT, 0) * 100, 2))
+                                              - (ROUND((MZ_PREVIOUS_ZYLL + ZY_PREVIOUS_ZYLL) / NULLIF(MZ_PREVIOUS_AMOUNT + ZY_PREVIOUS_AMOUNT, 0) * 100, 2)))
+                                              / NULLIF(ROUND((MZ_PREVIOUS_ZYLL + ZY_PREVIOUS_ZYLL) / NULLIF(MZ_PREVIOUS_AMOUNT + ZY_PREVIOUS_AMOUNT, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS ZYLLQUARTERRATE,
+                     (NVL(TO_CHAR(ROUND(
+                                          ((ROUND((MZ_CURRENT_ZYLL + ZY_CURRENT_ZYLL) / NULLIF(MZ_CURRENT_AMOUNT + ZY_CURRENT_AMOUNT, 0) * 100, 2))
+                                              - (ROUND((MZ_LASTYEAR_ZYLL + ZY_LASTYEAR_ZYLL) / NULLIF(MZ_LASTYEAR_AMOUNT + ZY_LASTYEAR_AMOUNT, 0) * 100, 2)))
+                                              / NULLIF(ROUND((MZ_LASTYEAR_ZYLL + ZY_LASTYEAR_ZYLL) / NULLIF(MZ_LASTYEAR_AMOUNT + ZY_LASTYEAR_AMOUNT, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS ZYLLYOYRATE,
+                     -- 检查检验
+                     (NVL(TO_CHAR(ROUND((MZ_CURRENT_JCJY + ZY_CURRENT_JCJY) / NULLIF(MZ_CURRENT_AMOUNT + ZY_CURRENT_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS CURRENTJCJYPERSENT,
+                     (NVL(TO_CHAR(ROUND((MZ_PREVIOUS_JCJY + ZY_PREVIOUS_JCJY) / NULLIF(MZ_PREVIOUS_AMOUNT + ZY_PREVIOUS_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS PREVIOUSJCJYPERSENT,
+                     (NVL(TO_CHAR(ROUND((MZ_LASTYEAR_JCJY + ZY_LASTYEAR_JCJY) / NULLIF(MZ_LASTYEAR_AMOUNT + ZY_LASTYEAR_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS LASTYEARJCJYPERSENT,
+                     (NVL(TO_CHAR(ROUND(
+                                          ((ROUND((MZ_CURRENT_JCJY + ZY_CURRENT_JCJY) / NULLIF(MZ_CURRENT_AMOUNT + ZY_CURRENT_AMOUNT, 0) * 100, 2))
+                                              - (ROUND((MZ_PREVIOUS_JCJY + ZY_PREVIOUS_JCJY) / NULLIF(MZ_PREVIOUS_AMOUNT + ZY_PREVIOUS_AMOUNT, 0) * 100, 2)))
+                                              / NULLIF(ROUND((MZ_PREVIOUS_JCJY + ZY_PREVIOUS_JCJY) / NULLIF(MZ_PREVIOUS_AMOUNT + ZY_PREVIOUS_AMOUNT, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS JCJYQUARTERRATE,
+                     (NVL(TO_CHAR(ROUND(
+                                          ((ROUND((MZ_CURRENT_JCJY + ZY_CURRENT_JCJY) / NULLIF(MZ_CURRENT_AMOUNT + ZY_CURRENT_AMOUNT, 0) * 100, 2))
+                                              - (ROUND((MZ_LASTYEAR_JCJY + ZY_LASTYEAR_JCJY) / NULLIF(MZ_LASTYEAR_AMOUNT + ZY_LASTYEAR_AMOUNT, 0) * 100, 2)))
+                                              / NULLIF(ROUND((MZ_LASTYEAR_JCJY + ZY_LASTYEAR_JCJY) / NULLIF(MZ_LASTYEAR_AMOUNT + ZY_LASTYEAR_AMOUNT, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS JCJYYOYRATE,
+                     -- 门诊人次
+                     MZ_CURRENT_RCS AS CURRENTMZRCS,
+                     MZ_PREVIOUS_RCS AS PREVIOUSMZRCS,
+                     MZ_LASTYEAR_RCS AS LASTYEARMZRCS,
+                     (NVL(TO_CHAR(ROUND((MZ_CURRENT_RCS - MZ_PREVIOUS_RCS) / NULLIF(MZ_PREVIOUS_RCS, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS MZRCSQUARTERRATE,
+                     (NVL(TO_CHAR(ROUND((MZ_CURRENT_RCS - MZ_LASTYEAR_RCS) / NULLIF(MZ_LASTYEAR_RCS, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS MZRCSYOYRATE,
+                     -- 门诊收入
+                     MZ_CURRENT_AMOUNT AS CURRENTMZAMOUNT,
+                     MZ_PREVIOUS_AMOUNT AS PREVIOUSMZAMOUNT,
+                     MZ_LASTYEAR_AMOUNT AS LASTYEARMZAMOUNT,
+                     (NVL(TO_CHAR(ROUND((MZ_CURRENT_AMOUNT - MZ_PREVIOUS_AMOUNT) / NULLIF(MZ_PREVIOUS_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS MZSRQUARTERRATE,
+                     (NVL(TO_CHAR(ROUND((MZ_CURRENT_AMOUNT - MZ_LASTYEAR_AMOUNT) / NULLIF(MZ_LASTYEAR_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS MZSRYOYRATE,
+                     -- 门诊次均
+                     ROUND(MZ_CURRENT_AMOUNT / NULLIF(MZ_CURRENT_RCS, 0), 2) AS CURRENTMZCJ,
+                     ROUND(MZ_PREVIOUS_AMOUNT / NULLIF(MZ_PREVIOUS_RCS, 0), 2) AS PREVIOUSMZCJ,
+                     ROUND(MZ_LASTYEAR_AMOUNT / NULLIF(MZ_LASTYEAR_RCS, 0), 2) AS LASTYEARMZCJ,
+                     (NVL(TO_CHAR(ROUND(
+                                          (ROUND(MZ_CURRENT_AMOUNT / NULLIF(MZ_CURRENT_RCS, 0), 2) - ROUND(MZ_PREVIOUS_AMOUNT / NULLIF(MZ_PREVIOUS_RCS, 0), 2))
+                                              / NULLIF(ROUND(MZ_PREVIOUS_AMOUNT / NULLIF(MZ_PREVIOUS_RCS, 0), 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS MZCJQUARTERRATE,
+                     (NVL(TO_CHAR(ROUND(
+                                          (ROUND(MZ_CURRENT_AMOUNT / NULLIF(MZ_CURRENT_RCS, 0), 2) - ROUND(MZ_LASTYEAR_AMOUNT / NULLIF(MZ_LASTYEAR_RCS, 0), 2))
+                                              / NULLIF(ROUND(MZ_LASTYEAR_AMOUNT / NULLIF(MZ_LASTYEAR_RCS, 0), 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS MZCJYOYRATE,
+                     -- 出院人次
+                     ZY_CURRENT_RCS AS CURRENTCYRCS,
+                     ZY_PREVIOUS_RCS AS PREVIOUSCYRCS,
+                     ZY_LASTYEAR_RCS AS LASTYEARCYRCS,
+                     (NVL(TO_CHAR(ROUND((ZY_CURRENT_RCS - ZY_PREVIOUS_RCS) / NULLIF(ZY_PREVIOUS_RCS, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS CYRCSQUARTERRATE,
+                     (NVL(TO_CHAR(ROUND((ZY_CURRENT_RCS - ZY_LASTYEAR_RCS) / NULLIF(ZY_LASTYEAR_RCS, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS CYRCSYOYRATE,
+                     -- 住院收入
+                     ZY_CURRENT_AMOUNT AS CURRENTZYAMOUNT,
+                     ZY_PREVIOUS_AMOUNT AS PREVIOUSZYAMOUNT,
+                     ZY_LASTYEAR_AMOUNT AS LASTYEARZYAMOUNT,
+                     (NVL(TO_CHAR(ROUND((ZY_CURRENT_AMOUNT - ZY_PREVIOUS_AMOUNT) / NULLIF(ZY_PREVIOUS_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS ZYSRQUARTERRATE,
+                     (NVL(TO_CHAR(ROUND((ZY_CURRENT_AMOUNT - ZY_LASTYEAR_AMOUNT) / NULLIF(ZY_LASTYEAR_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS ZYSRYOYRATE,
+                     -- 住院次均
+                     ROUND(ZY_CURRENT_AMOUNT / NULLIF(ZY_CURRENT_RCS, 0), 2) AS CURRENTZYCJ,
+                     ROUND(ZY_PREVIOUS_AMOUNT / NULLIF(ZY_PREVIOUS_RCS, 0), 2) AS PREVIOUSZYCJ,
+                     ROUND(ZY_LASTYEAR_AMOUNT / NULLIF(ZY_LASTYEAR_RCS, 0), 2) AS LASTYEARZYCJ,
+                     (NVL(TO_CHAR(ROUND(
+                                          (ROUND(ZY_CURRENT_AMOUNT / NULLIF(ZY_CURRENT_RCS, 0), 2) - ROUND(ZY_PREVIOUS_AMOUNT / NULLIF(ZY_PREVIOUS_RCS, 0), 2))
+                                              / NULLIF(ROUND(ZY_PREVIOUS_AMOUNT / NULLIF(ZY_PREVIOUS_RCS, 0), 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS ZYCJQUARTERRATE,
+                     (NVL(TO_CHAR(ROUND(
+                                          (ROUND(ZY_CURRENT_AMOUNT / NULLIF(ZY_CURRENT_RCS, 0), 2) - ROUND(ZY_LASTYEAR_AMOUNT / NULLIF(ZY_LASTYEAR_RCS, 0), 2))
+                                              / NULLIF(ROUND(ZY_LASTYEAR_AMOUNT / NULLIF(ZY_LASTYEAR_RCS, 0), 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS ZYCJYOYRATE,
+                     -- 床位使用率
+                     (NVL(TO_CHAR(ROUND(ZY_CURRENT_BED / NULLIF((SELECT DAYS FROM DATEINFO) * 416, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS CURRENTBEDRATE,
+                     (NVL(TO_CHAR(ROUND(ZY_PREVIOUS_BED / NULLIF((SELECT DAYS FROM DATEINFO) * 416, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS PREVIOUSBEDRATE,
+                     (NVL(TO_CHAR(ROUND(ZY_LASTYEAR_BED / NULLIF((SELECT DAYS FROM DATEINFO) * 416, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS LASTYEARBEDRATE,
+                     (NVL(TO_CHAR(ROUND(
+                                          (ROUND(ZY_CURRENT_BED / NULLIF((SELECT DAYS FROM DATEINFO) * 416, 0) * 100, 2) - ROUND(ZY_PREVIOUS_BED / NULLIF((SELECT DAYS FROM DATEINFO) * 416, 0) * 100, 2))
+                                              / NULLIF(ROUND(ZY_PREVIOUS_BED / NULLIF((SELECT DAYS FROM DATEINFO) * 416, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS BEDQUARTERRATE,
+                     (NVL(TO_CHAR(ROUND(
+                                          (ROUND(ZY_CURRENT_BED / NULLIF((SELECT DAYS FROM DATEINFO) * 416, 0) * 100, 2) - ROUND(ZY_LASTYEAR_BED / NULLIF((SELECT DAYS FROM DATEINFO) * 416, 0) * 100, 2))
+                                              / NULLIF(ROUND(ZY_LASTYEAR_BED / NULLIF((SELECT DAYS FROM DATEINFO) * 416, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS BEDYOYRATE,
+                     -- 手术申请
+                     SS_CURRENT_AMOUNT AS CURRENTSS,
+                     SS_PREVIOUS_AMOUNT AS PREVIOUSSS,
+                     SS_LASTYEAR_AMOUNT AS LASTYEARSS,
+                     (NVL(TO_CHAR(ROUND((SS_CURRENT_AMOUNT - SS_PREVIOUS_AMOUNT) / NULLIF(SS_PREVIOUS_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS SSQUARTERRATE,
+                     (NVL(TO_CHAR(ROUND((SS_CURRENT_AMOUNT - SS_LASTYEAR_AMOUNT) / NULLIF(SS_LASTYEAR_AMOUNT, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%') AS SSYOYRATE
+                 FROM KS_AGG
+             ),
+-- ==================== 合并总院和各科室数据 ====================
+             UNION_DATA AS (
+                 -- 总院数据
+                 SELECT
+                     '总院' AS DEPARTMENT,
+                     MZ_CUR_TOTAL + ZY_CUR_TOTAL AS CURRENTALLAMOUNT,
+                     MZ_PREV_TOTAL + ZY_PREV_TOTAL AS PREVIOUSALLAMOUNT,
+                     MZ_LASTYEAR_TOTAL + ZY_LASTYEAR_TOTAL AS LASTYEARALLAMOUNT,
+                     NVL(TO_CHAR(ROUND((MZ_CUR_TOTAL + ZY_CUR_TOTAL - MZ_PREV_TOTAL - ZY_PREV_TOTAL) / NULLIF(MZ_PREV_TOTAL + ZY_PREV_TOTAL, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS ALLQUARTERRATE,
+                     NVL(TO_CHAR(ROUND((MZ_CUR_TOTAL + ZY_CUR_TOTAL - MZ_LASTYEAR_TOTAL - ZY_LASTYEAR_TOTAL) / NULLIF(MZ_LASTYEAR_TOTAL + ZY_LASTYEAR_TOTAL, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS ALLYOYRATE,
+                     ROUND((MZ_CUR_YWXSR + ZY_CUR_YWXSR) / NULLIF(MZ_CUR_TOTAL + ZY_CUR_TOTAL, 0) * 100, 2) || '%' AS CURRENTYWXSRPERSENT,
+                     ROUND((MZ_PREV_YWXSR + ZY_PREV_YWXSR) / NULLIF(MZ_PREV_TOTAL + ZY_PREV_TOTAL, 0) * 100, 2) || '%' AS PREVIOUSYWXSRPERSENT,
+                     ROUND((MZ_LASTYEAR_YWXSR + ZY_LASTYEAR_YWXSR) / NULLIF(MZ_LASTYEAR_TOTAL + ZY_LASTYEAR_TOTAL, 0) * 100, 2) || '%' AS LASTYEARYWXSRPERSENT,
+                     NVL(TO_CHAR(ROUND((ROUND((MZ_CUR_YWXSR + ZY_CUR_YWXSR) / NULLIF(MZ_CUR_TOTAL + ZY_CUR_TOTAL, 0) * 100, 2) - ROUND((MZ_PREV_YWXSR + ZY_PREV_YWXSR) / NULLIF(MZ_PREV_TOTAL + ZY_PREV_TOTAL, 0) * 100, 2)) / NULLIF(ROUND((MZ_PREV_YWXSR + ZY_PREV_YWXSR) / NULLIF(MZ_PREV_TOTAL + ZY_PREV_TOTAL, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS YWXSRQUARTERRATE,
+                     NVL(TO_CHAR(ROUND((ROUND((MZ_CUR_YWXSR + ZY_CUR_YWXSR) / NULLIF(MZ_CUR_TOTAL + ZY_CUR_TOTAL, 0) * 100, 2) - ROUND((MZ_LASTYEAR_YWXSR + ZY_LASTYEAR_YWXSR) / NULLIF(MZ_LASTYEAR_TOTAL + ZY_LASTYEAR_TOTAL, 0) * 100, 2)) / NULLIF(ROUND((MZ_LASTYEAR_YWXSR + ZY_LASTYEAR_YWXSR) / NULLIF(MZ_LASTYEAR_TOTAL + ZY_LASTYEAR_TOTAL, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS YWXSRYOYRATE,
+                     ROUND((MZ_CUR_ZYLL + ZY_CUR_ZYLL) / NULLIF(MZ_CUR_TOTAL + ZY_CUR_TOTAL, 0) * 100, 2) || '%' AS CURRENTZYLLPERSENT,
+                     ROUND((MZ_PREV_ZYLL + ZY_PREV_ZYLL) / NULLIF(MZ_PREV_TOTAL + ZY_PREV_TOTAL, 0) * 100, 2) || '%' AS PREVIOUSZYLLPERSENT,
+                     ROUND((MZ_LASTYEAR_ZYLL + ZY_LASTYEAR_ZYLL) / NULLIF(MZ_LASTYEAR_TOTAL + ZY_LASTYEAR_TOTAL, 0) * 100, 2) || '%' AS LASTYEARZYLLPERSENT,
+                     NVL(TO_CHAR(ROUND((ROUND((MZ_CUR_ZYLL + ZY_CUR_ZYLL) / NULLIF(MZ_CUR_TOTAL + ZY_CUR_TOTAL, 0) * 100, 2) - ROUND((MZ_PREV_ZYLL + ZY_PREV_ZYLL) / NULLIF(MZ_PREV_TOTAL + ZY_PREV_TOTAL, 0) * 100, 2)) / NULLIF(ROUND((MZ_PREV_ZYLL + ZY_PREV_ZYLL) / NULLIF(MZ_PREV_TOTAL + ZY_PREV_TOTAL, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS ZYLLQUARTERRATE,
+                     NVL(TO_CHAR(ROUND((ROUND((MZ_CUR_ZYLL + ZY_CUR_ZYLL) / NULLIF(MZ_CUR_TOTAL + ZY_CUR_TOTAL, 0) * 100, 2) - ROUND((MZ_LASTYEAR_ZYLL + ZY_LASTYEAR_ZYLL) / NULLIF(MZ_LASTYEAR_TOTAL + ZY_LASTYEAR_TOTAL, 0) * 100, 2)) / NULLIF(ROUND((MZ_LASTYEAR_ZYLL + ZY_LASTYEAR_ZYLL) / NULLIF(MZ_LASTYEAR_TOTAL + ZY_LASTYEAR_TOTAL, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS ZYLLYOYRATE,
+                     ROUND((MZ_CUR_JCJY + ZY_CUR_JCJY) / NULLIF(MZ_CUR_TOTAL + ZY_CUR_TOTAL, 0) * 100, 2) || '%' AS CURRENTJCJYPERSENT,
+                     ROUND((MZ_PREV_JCJY + ZY_PREV_JCJY) / NULLIF(MZ_PREV_TOTAL + ZY_PREV_TOTAL, 0) * 100, 2) || '%' AS PREVIOUSJCJYPERSENT,
+                     ROUND((MZ_LASTYEAR_JCJY + ZY_LASTYEAR_JCJY) / NULLIF(MZ_LASTYEAR_TOTAL + ZY_LASTYEAR_TOTAL, 0) * 100, 2) || '%' AS LASTYEARJCJYPERSENT,
+                     NVL(TO_CHAR(ROUND((ROUND((MZ_CUR_JCJY + ZY_CUR_JCJY) / NULLIF(MZ_CUR_TOTAL + ZY_CUR_TOTAL, 0) * 100, 2) - ROUND((MZ_PREV_JCJY + ZY_PREV_JCJY) / NULLIF(MZ_PREV_TOTAL + ZY_PREV_TOTAL, 0) * 100, 2)) / NULLIF(ROUND((MZ_PREV_JCJY + ZY_PREV_JCJY) / NULLIF(MZ_PREV_TOTAL + ZY_PREV_TOTAL, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS JCJYQUARTERRATE,
+                     NVL(TO_CHAR(ROUND((ROUND((MZ_CUR_JCJY + ZY_CUR_JCJY) / NULLIF(MZ_CUR_TOTAL + ZY_CUR_TOTAL, 0) * 100, 2) - ROUND((MZ_LASTYEAR_JCJY + ZY_LASTYEAR_JCJY) / NULLIF(MZ_LASTYEAR_TOTAL + ZY_LASTYEAR_TOTAL, 0) * 100, 2)) / NULLIF(ROUND((MZ_LASTYEAR_JCJY + ZY_LASTYEAR_JCJY) / NULLIF(MZ_LASTYEAR_TOTAL + ZY_LASTYEAR_TOTAL, 0) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS JCJYYOYRATE,
+                     MZ_CUR_RCS AS CURRENTMZRCS,
+                     MZ_PREV_RCS AS PREVIOUSMZRCS,
+                     MZ_LASTYEAR_RCS AS LASTYEARMZRCS,
+                     NVL(TO_CHAR(ROUND((MZ_CUR_RCS - MZ_PREV_RCS) / NULLIF(MZ_PREV_RCS, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS MZRCSQUARTERRATE,
+                     NVL(TO_CHAR(ROUND((MZ_CUR_RCS - MZ_LASTYEAR_RCS) / NULLIF(MZ_LASTYEAR_RCS, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS MZRCSYOYRATE,
+                     MZ_CUR_TOTAL AS CURRENTMZAMOUNT,
+                     MZ_PREV_TOTAL AS PREVIOUSMZAMOUNT,
+                     MZ_LASTYEAR_TOTAL AS LASTYEARMZAMOUNT,
+                     NVL(TO_CHAR(ROUND((MZ_CUR_TOTAL - MZ_PREV_TOTAL) / NULLIF(MZ_PREV_TOTAL, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS MZSRQUARTERRATE,
+                     NVL(TO_CHAR(ROUND((MZ_CUR_TOTAL - MZ_LASTYEAR_TOTAL) / NULLIF(MZ_LASTYEAR_TOTAL, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS MZSRYOYRATE,
+                     ROUND(MZ_CUR_TOTAL / NULLIF(MZ_CUR_RCS, 0), 2) AS CURRENTMZCJ,
+                     ROUND(MZ_PREV_TOTAL / NULLIF(MZ_PREV_RCS, 0), 2) AS PREVIOUSMZCJ,
+                     ROUND(MZ_LASTYEAR_TOTAL / NULLIF(MZ_LASTYEAR_RCS, 0), 2) AS LASTYEARMZCJ,
+                     NVL(TO_CHAR(ROUND((ROUND(MZ_CUR_TOTAL / NULLIF(MZ_CUR_RCS, 0), 2) - ROUND(MZ_PREV_TOTAL / NULLIF(MZ_PREV_RCS, 0), 2)) / NULLIF(ROUND(MZ_PREV_TOTAL / NULLIF(MZ_PREV_RCS, 0), 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS MZCJQUARTERRATE,
+                     NVL(TO_CHAR(ROUND((ROUND(MZ_CUR_TOTAL / NULLIF(MZ_CUR_RCS, 0), 2) - ROUND(MZ_LASTYEAR_TOTAL / NULLIF(MZ_LASTYEAR_RCS, 0), 2)) / NULLIF(ROUND(MZ_LASTYEAR_TOTAL / NULLIF(MZ_LASTYEAR_RCS, 0), 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS MZCJYOYRATE,
+                     ZY_CUR_RCS AS CURRENTCYRCS,
+                     ZY_PREV_RCS AS PREVIOUSCYRCS,
+                     ZY_LASTYEAR_RCS AS LASTYEARCYRCS,
+                     NVL(TO_CHAR(ROUND((ZY_CUR_RCS - ZY_PREV_RCS) / NULLIF(ZY_PREV_RCS, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS CYRCSQUARTERRATE,
+                     NVL(TO_CHAR(ROUND((ZY_CUR_RCS - ZY_LASTYEAR_RCS) / NULLIF(ZY_LASTYEAR_RCS, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS CYRCSYOYRATE,
+                     ZY_CUR_TOTAL AS CURRENTZYAMOUNT,
+                     ZY_PREV_TOTAL AS PREVIOUSZYAMOUNT,
+                     ZY_LASTYEAR_TOTAL AS LASTYEARZYAMOUNT,
+                     NVL(TO_CHAR(ROUND((ZY_CUR_TOTAL - ZY_PREV_TOTAL) / NULLIF(ZY_PREV_TOTAL, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS ZYSRQUARTERRATE,
+                     NVL(TO_CHAR(ROUND((ZY_CUR_TOTAL - ZY_LASTYEAR_TOTAL) / NULLIF(ZY_LASTYEAR_TOTAL, 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS ZYSRYOYRATE,
+                     ROUND(ZY_CUR_TOTAL / NULLIF(ZY_CUR_RCS, 0), 2) AS CURRENTZYCJ,
+                     ROUND(ZY_PREV_TOTAL / NULLIF(ZY_PREV_RCS, 0), 2) AS PREVIOUSZYCJ,
+                     ROUND(ZY_LASTYEAR_TOTAL / NULLIF(ZY_LASTYEAR_RCS, 0), 2) AS LASTYEARZYCJ,
+                     NVL(TO_CHAR(ROUND((ROUND(ZY_CUR_TOTAL / NULLIF(ZY_CUR_RCS, 0), 2) - ROUND(ZY_PREV_TOTAL / NULLIF(ZY_PREV_RCS, 0), 2)) / NULLIF(ROUND(ZY_PREV_TOTAL / NULLIF(ZY_PREV_RCS, 0), 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS ZYCJQUARTERRATE,
+                     NVL(TO_CHAR(ROUND((ROUND(ZY_CUR_TOTAL / NULLIF(ZY_CUR_RCS, 0), 2) - ROUND(ZY_LASTYEAR_TOTAL / NULLIF(ZY_LASTYEAR_RCS, 0), 2)) / NULLIF(ROUND(ZY_LASTYEAR_TOTAL / NULLIF(ZY_LASTYEAR_RCS, 0), 2), 0) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS ZYCJYOYRATE,
+                     NVL(TO_CHAR(ROUND(CUR_BED / (DAYS * 416) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS CURRENTBEDRATE,
+                     NVL(TO_CHAR(ROUND(PREV_BED / (DAYS * 416) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS PREVIOUSBEDRATE,
+                     NVL(TO_CHAR(ROUND(LASTYEAR_BED / (DAYS * 416) * 100, 2), 'FM9999999990.00'),'0.00') || '%' AS LASTYEARBEDRATE,
+                     NVL(TO_CHAR(ROUND((ROUND(CUR_BED / (DAYS * 416) * 100, 2) - ROUND(PREV_BED / (DAYS * 416) * 100, 2)) / NULLIF(ROUND(PREV_BED / (DAYS * 416) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00')  || '%' AS BEDQUARTERRATE,
+                     NVL(TO_CHAR(ROUND((ROUND(CUR_BED / (DAYS * 416) * 100, 2) - ROUND(LASTYEAR_BED / (DAYS * 416) * 100, 2)) / NULLIF(ROUND(LASTYEAR_BED / (DAYS * 416) * 100, 2), 0) * 100, 2), 'FM9999999990.00'),'0.00')  || '%' AS BEDYOYRATE,
+                     CUR_SS AS CURRENTSS,
+                     PREV_SS AS PREVIOUSSS,
+                     LASTYEAR_SS AS LASTYEARSS,
+                     NVL(TO_CHAR(ROUND((CUR_SS - PREV_SS) / NULLIF(PREV_SS, 0) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS SSQUARTERRATE,
+                     NVL(TO_CHAR(ROUND((CUR_SS - LASTYEAR_SS) / NULLIF(LASTYEAR_SS, 0) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS SSYOYRATE
+                 FROM BASE_DATA
+                 UNION ALL
+                 -- 各科室数据
+                 SELECT
+                     KSBM AS DEPARTMENT,
+                     CURRENTALLAMOUNT,
+                     PREVIOUSALLAMOUNT,
+                     LASTYEARALLAMOUNT,
+                     ALLQUARTERRATE,
+                     ALLYOYRATE,
+                     CURRENTYWXSRPERSENT,
+                     PREVIOUSYWXSRPERSENT,
+                     LASTYEARYWXSRPERSENT,
+                     YWXSRQUARTERRATE,
+                     YWXSRYOYRATE,
+                     CURRENTZYLLPERSENT,
+                     PREVIOUSZYLLPERSENT,
+                     LASTYEARZYLLPERSENT,
+                     ZYLLQUARTERRATE,
+                     ZYLLYOYRATE,
+                     CURRENTJCJYPERSENT,
+                     PREVIOUSJCJYPERSENT,
+                     LASTYEARJCJYPERSENT,
+                     JCJYQUARTERRATE,
+                     JCJYYOYRATE,
+                     CURRENTMZRCS,
+                     PREVIOUSMZRCS,
+                     LASTYEARMZRCS,
+                     MZRCSQUARTERRATE,
+                     MZRCSYOYRATE,
+                     CURRENTMZAMOUNT,
+                     PREVIOUSMZAMOUNT,
+                     LASTYEARMZAMOUNT,
+                     MZSRQUARTERRATE,
+                     MZSRYOYRATE,
+                     CURRENTMZCJ,
+                     PREVIOUSMZCJ,
+                     LASTYEARMZCJ,
+                     MZCJQUARTERRATE,
+                     MZCJYOYRATE,
+                     CURRENTCYRCS,
+                     PREVIOUSCYRCS,
+                     LASTYEARCYRCS,
+                     CYRCSQUARTERRATE,
+                     CYRCSYOYRATE,
+                     CURRENTZYAMOUNT,
+                     PREVIOUSZYAMOUNT,
+                     LASTYEARZYAMOUNT,
+                     ZYSRQUARTERRATE,
+                     ZYSRYOYRATE,
+                     CURRENTZYCJ,
+                     PREVIOUSZYCJ,
+                     LASTYEARZYCJ,
+                     ZYCJQUARTERRATE,
+                     ZYCJYOYRATE,
+                     CURRENTBEDRATE,
+                     PREVIOUSBEDRATE,
+                     LASTYEARBEDRATE,
+                     BEDQUARTERRATE,
+                     BEDYOYRATE,
+                     CURRENTSS,
+                     PREVIOUSSS,
+                     LASTYEARSS,
+                     SSQUARTERRATE,
+                     SSYOYRATE
+                 FROM KS_RESULTDATA K
+                 WHERE EXISTS (SELECT 1 FROM pu_ks P WHERE P.TYBZ = '0' AND TRIM(P.KSBM) = K.KSBM)
+             )
+        SELECT
+            (FN_GET_KSMC(DEPARTMENT)) AS DEPARTMENT,
+            CURRENTALLAMOUNT,
+            PREVIOUSALLAMOUNT,
+            LASTYEARALLAMOUNT,
+            ALLQUARTERRATE,
+            ALLYOYRATE,
+            CURRENTYWXSRPERSENT,
+            PREVIOUSYWXSRPERSENT,
+            LASTYEARYWXSRPERSENT,
+            YWXSRQUARTERRATE,
+            YWXSRYOYRATE,
+            CURRENTZYLLPERSENT,
+            PREVIOUSZYLLPERSENT,
+            LASTYEARZYLLPERSENT,
+            ZYLLQUARTERRATE,
+            ZYLLYOYRATE,
+            CURRENTJCJYPERSENT,
+            PREVIOUSJCJYPERSENT,
+            LASTYEARJCJYPERSENT,
+            JCJYQUARTERRATE,
+            JCJYYOYRATE,
+            CURRENTMZRCS,
+            PREVIOUSMZRCS,
+            LASTYEARMZRCS,
+            MZRCSQUARTERRATE,
+            MZRCSYOYRATE,
+            CURRENTMZAMOUNT,
+            PREVIOUSMZAMOUNT,
+            LASTYEARMZAMOUNT,
+            MZSRQUARTERRATE,
+            MZSRYOYRATE,
+            CURRENTMZCJ,
+            PREVIOUSMZCJ,
+            LASTYEARMZCJ,
+            MZCJQUARTERRATE,
+            MZCJYOYRATE,
+            CURRENTCYRCS,
+            PREVIOUSCYRCS,
+            LASTYEARCYRCS,
+            CYRCSQUARTERRATE,
+            CYRCSYOYRATE,
+            CURRENTZYAMOUNT,
+            PREVIOUSZYAMOUNT,
+            LASTYEARZYAMOUNT,
+            ZYSRQUARTERRATE,
+            ZYSRYOYRATE,
+            CURRENTZYCJ,
+            PREVIOUSZYCJ,
+            LASTYEARZYCJ,
+            ZYCJQUARTERRATE,
+            ZYCJYOYRATE,
+            CURRENTBEDRATE,
+            PREVIOUSBEDRATE,
+            LASTYEARBEDRATE,
+            BEDQUARTERRATE,
+            BEDYOYRATE,
+            CURRENTSS,
+            PREVIOUSSS,
+            LASTYEARSS,
+            SSQUARTERRATE,
+            SSYOYRATE
+        FROM UNION_DATA
+        ORDER BY CASE WHEN DEPARTMENT = '总院' THEN 0 ELSE 1 END, DEPARTMENT
+    </select>
+
+    <!--查询逻辑-->
+
     <!--Update逻辑-->
     <update id="freshCostEndTime" parameterType="java.util.Map">
         UPDATE INHOS_BRFY SET INHOS_BRFY.SFRQ = TO_DATE(#{endTime},'yyyy-mm-dd hh24:mi:ss') WHERE INHOS_BRFY.ZYH = #{serialNumber} AND INHOS_BRFY.SFRQ &gt;= TO_DATE(#{endTime},'yyyy-mm-dd hh24:mi:ss')

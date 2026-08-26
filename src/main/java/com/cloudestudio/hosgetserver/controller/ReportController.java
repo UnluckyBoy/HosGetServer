@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -82,5 +83,17 @@ public class ReportController {
     public void getMedicineCodeQuery(HttpServletResponse response) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(gsonConfig.toJson(hosReportService.medicineCodeQuery()));
+    }
+
+    /**
+     * 财务运营分析-月报
+     * @param response
+     * @param body
+     * @throws IOException
+     */
+    @PostMapping("/queryMonOperation")
+    public void queryMonOperation(HttpServletResponse response,@RequestBody BedDayBody body) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(gsonConfig.toJson(hosReportService.queryMonOperation(body)));
     }
 }
