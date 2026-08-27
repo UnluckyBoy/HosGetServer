@@ -1033,7 +1033,7 @@
              MZ_ALL AS (
                  SELECT
                      NVL(SUM(FYJE), 0) AS TOTAL_AMOUNT,
-                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','013','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
                      NVL(SUM(CASE WHEN XLBM = '011' THEN FYJE ELSE 0 END), 0) AS ZYLL_AMOUNT,
                      NVL(SUM(CASE WHEN XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FYJE ELSE 0 END), 0) AS JCJY_AMOUNT
                  FROM M_BRFY
@@ -1043,7 +1043,7 @@
              MZ_PREV_ALL AS (
                  SELECT
                      NVL(SUM(FYJE), 0) AS TOTAL_AMOUNT,
-                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','013','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
                      NVL(SUM(CASE WHEN XLBM = '011' THEN FYJE ELSE 0 END), 0) AS ZYLL_AMOUNT,
                      NVL(SUM(CASE WHEN XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FYJE ELSE 0 END), 0) AS JCJY_AMOUNT
                  FROM M_BRFY
@@ -1053,7 +1053,7 @@
              MZ_LASTYEAR_ALL AS (
                  SELECT
                      NVL(SUM(FYJE), 0) AS TOTAL_AMOUNT,
-                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','013','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
                      NVL(SUM(CASE WHEN XLBM = '011' THEN FYJE ELSE 0 END), 0) AS ZYLL_AMOUNT,
                      NVL(SUM(CASE WHEN XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FYJE ELSE 0 END), 0) AS JCJY_AMOUNT
                  FROM M_BRFY
@@ -1063,7 +1063,7 @@
              ZY_ALL AS (
                  SELECT
                      NVL(SUM(FYJE), 0) AS TOTAL_AMOUNT,
-                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','013','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
                      NVL(SUM(CASE WHEN XLBM = '011' THEN FYJE ELSE 0 END), 0) AS ZYLL_AMOUNT,
                      NVL(SUM(CASE WHEN XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FYJE ELSE 0 END), 0) AS JCJY_AMOUNT
                  FROM INHOS_BRFY
@@ -1074,7 +1074,7 @@
              ZY_PREV_ALL AS (
                  SELECT
                      NVL(SUM(FYJE), 0) AS TOTAL_AMOUNT,
-                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','013','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
                      NVL(SUM(CASE WHEN XLBM = '011' THEN FYJE ELSE 0 END), 0) AS ZYLL_AMOUNT,
                      NVL(SUM(CASE WHEN XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FYJE ELSE 0 END), 0) AS JCJY_AMOUNT
                  FROM INHOS_BRFY
@@ -1085,7 +1085,7 @@
              ZY_LASTYEAR_ALL AS (
                  SELECT
                      NVL(SUM(FYJE), 0) AS TOTAL_AMOUNT,
-                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
+                     NVL(SUM(CASE WHEN XLBM IN ('004','40','52','53','59','001','007','022','0033','0043','0062','013','41','48','003','009','021','030','031','014','008') THEN FYJE ELSE 0 END), 0) AS EXCLUDE_AMOUNT,
                      NVL(SUM(CASE WHEN XLBM = '011' THEN FYJE ELSE 0 END), 0) AS ZYLL_AMOUNT,
                      NVL(SUM(CASE WHEN XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062','013') THEN FYJE ELSE 0 END), 0) AS JCJY_AMOUNT
                  FROM INHOS_BRFY
@@ -1239,7 +1239,7 @@
              MZ_CURRENT_YWXSR AS (
                  SELECT TRIM(M.MZKS) AS KSBM,
                         NVL(SUM(M.FYJE), 0) -
-                        NVL(SUM(CASE WHEN M.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
+                        NVL(SUM(CASE WHEN M.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','013','41','48','003','009','021','030','031','014','008') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
                  FROM M_BRFY M
                  WHERE M.SFRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
                  GROUP BY TRIM(M.MZKS)
@@ -1247,7 +1247,7 @@
 -- 当前周期-住院医务性收入（按科室）
              ZY_CURRENT_YWXSR AS (
                  SELECT TRIM(FY.KSBM) AS KSBM,
-                        NVL(SUM(FY.FYJE), 0) - NVL(SUM(CASE WHEN FY.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
+                        NVL(SUM(FY.FYJE), 0) - NVL(SUM(CASE WHEN FY.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','013','41','48','003','009','021','030','031','014','008') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
                  FROM INHOS_BRFY FY
                  WHERE FY.SFRQ BETWEEN (SELECT START_DATE FROM DATERANGE) AND (SELECT END_DATE FROM DATERANGE)
                    AND FY.YXBZ = '1'
@@ -1346,14 +1346,14 @@
              MZ_PREVIOUS_YWXSR AS (
                  SELECT TRIM(M.MZKS) AS KSBM,
                         NVL(SUM(M.FYJE), 0) -
-                        NVL(SUM(CASE WHEN M.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
+                        NVL(SUM(CASE WHEN M.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','013','41','48','003','009','021','030','031','014','008') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
                  FROM M_BRFY M
                  WHERE M.SFRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
                  GROUP BY TRIM(M.MZKS)
              ),
              ZY_PREVIOUS_YWXSR AS (
                  SELECT TRIM(FY.KSBM) AS KSBM,
-                        NVL(SUM(FY.FYJE), 0) - NVL(SUM(CASE WHEN FY.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
+                        NVL(SUM(FY.FYJE), 0) - NVL(SUM(CASE WHEN FY.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','013','41','48','003','009','021','030','031','014','008') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
                  FROM INHOS_BRFY FY
                  WHERE FY.SFRQ BETWEEN (SELECT PREV_START_DATE FROM DATEINFO) AND (SELECT PREV_END_DATE FROM DATEINFO)
                    AND FY.YXBZ = '1'
@@ -1447,7 +1447,7 @@
              MZ_LASTYEAR_YWXSR AS (
                  SELECT TRIM(M.MZKS) AS KSBM,
                         NVL(SUM(M.FYJE), 0) -
-                        NVL(SUM(CASE WHEN M.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
+                        NVL(SUM(CASE WHEN M.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','013','41','48','003','009','021','030','031','014','008') THEN M.FYJE ELSE 0 END), 0) AS AMOUNT
                  FROM M_BRFY M
                  WHERE M.SFRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
                  GROUP BY TRIM(M.MZKS)
@@ -1455,7 +1455,7 @@
 -- 住院医务性收入_去年同期
              ZY_LASTYEAR_YWXSR AS (
                  SELECT TRIM(FY.KSBM) AS KSBM,
-                        NVL(SUM(FY.FYJE), 0) - NVL(SUM(CASE WHEN FY.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','41','48','003','009','021','030','031','014','008') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
+                        NVL(SUM(FY.FYJE), 0) - NVL(SUM(CASE WHEN FY.Xlbm IN ('004','40','52','53','59','001','007','022','0033','0043','0062','013','41','48','003','009','021','030','031','014','008') THEN FY.FYJE ELSE 0 END), 0) AS AMOUNT
                  FROM INHOS_BRFY FY
                  WHERE FY.SFRQ BETWEEN (SELECT LAST_YEAR_START_DATE FROM DATEINFO) AND (SELECT LAST_YEAR_END_DATE FROM DATEINFO)
                    AND FY.YXBZ = '1'
@@ -1975,39 +1975,89 @@
                    AND M.SFRQ BETWEEN T.START_TIME AND T.END_TIME
                  GROUP BY M.MZKS, R.MZRCS
              ),
+-- 处方数（按科室分组）
+             CFS AS (
+                 SELECT CF.KSBM AS DEPT, COUNT(DISTINCT CF.CFH) AS CFS
+                 FROM YF_YPCF CF
+                          CROSS JOIN TIME_RANGE T
+                 WHERE CF.CFRQ BETWEEN T.START_TIME AND T.END_TIME
+                   AND CF.FYBZ = '1'
+                   AND CF.ZFBZ = '0'
+                   AND CF.CFLY = '0'
+                   AND CF.KFBZ = '1'
+                 GROUP BY CF.KSBM
+             ),
 -- 各科室费用汇总
              FY_SUM AS (
                  SELECT M.MZKS AS DEPT,
                         SUM(M.FYJE) AS TOTAL_FY,
                         SUM(CASE WHEN M.XLBM IN ('013') THEN M.FYJE ELSE 0 END) AS JY_FY,
                         SUM(CASE WHEN M.XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062') THEN M.FYJE ELSE 0 END) AS JC_FY,
-                        SUM(CASE WHEN M.XLBM IN ('41','48','003','009','021','030','031') THEN M.FYJE ELSE 0 END) AS DRUG_FY
+                        SUM(CASE WHEN M.XLBM IN ('41','48','003','009','021','030','031') THEN M.FYJE ELSE 0 END) AS DRUG_FY,
+                        SUM(CASE WHEN M.MXFYXMBM IN (SELECT P.MXFYXMBM FROM PU_MXFYXM P WHERE P.FJFL='0010') THEN M.FYJE ELSE 0 END) AS ZYLL_FY
                  FROM M_BRFY M
                           CROSS JOIN TIME_RANGE T
                  WHERE M.SFJS = '1'
                    AND M.SFRQ BETWEEN T.START_TIME AND T.END_TIME
                  GROUP BY M.MZKS
+             ),
+-- 合并后的明细数据（包含 ZYLL_FY 用于汇总计算）
+             DETAIL_DATA AS (
+                 SELECT
+                     fn_get_ksmc(NVL(MZRCS.DEPT, NVL(KJZYRS.DEPT, NVL(ZYCTRCS.DEPT, NVL(MZCJFY.DEPT, NVL(FY_SUM.DEPT, CFS.DEPT)))))) AS DEPARTMENT,
+                     NVL(MZRCS.MZRCS, 0) AS MZRC,
+                     NVL(KJZYRS.KJZYRS, 0) AS KJZYRC,
+                     NVL(ZYCTRCS.ZYCTRCS, 0) AS ZYCTRC,
+                     ROUND(NVL(MZCJFY.MZCJFY, 0),2) AS MZCJ,
+                     NVL(CFS.CFS, 0) AS CFS,
+                     FY_SUM.TOTAL_FY,
+                     FY_SUM.JY_FY,
+                     FY_SUM.JC_FY,
+                     FY_SUM.DRUG_FY,
+                     FY_SUM.ZYLL_FY,  -- 保留用于汇总计算
+                     NVL(TO_CHAR(ROUND((FY_SUM.JY_FY / NULLIF(FY_SUM.TOTAL_FY, 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS JYSRRATE,
+                     NVL(TO_CHAR(ROUND((FY_SUM.JC_FY / NULLIF(FY_SUM.TOTAL_FY, 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS JCSRRATE,
+                     NVL(TO_CHAR(ROUND((FY_SUM.DRUG_FY / NULLIF(FY_SUM.TOTAL_FY, 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS DRUGRATE,
+                     NVL(TO_CHAR(ROUND((FY_SUM.ZYLL_FY / NULLIF(FY_SUM.TOTAL_FY, 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS ZYLLZB
+                 FROM MZRCS
+                          FULL JOIN KJZYRS ON MZRCS.DEPT = KJZYRS.DEPT
+                          FULL JOIN ZYCTRCS ON COALESCE(MZRCS.DEPT, KJZYRS.DEPT) = ZYCTRCS.DEPT
+                          FULL JOIN MZCJFY ON COALESCE(MZRCS.DEPT, KJZYRS.DEPT, ZYCTRCS.DEPT) = MZCJFY.DEPT
+                          FULL JOIN FY_SUM ON COALESCE(MZRCS.DEPT, KJZYRS.DEPT, ZYCTRCS.DEPT, MZCJFY.DEPT) = FY_SUM.DEPT
+                          FULL JOIN CFS ON COALESCE(MZRCS.DEPT, KJZYRS.DEPT, ZYCTRCS.DEPT, MZCJFY.DEPT, FY_SUM.DEPT) = CFS.DEPT
+             ),
+-- 汇总行
+             SUMMARY AS (
+                 SELECT
+                     '全院' AS DEPARTMENT,
+                     SUM(MZRC) AS MZRC,
+                     SUM(KJZYRC) AS KJZYRC,
+                     SUM(ZYCTRC) AS ZYCTRC,
+                     ROUND(SUM(MZCJ * MZRC) / NULLIF(SUM(MZRC), 0), 2) AS MZCJ,
+                     SUM(CFS) AS CFS,
+                     SUM(TOTAL_FY) AS TOTALFY,
+                     SUM(JY_FY) AS JYFY,
+                     SUM(JC_FY) AS JCFY,
+                     SUM(DRUG_FY) AS DRUGFY,
+                     SUM(ZYLL_FY) AS ZYLLFY,
+                     NVL(TO_CHAR(ROUND((SUM(JY_FY) / NULLIF(SUM(TOTAL_FY), 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS JYSRRATE,
+                     NVL(TO_CHAR(ROUND((SUM(JC_FY) / NULLIF(SUM(TOTAL_FY), 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS JCSRRATE,
+                     NVL(TO_CHAR(ROUND((SUM(DRUG_FY) / NULLIF(SUM(TOTAL_FY), 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS DRUGRATE,
+                     NVL(TO_CHAR(ROUND((SUM(ZYLL_FY) / NULLIF(SUM(TOTAL_FY), 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS ZYLLZB
+                 FROM DETAIL_DATA
              )
--- 最终合并查询（不变）
-        SELECT
-            fn_get_ksmc(NVL(MZRCS.DEPT, NVL(KJZYRS.DEPT, NVL(ZYCTRCS.DEPT, NVL(MZCJFY.DEPT, FY_SUM.DEPT))))) AS DEPARTMENT,
-            NVL(MZRCS.MZRCS, 0) AS MZRC,
-            NVL(KJZYRS.KJZYRS, 0) AS KJZYRC,
-            NVL(ZYCTRCS.ZYCTRCS, 0) AS ZYCTRC,
-            ROUND(NVL(MZCJFY.MZCJFY, 0),2) AS MZCJ,
-            FY_SUM.TOTAL_FY AS TOTALFY,
-            FY_SUM.JY_FY AS JYFY,
-            NVL(TO_CHAR(ROUND((FY_SUM.JY_FY / NULLIF(FY_SUM.TOTAL_FY, 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS JYSRRATE,
-            FY_SUM.JC_FY AS JCFY,
-            NVL(TO_CHAR(ROUND((FY_SUM.JC_FY / NULLIF(FY_SUM.TOTAL_FY, 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS JCSRRATE,
-            FY_SUM.DRUG_FY AS DRUGFY,
-            NVL(TO_CHAR(ROUND((FY_SUM.DRUG_FY / NULLIF(FY_SUM.TOTAL_FY, 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS DRUGRATE
-        FROM MZRCS
-                 FULL JOIN KJZYRS ON MZRCS.DEPT = KJZYRS.DEPT
-                 FULL JOIN ZYCTRCS ON COALESCE(MZRCS.DEPT, KJZYRS.DEPT) = ZYCTRCS.DEPT
-                 FULL JOIN MZCJFY ON COALESCE(MZRCS.DEPT, KJZYRS.DEPT, ZYCTRCS.DEPT) = MZCJFY.DEPT
-                 FULL JOIN FY_SUM ON COALESCE(MZRCS.DEPT, KJZYRS.DEPT, ZYCTRCS.DEPT, MZCJFY.DEPT) = FY_SUM.DEPT
-        ORDER BY DEPARTMENT
+-- 最终结果：明细 + 汇总
+        SELECT DEPARTMENT, MZRC, KJZYRC, ZYCTRC, MZCJ, CFS,TOTAL_FY AS TOTALFY, JY_FY AS JYFY, JYSRRATE, JC_FY AS JCFY, JCSRRATE, DRUG_FY AS DRUGFY, DRUGRATE, ZYLLZB
+        FROM (
+                 SELECT DEPARTMENT, MZRC, KJZYRC, ZYCTRC, MZCJ, CFS, TOTAL_FY, JY_FY, JYSRRATE, JC_FY, JCSRRATE, DRUG_FY, DRUGRATE, ZYLLZB,
+                        0 AS SORT_ORDER
+                 FROM DETAIL_DATA
+                 UNION ALL
+                 SELECT DEPARTMENT, MZRC, KJZYRC, ZYCTRC, MZCJ, CFS, TOTALFY, JYFY, JYSRRATE, JCFY, JCSRRATE, DRUGFY, DRUGRATE, ZYLLZB,
+                        1 AS SORT_ORDER
+                 FROM SUMMARY
+             )
+        ORDER BY SORT_ORDER, DEPARTMENT
     </select>
     <!--查询逻辑-->
 

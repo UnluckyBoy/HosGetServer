@@ -74,4 +74,6 @@ public class DayDynamicEntity implements Serializable {
      * 药品收入占比 (DRUGRATE)，格式：百分比字符串，如 "45.50%"
      */
     private String drugRate;
+    private Long cfs; // 处方数
+    private String zyllzb;// 中医理疗占比
 }
