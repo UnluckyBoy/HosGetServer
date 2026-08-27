@@ -1930,6 +1930,85 @@
         ORDER BY CASE WHEN DEPARTMENT = '总院' THEN 0 ELSE 1 END, DEPARTMENT
     </select>
 
+    <!--日均动态数据-->
+    <select id="dayDynamic" parameterType="com.cloudestudio.hosgetserver.model.paramBody.BedDayBody" resultType="com.cloudestudio.hosgetserver.model.ReportBean.DayDynamicEntity">
+        WITH TIME_RANGE AS (
+            SELECT
+                TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:mi:ss') AS START_TIME,
+                TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:mi:ss') AS END_TIME
+            FROM DUAL
+        ),
+-- 门诊人次数
+             MZRCS AS (
+                 SELECT GH.GHKS AS DEPT, COUNT(GH.GHXH) AS MZRCS
+                 FROM GH_BRGH GH
+                          CROSS JOIN TIME_RANGE T
+                 WHERE SFJZ = '1' AND THBZ = '0'
+                   AND GH.GHRQ BETWEEN T.START_TIME AND T.END_TIME
+                 GROUP BY GH.GHKS
+             ),
+-- 开具住院人次
+             KJZYRS AS (
+                 SELECT DJ.MZKS AS DEPT, COUNT(DJ.ZYH) AS KJZYRS
+                 FROM INHOS_RYDJ DJ
+                          CROSS JOIN TIME_RANGE T
+                 WHERE DJ.RYRQ BETWEEN T.START_TIME AND T.END_TIME
+                 GROUP BY DJ.MZKS
+             ),
+-- 开具中医CT人次
+             ZYCTRCS AS (
+                 SELECT M.MZKS AS DEPT, NVL(COUNT(DISTINCT M.RYGHXH), 0) AS ZYCTRCS
+                 FROM M_BRFY M
+                          CROSS JOIN TIME_RANGE T
+                 WHERE M.MXFYXMBM = 'zf2601001' AND M.SFJS = '1'
+                   AND M.SFRQ BETWEEN T.START_TIME AND T.END_TIME
+                 GROUP BY M.MZKS
+             ),
+-- 门诊次均费用
+             MZCJFY AS (
+                 SELECT M.MZKS AS DEPT,
+                        SUM(M.FYJE) / NULLIF(R.MZRCS, 0) AS MZCJFY
+                 FROM M_BRFY M
+                          CROSS JOIN TIME_RANGE T
+                          LEFT JOIN MZRCS R ON R.DEPT = M.MZKS
+                 WHERE M.SFJS = '1'
+                   AND M.SFRQ BETWEEN T.START_TIME AND T.END_TIME
+                 GROUP BY M.MZKS, R.MZRCS
+             ),
+-- 各科室费用汇总
+             FY_SUM AS (
+                 SELECT M.MZKS AS DEPT,
+                        SUM(M.FYJE) AS TOTAL_FY,
+                        SUM(CASE WHEN M.XLBM IN ('013') THEN M.FYJE ELSE 0 END) AS JY_FY,
+                        SUM(CASE WHEN M.XLBM IN ('40','52','53','59','001','007','022','0033','0043','0062') THEN M.FYJE ELSE 0 END) AS JC_FY,
+                        SUM(CASE WHEN M.XLBM IN ('41','48','003','009','021','030','031') THEN M.FYJE ELSE 0 END) AS DRUG_FY
+                 FROM M_BRFY M
+                          CROSS JOIN TIME_RANGE T
+                 WHERE M.SFJS = '1'
+                   AND M.SFRQ BETWEEN T.START_TIME AND T.END_TIME
+                 GROUP BY M.MZKS
+             )
+-- 最终合并查询（不变）
+        SELECT
+            fn_get_ksmc(NVL(MZRCS.DEPT, NVL(KJZYRS.DEPT, NVL(ZYCTRCS.DEPT, NVL(MZCJFY.DEPT, FY_SUM.DEPT))))) AS DEPARTMENT,
+            NVL(MZRCS.MZRCS, 0) AS MZRC,
+            NVL(KJZYRS.KJZYRS, 0) AS KJZYRC,
+            NVL(ZYCTRCS.ZYCTRCS, 0) AS ZYCTRC,
+            ROUND(NVL(MZCJFY.MZCJFY, 0),2) AS MZCJ,
+            FY_SUM.TOTAL_FY AS TOTALFY,
+            FY_SUM.JY_FY AS JYFY,
+            NVL(TO_CHAR(ROUND((FY_SUM.JY_FY / NULLIF(FY_SUM.TOTAL_FY, 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS JYSRRATE,
+            FY_SUM.JC_FY AS JCFY,
+            NVL(TO_CHAR(ROUND((FY_SUM.JC_FY / NULLIF(FY_SUM.TOTAL_FY, 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS JCSRRATE,
+            FY_SUM.DRUG_FY AS DRUGFY,
+            NVL(TO_CHAR(ROUND((FY_SUM.DRUG_FY / NULLIF(FY_SUM.TOTAL_FY, 0)) * 100, 2), 'FM9999999990.00'), '0.00') || '%' AS DRUGRATE
+        FROM MZRCS
+                 FULL JOIN KJZYRS ON MZRCS.DEPT = KJZYRS.DEPT
+                 FULL JOIN ZYCTRCS ON COALESCE(MZRCS.DEPT, KJZYRS.DEPT) = ZYCTRCS.DEPT
+                 FULL JOIN MZCJFY ON COALESCE(MZRCS.DEPT, KJZYRS.DEPT, ZYCTRCS.DEPT) = MZCJFY.DEPT
+                 FULL JOIN FY_SUM ON COALESCE(MZRCS.DEPT, KJZYRS.DEPT, ZYCTRCS.DEPT, MZCJFY.DEPT) = FY_SUM.DEPT
+        ORDER BY DEPARTMENT
+    </select>
     <!--查询逻辑-->
 
     <!--Update逻辑-->

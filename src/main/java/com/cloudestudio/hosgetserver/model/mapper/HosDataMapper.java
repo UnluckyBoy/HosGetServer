@@ -43,6 +43,7 @@ public interface HosDataMapper {
     List<PrescriptionReviewBean> queryInfoByCf(String cfNumber);//结算分析明细
     List<MedicineQueryBean> medicineCodeQuery();//追溯码遗漏查询
     List<OperationEntity> queryMonOperation(BedDayBody body);// 月报运营分析
+    List<DayDynamicEntity> dayDynamic(BedDayBody body);// 日均动态
 
 
     /**Mysql**/

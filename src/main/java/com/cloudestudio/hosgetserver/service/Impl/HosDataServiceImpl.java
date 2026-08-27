@@ -212,6 +212,12 @@ public class HosDataServiceImpl implements HosDataService {
         return hosDataMapper.queryMonOperation(body);
     }
 
+    @DS("oracle")
+    @Override
+    public List<DayDynamicEntity> dayDynamic(BedDayBody body) {
+        return hosDataMapper.dayDynamic(body);
+    }
+
     @DS("mysql")
     @Override
     public List<BaseDepartMent> queryBaseDepart() {

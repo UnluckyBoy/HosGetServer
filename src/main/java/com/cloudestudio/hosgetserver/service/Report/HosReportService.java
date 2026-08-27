@@ -23,4 +23,5 @@ public interface HosReportService {
     WebResponse queryInfoByCf(String cfNumber);
     WebResponse medicineCodeQuery();
     WebResponse queryMonOperation(BedDayBody body);
+    WebResponse dayDynamic(BedDayBody body);
 }

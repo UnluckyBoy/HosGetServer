@@ -96,4 +96,16 @@ public class ReportController {
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(gsonConfig.toJson(hosReportService.queryMonOperation(body)));
     }
+
+    /**
+     * 日均动态
+     * @param response
+     * @param body
+     * @throws IOException
+     */
+    @PostMapping("/dayDynamic")
+    public void dayDynamic(HttpServletResponse response,@RequestBody BedDayBody body) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(gsonConfig.toJson(hosReportService.dayDynamic(body)));
+    }
 }

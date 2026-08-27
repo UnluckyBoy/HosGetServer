@@ -176,5 +176,23 @@ public class HosReportServiceImpl implements HosReportService {
         return WebResponse.success(queryResultList);
     }
 
-
+    /**
+     * 日均动态
+     * @param body
+     * @return
+     */
+    @Override
+    public WebResponse dayDynamic(BedDayBody body) {
+        if(body==null){
+            System.out.println(TimeUtil.GetTime(true)+" ---queryMonOperation查询参数异常");
+            return WebResponse.paramError();
+        }
+        List<DayDynamicEntity> queryResultList=hosDataService.dayDynamic(body);
+        if(queryResultList.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---queryMonOperation查询异常");
+            return WebResponse.failure();
+        }
+        System.out.println(TimeUtil.GetTime(true)+" ---queryMonOperation查询成功");
+        return WebResponse.success(queryResultList);
+    }
 }

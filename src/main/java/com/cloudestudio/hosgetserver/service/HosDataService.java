@@ -37,6 +37,7 @@ public interface HosDataService {
     List<PrescriptionReviewBean> queryInfoByCf(String cfNumber);
     List<MedicineQueryBean> medicineCodeQuery();
     List<OperationEntity> queryMonOperation(BedDayBody body);
+    List<DayDynamicEntity> dayDynamic(BedDayBody body);
 
 
     List<BaseDepartMent> queryBaseDepart();
