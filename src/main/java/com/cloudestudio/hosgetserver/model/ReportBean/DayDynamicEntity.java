@@ -76,4 +76,6 @@ public class DayDynamicEntity implements Serializable {
     private String drugRate;
     private Long cfs; // 处方数
     private String zyllzb;// 中医理疗占比
+    private Long zycfs;// 中医处方数
+    private String zyllrc;// 中医理疗人次
 }
