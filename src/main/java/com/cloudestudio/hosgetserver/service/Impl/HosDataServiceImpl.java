@@ -218,6 +218,12 @@ public class HosDataServiceImpl implements HosDataService {
         return hosDataMapper.dayDynamic(body);
     }
 
+    @DS("oracle")
+    @Override
+    public List<TcmRateEntity> tcmRate(BedDayBody body) {
+        return hosDataMapper.tcmRate(body);
+    }
+
     @DS("mysql")
     @Override
     public List<BaseDepartMent> queryBaseDepart() {

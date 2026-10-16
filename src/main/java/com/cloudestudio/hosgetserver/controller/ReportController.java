@@ -108,4 +108,16 @@ public class ReportController {
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(gsonConfig.toJson(hosReportService.dayDynamic(body)));
     }
+
+    /**
+     * 中治率
+     * @param response
+     * @param body
+     * @throws IOException
+     */
+    @PostMapping("/tcmRate")
+    public void tcmRate(HttpServletResponse response,@RequestBody BedDayBody body) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(gsonConfig.toJson(hosReportService.tcmRate(body)));
+    }
 }

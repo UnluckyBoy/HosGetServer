@@ -38,6 +38,7 @@ public interface HosDataService {
     List<MedicineQueryBean> medicineCodeQuery();
     List<OperationEntity> queryMonOperation(BedDayBody body);
     List<DayDynamicEntity> dayDynamic(BedDayBody body);
+    List<TcmRateEntity> tcmRate(BedDayBody body);
 
 
     List<BaseDepartMent> queryBaseDepart();

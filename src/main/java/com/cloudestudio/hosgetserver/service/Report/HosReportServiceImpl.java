@@ -195,4 +195,24 @@ public class HosReportServiceImpl implements HosReportService {
         System.out.println(TimeUtil.GetTime(true)+" ---queryMonOperation查询成功");
         return WebResponse.success(queryResultList);
     }
+
+    /**
+     * 中治率
+     * @param body
+     * @return
+     */
+    @Override
+    public WebResponse tcmRate(BedDayBody body) {
+        if(body==null){
+            System.out.println(TimeUtil.GetTime(true)+" ---tcmRate查询参数异常");
+            return WebResponse.paramError();
+        }
+        List<TcmRateEntity> resultList=hosDataService.tcmRate(body);
+        if(resultList.isEmpty()){
+            System.out.println(TimeUtil.GetTime(true)+" ---tcmRate查询异常");
+            return WebResponse.failure();
+        }
+        System.out.println(TimeUtil.GetTime(true)+" ---tcmRate查询成功");
+        return WebResponse.success(resultList);
+    }
 }
