@@ -120,4 +120,15 @@ public class ReportController {
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(gsonConfig.toJson(hosReportService.tcmRate(body)));
     }
+    /**
+     * 中治率-按住院号
+     * @param response
+     * @param body
+     * @throws IOException
+     */
+    @PostMapping("/tcmRateByNum")
+    public void tcmRateByNum(HttpServletResponse response,@RequestBody BedDayBody body) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(gsonConfig.toJson(hosReportService.tcmRateByNum(body)));
+    }
 }

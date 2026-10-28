@@ -2110,6 +2110,24 @@
         ORDER BY DEPARTMENT, (ROUND(SUM(FY.ZYBZLZF + FY.ZYBZLZHZF + FY.ZYZD + FY.ZYZL + FY.ZYQT + FY.CYF + FY.ZYF) / NULLIF(SUM(FY.ZFY-FY.SYSZDF-FY.YXXZDF), 0) * 100, 2)) DESC
     </select>
 
+    <!--中治率-按住院号-->
+    <select id="tcmRateByNum" parameterType="com.cloudestudio.hosgetserver.model.paramBody.BedDayBody" resultType="com.cloudestudio.hosgetserver.model.ReportBean.TcmRateEntityByNum">
+        SELECT
+            ZD.ZYH AS INHOSNUM,
+            JB.BRXM AS PATIENTNAME,
+            SUM(FY.ZYBZLZF+FY.ZYBZLZHZF+FY.ZYZD+FY.ZYZL+FY.ZYQT+FY.CYF+FY.ZYF) AS TCMCOST,
+            FY.ZFY AS TOTALCOST,
+            ZD.CYZYZDBM AS ICDCODE,
+            ZD.CYZYZDMC AS ICDNAME,
+            FN_GET_KSMC(ZD.CYKS) AS DEPARTMENT,
+            (TO_CHAR(ROUND((SUM(FY.ZYBZLZF+FY.ZYBZLZHZF+FY.ZYZD+FY.ZYZL+FY.ZYQT+FY.CYF+FY.ZYF)) / NULLIF(FY.ZFY, 0)*100, 2),'FM999999990.00') || '%') AS TCMRATE
+        FROM BAGL_BASY_ZDXX ZD
+                 INNER JOIN BAGL_BASY_FYXX FY ON FY.ZYH=ZD.ZYH
+                 INNER JOIN BAGL_BASY_JBXX JB ON JB.ZYH=ZD.ZYH
+        WHERE ZD.CYRQ BETWEEN TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:mi:ss') AND TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:mi:ss')
+        GROUP BY ZD.ZYH,JB.BRXM,FY.ZFY,ZD.CYZYZDBM,ZD.CYZYZDMC,ZD.CYKS ORDER BY ZD.CYKS,(ROUND((SUM(FY.ZYBZLZF+FY.ZYBZLZHZF+FY.ZYZD+FY.ZYZL+FY.ZYQT+FY.CYF+FY.ZYF)) / NULLIF(FY.ZFY, 0)*100, 2)) DESC
+    </select>
+
     <!--查询逻辑-->
 
     <!--Update逻辑-->

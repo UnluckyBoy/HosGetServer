@@ -25,4 +25,5 @@ public interface HosReportService {
     WebResponse queryMonOperation(BedDayBody body);
     WebResponse dayDynamic(BedDayBody body);
     WebResponse tcmRate(BedDayBody body);
+    WebResponse tcmRateByNum(BedDayBody body);
 }

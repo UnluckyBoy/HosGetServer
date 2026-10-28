@@ -224,6 +224,12 @@ public class HosDataServiceImpl implements HosDataService {
         return hosDataMapper.tcmRate(body);
     }
 
+    @DS("oracle")
+    @Override
+    public List<TcmRateEntityByNum> tcmRateByNum(BedDayBody body) {
+        return hosDataMapper.tcmRateByNum(body);
+    }
+
     @DS("mysql")
     @Override
     public List<BaseDepartMent> queryBaseDepart() {
