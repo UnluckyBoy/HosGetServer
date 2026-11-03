@@ -400,6 +400,7 @@
             gh_brgh.ghxh=#{regisNumber}
     </select>
 
+    <!--超24H会诊-->
     <select id="queryInHospital_consultation" parameterType="java.util.Map" resultType="HosDataBean">
         SELECT
             INHOSD_HZSQ.zyh AS hos_number,
@@ -440,11 +441,12 @@
             (
                 TO_CHAR( TRUNC( ( ( INHOSD_HZSQ.WCSJ - INHOSD_HZSQ.SQSJ ) * 24 ) / 24 ) ) || ' 天 ' || TO_CHAR( TRUNC( MOD( ( ( INHOSD_HZSQ.WCSJ - INHOSD_HZSQ.SQSJ ) * 24 ), 24 ) ) ) || ' 时 ' || TO_CHAR( TRUNC( MOD( ( ( INHOSD_HZSQ.WCSJ - INHOSD_HZSQ.SQSJ ) * 24 * 60 ), 60 ) ) ) || ' 分' || TO_CHAR( TRUNC( MOD( ( ( INHOSD_HZSQ.WCSJ - INHOSD_HZSQ.SQSJ ) * 24 * 60 * 60 ), 60 ) ) ) || ' 秒'
                 ) AS use_time,
-            ( CASE WHEN INHOSD_HZSQ.WCBZ = '1' THEN '完成' ELSE '未完成' END ) AS finish_type
+            ( decode(INHOSD_HZSQ.WCBZ,'0','未完成','1','完成','2','作废')) AS finish_type
         FROM
             INHOSD_HZSQ
         WHERE
             ( INHOSD_HZSQ.WCSJ - INHOSD_HZSQ.SQSJ ) * 24 >= 24
+          AND INHOSD_HZSQ.WCBZ = '1'
           AND ( INHOSD_HZSQ.SQSJ BETWEEN to_date( #{startTime}, 'yyyy-mm-dd hh24:mi:ss' ) AND to_date( #{endTime}, 'yyyy-mm-dd hh24:mi:ss' ) )
     </select>
 
